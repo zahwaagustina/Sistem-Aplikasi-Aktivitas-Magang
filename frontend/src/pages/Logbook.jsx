@@ -17,7 +17,6 @@ const Logbook = () => {
     hasil_kegiatan: '',
     waktu_mulai: '08:00',
     waktu_selesai: '17:00',
-    kendala: '',
   });
 
   const [foto, setFoto] = useState(null);
@@ -37,7 +36,6 @@ const Logbook = () => {
         hasil_kegiatan: log.hasil_kegiatan,
         waktu_mulai: log.waktu_mulai,
         waktu_selesai: log.waktu_selesai,
-        kendala: log.kendala || '',
         status: log.status
       });
       setEditingId(log.id);
@@ -244,18 +242,6 @@ const Logbook = () => {
                 className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="1. Output atau pencapaian dari kegiatan tersebut..."
                 required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kendala (Opsional)</label>
-              <textarea
-                name="kendala"
-                rows={2}
-                value={formData.kendala}
-                onChange={handleInputChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Adakah masalah yang dihadapi?"
               />
             </div>
 
