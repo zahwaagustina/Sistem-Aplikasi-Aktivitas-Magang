@@ -25,6 +25,20 @@ const Profile = () => {
     no_telepon: user?.no_telepon || ''
   });
 
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get('/users/profile');
+        if (res.data.data) {
+          updateUser(res.data.data);
+        }
+      } catch (error) {
+        console.error('Gagal mengambil profil terbaru', error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -118,10 +132,17 @@ const Profile = () => {
 
           {/* Action Buttons (Right Aligned) */}
           <div className="flex justify-end pt-4 space-x-3">
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-              <FileText size={16} />
-              <span>Surat keterangan</span>
-            </button>
+            {user?.surat_keterangan ? (
+              <a href={`http://localhost:5000${user.surat_keterangan}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">
+                <FileText size={16} />
+                <span>Unduh Surat</span>
+              </a>
+            ) : (
+              <button disabled className="flex items-center space-x-2 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed" title="Surat keterangan belum diunggah oleh pembimbing">
+                <FileText size={16} />
+                <span>Surat belum tersedia</span>
+              </button>
+            )}
             <button onClick={() => setIsEditing(true)} className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               <Edit size={16} />
               <span>Edit profil</span>

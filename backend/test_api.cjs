@@ -1,17 +1,6 @@
-const jwt = require('jsonwebtoken');
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJtZW50b3IxIiwicm9sZSI6Ik1FTlRPUiIsImlhdCI6MTc4MTYwNjI2NiwiZXhwIjoxNzgxNjkyNjY2fQ.NYoUNBpmgKXYp9p-uc-YWjbqBDWlnva8CP_bkBCO00k';
 
-const token = jwt.sign({ id: 1, role: 'ADMIN' }, process.env.JWT_SECRET || 'secret_key');
-
-async function test() {
-  try {
-    const res = await fetch('http://localhost:5000/api/admin/users', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    console.log(data);
-  } catch (e) {
-    console.error(e.message);
-  }
-}
-
-test();
+fetch('http://localhost:5000/api/mentor/anak-magang', { headers: { Authorization: `Bearer ${token}` } })
+  .then(res => res.json())
+  .then(data => console.log(JSON.stringify(data, null, 2)))
+  .catch(err => console.error(err.message));

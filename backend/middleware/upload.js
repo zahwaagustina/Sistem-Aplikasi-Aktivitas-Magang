@@ -14,20 +14,20 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, 'lampiran-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
 const fileFilter = (req, file, cb) => {
-  // Hanya menerima file gambar (jpeg, jpg, png)
-  const allowedTypes = /jpeg|jpg|png/;
+  // Hanya menerima file gambar dan pdf
+  const allowedTypes = /jpeg|jpg|png|pdf/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error('Hanya file gambar (JPEG, JPG, PNG) yang diperbolehkan!'));
+    cb(new Error('Hanya file gambar (JPEG, JPG, PNG) dan dokumen (PDF) yang diperbolehkan!'));
   }
 };
 

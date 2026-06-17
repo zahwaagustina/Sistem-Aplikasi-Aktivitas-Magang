@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Clock, FileText, CheckCircle, Download, Calendar, Users } from 'lucide-react';
 import api from '../api';
@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [magangUsers, setMagangUsers] = useState([]);
   const [adminStats, setAdminStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [adminError, setAdminError] = useState(null);
 
   // Modals state
   const [selectedLogbook, setSelectedLogbook] = useState(null);
@@ -48,7 +49,7 @@ const Dashboard = () => {
           const resLogs = await api.get('/aktivitas');
           setLogs(resLogs.data.data || []);
           
-          if (user?.role === 'PEMBIMBING') {
+          if (user?.role === 'PEMBIMBING' || user?.role === 'MENTOR') {
             const resUsers = await api.get('/users/magang');
             setMagangUsers(resUsers.data.data || []);
           }
@@ -66,6 +67,7 @@ const Dashboard = () => {
           setAdminStats(resStats.data.data);
         } catch (error) {
           console.error("Error fetching admin stats:", error);
+          setAdminError(error.response?.data?.message || error.message);
         } finally {
           setIsLoading(false);
         }
@@ -75,6 +77,10 @@ const Dashboard = () => {
   }, [user]);
 
   // Different dashboard views based on roles
+  if (user?.role?.toUpperCase() === 'KANDIDAT') {
+    return <Navigate to="/kandidat/dashboard" replace />;
+  }
+
   if (user?.role === 'ADMIN') {
     return (
       <div className="space-y-6">
@@ -87,6 +93,10 @@ const Dashboard = () => {
         
         {isLoading ? (
           <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div></div>
+        ) : adminError ? (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-100">
+            Error loading stats: {adminError}
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -155,7 +165,31 @@ const Dashboard = () => {
     );
   }
 
-  if (user?.role === 'PEMBIMBING') {
+  if (user?.role === 'HR_ADMIN' || user?.role === 'SUPER_ADMIN') {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard HR & Recruitment</h1>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Link to="/hr/lowongan" className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 flex flex-col items-center hover:border-indigo-500 transition-colors">
+            <FileText size={48} className="text-indigo-500 mb-4" />
+            <h2 className="text-xl font-bold text-gray-800">Manajemen Lowongan</h2>
+            <p className="text-gray-500 mt-2 text-center">Kelola lowongan aktif, tutup pendaftaran, atau buat posisi baru.</p>
+          </Link>
+
+          <Link to="/hr/kandidat" className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 flex flex-col items-center hover:border-emerald-500 transition-colors">
+            <Users size={48} className="text-emerald-500 mb-4" />
+            <h2 className="text-xl font-bold text-gray-800">Manajemen Kandidat</h2>
+            <p className="text-gray-500 mt-2 text-center">Seleksi pelamar, atur jadwal wawancara, dan berikan penilaian akhir.</p>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (user?.role === 'PEMBIMBING' || user?.role === 'MENTOR') {
     const anakBimbinganCount = magangUsers.length;
     const perluDinilai = logs.filter(log => log.status === 'TERKIRIM');
     const totalDisetujui = logs.filter(log => log.status === 'DISETUJUI').length;

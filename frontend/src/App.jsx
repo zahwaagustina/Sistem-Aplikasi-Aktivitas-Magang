@@ -4,24 +4,36 @@ import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
+// Public Pages
+import LandingPage from './pages/publik/LandingPage';
+import RegisterKandidat from './pages/publik/RegisterKandidat';
 import Login from './pages/Login';
+import DetailLowongan from './pages/publik/DetailLowongan';
+
+// Admin / HR Pages
 import Dashboard from './pages/Dashboard';
-import Logbook from './pages/Logbook';
-import Profile from './pages/Profile';
-
+import ManajemenLowongan from './pages/admin/ManajemenLowongan';
+import ManajemenKandidat from './pages/admin/ManajemenKandidat';
+import OnboardingDashboard from './pages/admin/OnboardingDashboard';
+import ProfilPeserta from './pages/admin/ProfilPeserta';
 import UserManagement from './pages/admin/UserManagement';
-import MonitorMagang from './pages/MonitorMagang';
 
-// Placeholder Pages
-const PlaceholderPage = ({ title }) => (
-  <div className="flex items-center justify-center h-[70vh] border-2 border-dashed border-gray-300 rounded-xl bg-white">
-    <div className="text-center">
-      <h2 className="text-2xl font-semibold text-gray-700">{title}</h2>
-      <p className="text-gray-500 mt-2">Halaman ini sedang dalam pengembangan.</p>
-    </div>
-  </div>
-);
+// Kandidat Pages
+import DashboardKandidat from './pages/kandidat/DashboardKandidat';
+import PilihPosisi from './pages/kandidat/PilihPosisi';
+import ApplyLowongan from './pages/publik/ApplyLowongan';
+
+// Magang Pages (Fase 4)
+import DashboardMagang from './pages/magang/DashboardMagang';
+import Absensi from './pages/magang/Absensi';
+import Logbook from './pages/magang/Logbook';
+import TaskBoard from './pages/magang/TaskBoard';
+import PenyelesaianProgram from './pages/magang/PenyelesaianProgram';
+
+// Other Pages
+import Profile from './pages/Profile';
+import MonitorMagang from './pages/mentor/MonitorMagang';
+import ProfilAnakMagang from './pages/mentor/ProfilAnakMagang';
 
 function App() {
   const { user } = useAuth();
@@ -29,30 +41,49 @@ function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/lowongan/:id" element={<DetailLowongan />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterKandidat />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
 
+        {/* Authenticated Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
 
-            {/* Admin Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            {/* KANDIDAT Routes */}
+            <Route element={<ProtectedRoute allowedRoles={['KANDIDAT']} />}>
+              <Route path="/apply" element={<ApplyLowongan />} />
+              <Route path="/kandidat/pilih-posisi" element={<PilihPosisi />} />
+              <Route path="/kandidat/dashboard" element={<DashboardKandidat />} />
+            </Route>
+
+            {/* HR_ADMIN & SUPER_ADMIN Routes */}
+            <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_ADMIN']} />}>
+              <Route path="/hr/lowongan" element={<ManajemenLowongan />} />
+              <Route path="/hr/kandidat" element={<ManajemenKandidat />} />
+              <Route path="/hr/onboarding" element={<OnboardingDashboard />} />
+              <Route path="/hr/peserta" element={<ProfilPeserta />} />
               <Route path="/admin/users" element={<UserManagement />} />
-              <Route path="/admin/settings" element={<PlaceholderPage title="Pengaturan Sistem" />} />
             </Route>
 
-            {/* Pembimbing Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['PEMBIMBING']} />}>
-              <Route path="/pembimbing/monitor" element={<MonitorMagang />} />
+            {/* MENTOR / PEMBIMBING Routes */}
+            <Route element={<ProtectedRoute allowedRoles={['MENTOR', 'SUPER_ADMIN']} />}>
+              <Route path="/mentor/monitor" element={<MonitorMagang />} />
+              <Route path="/mentor/profil-magang" element={<ProfilAnakMagang />} />
             </Route>
 
-            {/* Magang Routes */}
+            {/* MAGANG Routes */}
             <Route element={<ProtectedRoute allowedRoles={['MAGANG']} />}>
+              <Route path="/magang/dashboard" element={<DashboardMagang />} />
+              <Route path="/magang/absensi" element={<Absensi />} />
               <Route path="/magang/logbook" element={<Logbook />} />
+              <Route path="/magang/tugas" element={<TaskBoard />} />
+              <Route path="/magang/penyelesaian" element={<PenyelesaianProgram />} />
               <Route path="/magang/profil" element={<Profile />} />
             </Route>
 
-            {/* Fallback */}
             <Route path="/unauthorized" element={
               <div className="flex flex-col items-center justify-center h-[70vh]">
                 <h1 className="text-4xl font-bold text-red-500 mb-4">403 - Akses Ditolak</h1>

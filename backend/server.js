@@ -5,6 +5,12 @@ import authRoutes from './routes/authRoutes.js';
 import aktivitasRoutes from './routes/aktivitasRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import publicRoutes from './routes/publicRoutes.js';
+import kandidatRoutes from './routes/kandidatRoutes.js';
+import magangRoutes from './routes/magangRoutes.js';
+import hrRoutes from './routes/hrRoutes.js';
+import mentorRoutes from './routes/mentorRoutes.js';
+import penyelesaianRoutes from './routes/penyelesaianRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -25,6 +31,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/aktivitas', aktivitasRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/public', publicRoutes);
+app.use('/api/kandidat', kandidatRoutes);
+app.use('/api/magang', magangRoutes);
+app.use('/api/hr', hrRoutes);
+app.use('/api/mentor', mentorRoutes);
+app.use('/api', penyelesaianRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running' });

@@ -15,7 +15,7 @@ export const authenticateToken = async (req, res, next) => {
     try {
       const user = await prisma.user.findUnique({
         where: { id: decoded.id },
-        select: { id: true, nama: true, username: true, role: true, divisi: true, nickname: true, semester: true }
+        select: { id: true, nama: true, username: true, role: true, email: true }
       });
       if (!user) return res.status(404).json({ message: 'User not found' });
       

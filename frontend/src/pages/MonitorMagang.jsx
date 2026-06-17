@@ -197,7 +197,6 @@ const MonitorMagang = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
                         <h3 className="font-semibold text-lg text-gray-800">{log.user?.nama || 'Unknown User'}</h3>
-                        <span className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{log.user?.divisi || '-'}</span>
                       </div>
                       
                       <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">

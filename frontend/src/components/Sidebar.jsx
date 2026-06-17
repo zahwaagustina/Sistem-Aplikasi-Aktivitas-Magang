@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, BookOpen, Settings, User } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Settings, User, UserPlus, Briefcase, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ isOpen }) => {
@@ -8,31 +8,44 @@ const Sidebar = ({ isOpen }) => {
 
   const getNavItems = () => {
     const baseItems = [
-      { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
+      { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     ];
 
     const userRole = user?.role?.toUpperCase() || '';
 
-    if (userRole === 'ADMIN') {
+    if (userRole === 'SUPER_ADMIN' || userRole === 'HR_ADMIN') {
       return [
         ...baseItems,
-        { name: 'Manage Users', path: '/admin/users', icon: <Users size={20} /> },
-        { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
+        { name: 'Lowongan Magang', path: '/hr/lowongan', icon: <BookOpen size={20} /> },
+        { name: 'Kandidat Pelamar', path: '/hr/kandidat', icon: <Users size={20} /> },
+        { name: 'Onboarding Kandidat', path: '/hr/onboarding', icon: <UserPlus size={20} /> },
+        { name: 'Data Peserta Aktif', path: '/hr/peserta', icon: <Briefcase size={20} /> },
+        { name: 'Pengaturan Sistem', path: '/admin/users', icon: <Settings size={20} /> },
       ];
     }
 
-    if (userRole === 'PEMBIMBING') {
+    if (userRole === 'MENTOR') {
       return [
         ...baseItems,
-        { name: 'Monitor Magang', path: '/pembimbing/monitor', icon: <Users size={20} /> },
+        { name: 'Monitor Magang', path: '/mentor/monitor', icon: <Users size={20} /> },
       ];
     }
 
     if (userRole === 'MAGANG') {
       return [
-        ...baseItems,
+        { name: 'Dashboard', path: '/magang/dashboard', icon: <LayoutDashboard size={20} /> },
+        { name: 'Absensi', path: '/magang/absensi', icon: <Settings size={20} /> }, // using Settings as placeholder or replace with Clock
         { name: 'Logbook Aktivitas', path: '/magang/logbook', icon: <BookOpen size={20} /> },
+        { name: 'Tugas (Kanban)', path: '/magang/tugas', icon: <Briefcase size={20} /> },
+        { name: 'Penyelesaian', path: '/magang/penyelesaian', icon: <CheckCircle size={20} /> },
         { name: 'Profil', path: '/magang/profil', icon: <User size={20} /> },
+      ];
+    }
+    
+    if (userRole === 'KANDIDAT') {
+      return [
+        ...baseItems,
+        { name: 'Status Lamaran', path: '/kandidat/dashboard', icon: <User size={20} /> },
       ];
     }
 

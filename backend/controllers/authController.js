@@ -73,12 +73,17 @@ export const login = async (req, res) => {
   try {
     const validatedData = loginSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({
-      where: { username: validatedData.username }
+    const user = await prisma.user.findFirst({
+      where: { 
+        OR: [
+          { username: validatedData.username },
+          { email: validatedData.username }
+        ]
+      }
     });
 
     if (!user) {
-      return res.status(401).json({ message: 'Username atau password salah' });
+      return res.status(401).json({ message: 'Username/Email atau password salah' });
     }
 
     const validPassword = await bcrypt.compare(validatedData.password, user.password);
@@ -112,7 +117,8 @@ export const login = async (req, res) => {
         lokasi: user.lokasi,
         tanggal_selesai: user.tanggal_selesai,
         no_telepon: user.no_telepon,
-        id_magang: user.id_magang
+        id_magang: user.id_magang,
+        surat_keterangan: user.surat_keterangan
       }
     });
   } catch (error) {
