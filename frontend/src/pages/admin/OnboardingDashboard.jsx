@@ -1,22 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { UserPlus, Calendar, Briefcase, MapPin, Search } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { FileText, CheckCircle, Clock, XCircle, ArrowRight, UserPlus, Upload, MapPin, Search } from 'lucide-react';
+import api from '../../api';
+
+const STEPS = [
+  { id: 'WAITING_CONFIRMATION', label: 'Menunggu Konfirmasi' },
+  { id: 'REJECTED_BY_CANDIDATE', label: 'Ditolak' },
+  { id: 'DOCUMENT_VERIFICATION', label: 'Verifikasi Dokumen' },
+  { id: 'DOCUMENT_REVISION', label: 'Revisi Dokumen' },
+  { id: 'LOA_ISSUED', label: 'LoA Diterbitkan' },
+  { id: 'PLACEMENT_ASSIGNED', label: 'Penempatan' },
+  { id: 'ACCOUNT_CREATED', label: 'Akun Dibuat' },
+  { id: 'CHECKLIST_IN_PROGRESS', label: 'Checklist Berjalan' },
+  { id: 'ORIENTATION_SCHEDULED', label: 'Jadwal Orientasi' },
+  { id: 'COMPLETED', label: 'Selesai' }
+];
 
 const OnboardingDashboard = () => {
-  const [kandidat, setKandidat] = useState([]);
+  const { user } = useAuth();
+  const [onboardings, setOnboardings] = useState([]);
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedPendaftaran, setSelectedPendaftaran] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const [formData, setFormData] = useState({
-    mentor_id: '',
-    divisi: '',
-    lokasi: '',
-    tanggal_mulai: '',
-    tanggal_selesai: ''
-  });
+  const [activeTab, setActiveTab] = useState('ALL');
+  
+  // Modal states
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [modalType, setModalType] = useState(''); // 'VERIFY_DOCS', 'ISSUE_LOA', 'PLACEMENT', 'ORIENTATION'
+  
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -24,169 +35,226 @@ const OnboardingDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const [kandidatRes, mentorRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/hr/kandidat', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://localhost:5000/api/hr/mentors', { headers: { Authorization: `Bearer ${token}` } })
+      const [resOnb, resMentors] = await Promise.all([
+        api.get('/onboarding/all'),
+        api.get('/hr/mentors') // Assuming this endpoint exists based on old code
       ]);
-
-      // Filter hanya yang lolos seleksi / interview dan belum accepted/rejected
-      const filteredKandidat = kandidatRes.data.data.filter(k => 
-        k.status === 'SHORTLISTED' || k.status === 'INTERVIEW'
-      );
-
-      setKandidat(filteredKandidat);
-      setMentors(mentorRes.data.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+      setOnboardings(resOnb.data.data);
+      setMentors(resMentors.data.data);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const openModal = (p) => {
-    setSelectedPendaftaran(p);
-    setFormData({
-      mentor_id: '',
-      divisi: p.lowongan.divisi,
-      lokasi: p.lowongan.lokasi,
-      tanggal_mulai: '',
-      tanggal_selesai: ''
-    });
-    setShowModal(true);
-  };
-
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/hr/onboarding/${selectedPendaftaran.id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      alert('Onboarding berhasil! Peserta kini berstatus Magang.');
-      setShowModal(false);
-      fetchData(); // refresh list
-    } catch (error) {
-      alert('Terjadi kesalahan: ' + (error.response?.data?.message || error.message));
+  const openModal = (item, type) => {
+    setSelectedItem(item);
+    setModalType(type);
+    setFormData({});
+    if (type === 'PLACEMENT') {
+      setFormData({ divisi: item.pendaftaran.lowongan.divisi, mentor_id: '' });
     }
   };
 
-  const filteredData = kandidat.filter(k => 
-    k.user?.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    k.lowongan?.posisi.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleVerifyDocs = async (approved) => {
+    try {
+      await api.put(`/onboarding/${selectedItem.id}/verify-docs`, { approved });
+      alert(approved ? 'Dokumen disetujui' : 'Revisi diminta');
+      setModalType('');
+      fetchData();
+    } catch (e) { alert('Error: ' + e.message); }
+  };
+
+  const handleIssueLoa = async (e) => {
+    e.preventDefault();
+    try {
+      const fd = new FormData();
+      fd.append('loa', e.target.loaFile.files[0]);
+      await api.post(`/onboarding/${selectedItem.id}/issue-loa`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert('LoA berhasil diterbitkan');
+      setModalType('');
+      fetchData();
+    } catch (e) { alert('Error: ' + e.message); }
+  };
+
+  const handlePlacement = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(`/onboarding/${selectedItem.id}/assign-placement`, formData);
+      alert('Penempatan berhasil disimpan');
+      setModalType('');
+      fetchData();
+    } catch (e) { alert('Error: ' + e.message); }
+  };
+
+  const handleCreateAccount = async (id) => {
+    if (!window.confirm('Yakin buat akun magang untuk peserta ini?')) return;
+    try {
+      await api.put(`/onboarding/${id}/create-account`);
+      alert('Akun berhasil dibuat dan role di-upgrade ke MAGANG');
+      fetchData();
+    } catch (e) { alert('Error: ' + e.message); }
+  };
+
+  const handleOrientation = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(`/onboarding/${selectedItem.id}/schedule-orientation`, formData);
+      alert('Jadwal orientasi berhasil disimpan');
+      setModalType('');
+      fetchData();
+    } catch (e) { alert('Error: ' + e.message); }
+  };
+
+  const filtered = onboardings.filter(o => activeTab === 'ALL' || o.status === activeTab);
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Onboarding Kandidat</h2>
-        <p className="text-gray-500 mt-1">Terima kandidat pilihan dan tempatkan mereka ke divisi terkait.</p>
-      </div>
-
-      <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-        <input 
-          type="text" 
-          placeholder="Cari nama kandidat atau posisi..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 w-full md:w-1/3 border border-gray-300 rounded-lg py-2 focus:ring-2 focus:ring-indigo-500"
-        />
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>
-      ) : filteredData.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
-          <UserPlus className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-gray-900">Belum ada kandidat siap Onboarding</h3>
-          <p className="text-gray-500">Kandidat yang berstatus Shortlisted atau Interview akan muncul di sini.</p>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-end mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Manajemen Onboarding</h2>
+          <p className="text-gray-500 mt-1">Kelola proses orientasi dan verifikasi dokumen kandidat yang diterima.</p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredData.map(p => (
-            <div key={p.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">{p.user?.nama}</h3>
-                    <p className="text-sm text-indigo-600 font-medium">{p.lowongan?.posisi}</p>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${p.status === 'INTERVIEW' ? 'bg-yellow-100 text-yellow-800' : 'bg-indigo-100 text-indigo-800'}`}>
-                    {p.status}
-                  </span>
-                </div>
+      </div>
 
-                <div className="space-y-2 text-sm text-gray-600 mb-6">
-                  <div className="flex items-center"><Briefcase className="w-4 h-4 mr-2" /> Divisi: {p.lowongan?.divisi}</div>
-                  <div className="flex items-center"><MapPin className="w-4 h-4 mr-2" /> Universitas: {p.user?.profilKandidat?.universitas || '-'}</div>
-                  <div className="flex items-center"><Calendar className="w-4 h-4 mr-2" /> Lamar: {new Date(p.created_at).toLocaleDateString('id-ID')}</div>
-                </div>
+      <div className="flex overflow-x-auto space-x-2 pb-4 mb-6">
+        <button onClick={() => setActiveTab('ALL')} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'ALL' ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>Semua Proses</button>
+        {STEPS.map(s => (
+          <button key={s.id} onClick={() => setActiveTab(s.id)} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === s.id ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>
+            {s.label}
+          </button>
+        ))}
+      </div>
 
-                <button 
-                  onClick={() => openModal(p)}
-                  className="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
-                >
-                  Proses Terima (Onboarding)
-                </button>
-              </div>
-            </div>
-          ))}
+      {loading ? <div className="text-center py-12">Memuat data...</div> : (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kandidat</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi / Divisi</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Onboarding</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filtered.length === 0 ? (
+                <tr><td colSpan="4" className="px-6 py-12 text-center text-gray-500">Tidak ada data onboarding untuk filter ini.</td></tr>
+              ) : filtered.map(item => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-gray-900">{item.pendaftaran.user.nama}</div>
+                    <div className="text-sm text-gray-500">{item.pendaftaran.user.email}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-gray-900">{item.pendaftaran.lowongan.posisi}</div>
+                    <div className="text-sm text-gray-500">{item.divisi || item.pendaftaran.lowongan.divisi}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {STEPS.find(s => s.id === item.status)?.label || item.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right space-x-2 flex justify-end">
+                    {item.status === 'DOCUMENT_VERIFICATION' && (
+                      <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
+                    )}
+                    {(item.status === 'DOCUMENT_VERIFICATION' || item.status === 'DOCUMENT_REVISION') && (
+                      <button onClick={() => openModal(item, 'ISSUE_LOA')} className="text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
+                    )}
+                    {item.status === 'LOA_ISSUED' && (
+                      <button onClick={() => openModal(item, 'PLACEMENT')} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Atur Penempatan</button>
+                    )}
+                    {item.status === 'PLACEMENT_ASSIGNED' && (
+                      <button onClick={() => handleCreateAccount(item.id)} className="text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Upgrade Akun Magang</button>
+                    )}
+                    {item.status === 'CHECKLIST_IN_PROGRESS' && (
+                      <button onClick={() => openModal(item, 'ORIENTATION')} className="text-sm bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg hover:bg-purple-100 font-medium">Jadwalkan Orientasi</button>
+                    )}
+                    {['WAITING_CONFIRMATION', 'REJECTED_BY_CANDIDATE', 'ORIENTATION_SCHEDULED', 'COMPLETED'].includes(item.status) && (
+                      <span className="text-sm text-gray-400 italic">Menunggu Tindakan Kandidat</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {showModal && selectedPendaftaran && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
-            <div className="bg-indigo-600 p-6 text-white">
-              <h3 className="text-xl font-bold">Onboarding: {selectedPendaftaran.user.nama}</h3>
-              <p className="text-indigo-100 text-sm mt-1">Lengkapi data penempatan dan pembuatan akun magang</p>
+      {/* Modals */}
+      {modalType && selectedItem && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h3 className="font-bold text-gray-800">
+                {modalType === 'VERIFY_DOCS' && 'Verifikasi Dokumen'}
+                {modalType === 'ISSUE_LOA' && 'Terbitkan LoA'}
+                {modalType === 'PLACEMENT' && 'Atur Penempatan'}
+                {modalType === 'ORIENTATION' && 'Jadwalkan Orientasi'}
+              </h3>
+              <button onClick={() => setModalType('')} className="text-gray-400 hover:text-gray-600"><XCircle size={20} /></button>
             </div>
-            
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mentor Pembimbing <span className="text-red-500">*</span></label>
-                <select name="mentor_id" required value={formData.mentor_id} onChange={handleChange} className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
-                  <option value="">-- Pilih Mentor --</option>
-                  {mentors.map(m => (
-                    <option key={m.id} value={m.id}>{m.nama} - {m.email}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Divisi Penempatan <span className="text-red-500">*</span></label>
-                  <input type="text" name="divisi" required value={formData.divisi} onChange={handleChange} className="w-full border-gray-300 rounded-lg border p-2" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                  <input type="text" name="lokasi" required value={formData.lokasi} onChange={handleChange} className="w-full border-gray-300 rounded-lg border p-2" />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
+            <div className="p-6">
+              {modalType === 'VERIFY_DOCS' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai <span className="text-red-500">*</span></label>
-                  <input type="date" name="tanggal_mulai" required value={formData.tanggal_mulai} onChange={handleChange} className="w-full border-gray-300 rounded-lg border p-2" />
+                  <p className="text-gray-600 mb-6">Periksa dokumen yang telah diunggah oleh <b>{selectedItem.pendaftaran.user.nama}</b>.</p>
+                  <div className="flex space-x-3">
+                    <button onClick={() => handleVerifyDocs(false)} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg font-medium hover:bg-red-100">Minta Revisi</button>
+                    <button onClick={() => handleVerifyDocs(true)} className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700">Setujui Dokumen</button>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai <span className="text-red-500">*</span></label>
-                  <input type="date" name="tanggal_selesai" required value={formData.tanggal_selesai} onChange={handleChange} className="w-full border-gray-300 rounded-lg border p-2" />
-                </div>
-              </div>
+              )}
 
-              <div className="pt-4 border-t border-gray-100 flex justify-end space-x-3 mt-6">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50">
-                  Batal
-                </button>
-                <button type="submit" className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">
-                  Selesaikan Onboarding
-                </button>
-              </div>
-            </form>
+              {modalType === 'ISSUE_LOA' && (
+                <form onSubmit={handleIssueLoa}>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Unggah Dokumen LoA</label>
+                    <input type="file" name="loaFile" required accept=".pdf,.doc,.docx" className="w-full border border-gray-300 rounded-lg p-2" />
+                  </div>
+                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Unggah & Terbitkan LoA</button>
+                </form>
+              )}
+
+              {modalType === 'PLACEMENT' && (
+                <form onSubmit={handlePlacement} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Divisi / Unit</label>
+                    <input type="text" required value={formData.divisi || ''} onChange={e => setFormData({...formData, divisi: e.target.value})} className="w-full border border-gray-300 rounded-lg p-2" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mentor / Pembimbing</label>
+                    <select required value={formData.mentor_id || ''} onChange={e => setFormData({...formData, mentor_id: e.target.value})} className="w-full border border-gray-300 rounded-lg p-2">
+                      <option value="">-- Pilih Mentor --</option>
+                      {mentors.map(m => <option key={m.id} value={m.id}>{m.nama}</option>)}
+                    </select>
+                  </div>
+                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Simpan Penempatan</button>
+                </form>
+              )}
+
+              {modalType === 'ORIENTATION' && (
+                <form onSubmit={handleOrientation} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal & Waktu Orientasi</label>
+                    <input type="datetime-local" required value={formData.jadwal_orientasi || ''} onChange={e => setFormData({...formData, jadwal_orientasi: e.target.value})} className="w-full border border-gray-300 rounded-lg p-2" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi (Gedung/Ruangan)</label>
+                    <input type="text" value={formData.lokasi_orientasi || ''} onChange={e => setFormData({...formData, lokasi_orientasi: e.target.value})} placeholder="Opsional" className="w-full border border-gray-300 rounded-lg p-2" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Link Meeting (Online)</label>
+                    <input type="url" value={formData.link_orientasi || ''} onChange={e => setFormData({...formData, link_orientasi: e.target.value})} placeholder="https://zoom.us/..." className="w-full border border-gray-300 rounded-lg p-2" />
+                  </div>
+                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Jadwalkan Orientasi</button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}

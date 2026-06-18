@@ -48,16 +48,18 @@ const LandingPage = () => {
   };
 
   const [activeFilter, setActiveFilter] = useState('Semua');
-  const filters = ['Semua', 'Teknik', 'Bisnis', 'Riset'];
+
+  // Generate dynamic filters based on available divisi
+  const availableDivisi = [...new Set(lowongan.map(job => job.divisi))].slice(0, 5); // Limit to 5 filters max for UI
+  const filters = ['Semua', ...availableDivisi];
 
   const filteredLowongan = lowongan.filter(job => {
     if (activeFilter === 'Semua') return true;
-    const div = (job.divisi || '').toLowerCase();
-    if (activeFilter === 'Teknik') return div.includes('it') || div.includes('digital') || div.includes('data') || div.includes('software');
-    if (activeFilter === 'Bisnis') return div.includes('keuangan') || div.includes('akuntansi') || div.includes('sdm') || div.includes('komunikasi') || div.includes('bisnis') || div.includes('pemasaran');
-    if (activeFilter === 'Riset') return div.includes('riset') || div.includes('inovasi');
-    return true;
+    return job.divisi === activeFilter;
   });
+
+  // Get active program name
+  const activeProgramName = lowongan.length > 0 ? lowongan[0].program?.nama : 'Program Magang Terkini';
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-sans">
@@ -103,7 +105,7 @@ const LandingPage = () => {
         {/* Badge */}
         <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-medium mb-8">
           <CalendarDays className="w-4 h-4" />
-          Batch Juli 2025 · Pendaftaran dibuka
+          {activeProgramName} · Pendaftaran dibuka
         </div>
 
         {/* Headlines */}
@@ -136,7 +138,7 @@ const LandingPage = () => {
       <div id="lowongan-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-gray-100">
         <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 text-center">Posisi magang tersedia</h2>
         <p className="text-gray-600 text-center mb-6 text-lg max-w-2xl mx-auto">
-          Pilih bidang yang sesuai minat dan jurusanmu. Semua posisi dibuka untuk Batch Juli 2025.
+          Pilih bidang yang sesuai minat dan jurusanmu. Semua posisi dibuka untuk {activeProgramName}.
         </p>
         
         {/* Separator Line */}

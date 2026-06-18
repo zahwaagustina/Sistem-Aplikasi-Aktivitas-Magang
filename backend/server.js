@@ -11,6 +11,7 @@ import magangRoutes from './routes/magangRoutes.js';
 import hrRoutes from './routes/hrRoutes.js';
 import mentorRoutes from './routes/mentorRoutes.js';
 import penyelesaianRoutes from './routes/penyelesaianRoutes.js';
+import onboardingRoutes from './routes/onboardingRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -36,6 +37,7 @@ app.use('/api/kandidat', kandidatRoutes);
 app.use('/api/magang', magangRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/mentor', mentorRoutes);
+app.use('/api/onboarding', onboardingRoutes);
 app.use('/api', penyelesaianRoutes);
 
 app.get('/api/health', (req, res) => {

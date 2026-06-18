@@ -102,11 +102,154 @@ export const submitNilaiInterview = async (req, res) => {
         data: { status: keputusan }
       });
 
+      // Jika diterima, trigger onboarding!
+      if (keputusan === 'ACCEPTED') {
+        const existingOnboarding = await tx.onboarding.findUnique({
+          where: { pendaftaran_id: pendaftaran.id }
+        });
+        
+        if (!existingOnboarding) {
+          await tx.onboarding.create({
+            data: { pendaftaran_id: pendaftaran.id }
+          });
+          
+          // Kirim email notifikasi secara asinkron (diluar transaksi lebih aman jika gagal, tapi kita panggil fire-and-forget saja)
+          const user = await tx.user.findUnique({ where: { id: pendaftaran.user_id } });
+          const { sendEmail } = await import('../utils/emailService.js');
+          sendEmail(user.email, 'Selamat! Anda Diterima Magang', `Halo ${user.nama},\n\nSelamat! Anda diterima magang. Silakan cek portal untuk tahap Onboarding.`);
+        }
+      }
+
       return { interview, pendaftaran };
     });
 
     res.json({ message: 'Penilaian berhasil disimpan', data: result });
   } catch (error) {
     res.status(500).json({ message: 'Gagal menyimpan penilaian', error: error.message });
+  }
+};
+
+export const getMentors = async (req, res) => {
+  try {
+    const mentors = await prisma.user.findMany({
+      where: { role: 'MENTOR' },
+      select: { id: true, nama: true, email: true, divisi: true }
+    });
+    res.status(200).json({ data: mentors });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal mengambil data mentor', error: error.message });
+  }
+};
+
+// ========================
+// MANAJEMEN LOWONGAN & PROGRAM
+// ========================
+
+export const getProgramBatch = async (req, res) => {
+  try {
+    let programs = await prisma.programBatch.findMany({
+      orderBy: { id: 'desc' }
+    });
+    
+    // Auto-create default if empty
+    if (programs.length === 0) {
+      const defaultProgram = await prisma.programBatch.create({
+        data: {
+          nama: 'Batch Magang Default',
+          tanggal_mulai: new Date(),
+          tanggal_selesai: new Date(new Date().setMonth(new Date().getMonth() + 3)),
+          is_active: true
+        }
+      });
+      programs = [defaultProgram];
+    }
+    
+    res.json({ data: programs });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+  }
+};
+
+export const getLowonganHR = async (req, res) => {
+  try {
+    const lowongan = await prisma.lowongan.findMany({
+      include: {
+        program: true,
+        _count: { select: { pendaftaran: true } }
+      },
+      orderBy: { created_at: 'desc' }
+    });
+    
+    // Map _count.pendaftaran to frontend format
+    const formatted = lowongan.map(l => ({
+      ...l,
+      _count: { pendaftaran: l._count.pendaftaran }
+    }));
+    
+    res.json({ data: formatted });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+  }
+};
+
+export const createLowonganHR = async (req, res) => {
+  try {
+    const { program_id, posisi, deskripsi, kualifikasi, benefit, divisi, lokasi, mode_kerja, kuota, status } = req.body;
+    const newLowongan = await prisma.lowongan.create({
+      data: {
+        program_id: parseInt(program_id),
+        posisi,
+        deskripsi,
+        kualifikasi,
+        benefit,
+        divisi,
+        lokasi,
+        mode_kerja: mode_kerja || 'WFO',
+        kuota: parseInt(kuota),
+        status: status || 'DRAFT'
+      }
+    });
+    res.status(201).json({ message: 'Lowongan berhasil dibuat', data: newLowongan });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal membuat lowongan', error: error.message });
+  }
+};
+
+export const updateLowonganHR = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { program_id, posisi, deskripsi, kualifikasi, benefit, divisi, lokasi, mode_kerja, kuota, status } = req.body;
+    
+    const updated = await prisma.lowongan.update({
+      where: { id: parseInt(id) },
+      data: {
+        program_id: parseInt(program_id),
+        posisi,
+        deskripsi,
+        kualifikasi,
+        benefit,
+        divisi,
+        lokasi,
+        mode_kerja,
+        kuota: parseInt(kuota),
+        status
+      }
+    });
+    
+    res.json({ message: 'Lowongan berhasil diperbarui', data: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal memperbarui lowongan', error: error.message });
+  }
+};
+
+export const deleteLowonganHR = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.lowongan.delete({
+      where: { id: parseInt(id) }
+    });
+    res.json({ message: 'Lowongan berhasil dihapus' });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal menghapus lowongan', error: error.message });
   }
 };

@@ -3,7 +3,13 @@ import {
   getDaftarKandidat, 
   updateStatusLamaran, 
   scheduleInterview, 
-  submitNilaiInterview 
+  submitNilaiInterview,
+  getMentors,
+  getProgramBatch,
+  getLowonganHR,
+  createLowonganHR,
+  updateLowonganHR,
+  deleteLowonganHR
 } from '../controllers/hrController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 
@@ -17,5 +23,13 @@ router.get('/kandidat', getDaftarKandidat);
 router.put('/kandidat/:id/status', updateStatusLamaran);
 router.post('/kandidat/:id/interview', scheduleInterview);
 router.put('/kandidat/:id/interview', submitNilaiInterview);
+router.get('/mentors', getMentors);
+
+// Rute Manajemen Lowongan
+router.get('/program-batch', getProgramBatch);
+router.get('/lowongan', getLowonganHR);
+router.post('/lowongan', createLowonganHR);
+router.put('/lowongan/:id', updateLowonganHR);
+router.delete('/lowongan/:id', deleteLowonganHR);
 
 export default router;

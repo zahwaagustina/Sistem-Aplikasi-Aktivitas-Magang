@@ -21,6 +21,7 @@ import UserManagement from './pages/admin/UserManagement';
 // Kandidat Pages
 import DashboardKandidat from './pages/kandidat/DashboardKandidat';
 import PilihPosisi from './pages/kandidat/PilihPosisi';
+import OnboardingKandidat from './pages/kandidat/OnboardingKandidat';
 import ApplyLowongan from './pages/publik/ApplyLowongan';
 
 // Magang Pages (Fase 4)
@@ -57,6 +58,7 @@ function App() {
               <Route path="/apply" element={<ApplyLowongan />} />
               <Route path="/kandidat/pilih-posisi" element={<PilihPosisi />} />
               <Route path="/kandidat/dashboard" element={<DashboardKandidat />} />
+              <Route path="/kandidat/onboarding" element={<OnboardingKandidat />} />
             </Route>
 
             {/* HR_ADMIN & SUPER_ADMIN Routes */}

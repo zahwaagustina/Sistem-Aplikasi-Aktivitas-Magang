@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 import { Users, Search, FileText, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 const ManajemenKandidat = () => {
+  const location = useLocation();
   const [kandidatList, setKandidatList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   
   // Modal states
   const [activeModal, setActiveModal] = useState(null); // 'STATUS', 'INTERVIEW', 'NILAI'
@@ -33,7 +39,14 @@ const ManajemenKandidat = () => {
 
   useEffect(() => {
     fetchKandidat();
-  }, []);
+    
+    // Check if there is a query param 'posisi' to pre-fill search
+    const queryParams = new URLSearchParams(location.search);
+    const posisi = queryParams.get('posisi');
+    if (posisi) {
+      setSearchTerm(posisi);
+    }
+  }, [location.search]);
 
   const openStatusModal = (kandidat) => {
     setSelectedKandidat(kandidat);
@@ -131,6 +144,18 @@ const ManajemenKandidat = () => {
     k.lowongan.posisi.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredList.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -165,7 +190,7 @@ const ManajemenKandidat = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredList.map((kandidat) => (
+              {currentItems.map((kandidat) => (
                 <tr key={kandidat.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                   <td className="p-4">
                     <p className="font-bold text-gray-800">{kandidat.user.nama}</p>
@@ -181,9 +206,11 @@ const ManajemenKandidat = () => {
                     <p className="text-xs text-gray-500">{kandidat.lowongan.program.nama}</p>
                   </td>
                   <td className="p-4">
-                    <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${getStatusColor(kandidat.status)}`}>
-                      {kandidat.status}
-                    </span>
+                    <button onClick={() => openStatusModal(kandidat)} className="focus:outline-none" title="Klik untuk ubah status">
+                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full hover:opacity-80 transition-opacity cursor-pointer shadow-sm ${getStatusColor(kandidat.status)}`}>
+                        {kandidat.status}
+                      </span>
+                    </button>
                   </td>
                   <td className="p-4">
                     {kandidat.interview ? (
@@ -207,9 +234,6 @@ const ManajemenKandidat = () => {
                         <FileText className="w-4 h-4" />
                       </a>
                     )}
-                    <button onClick={() => openStatusModal(kandidat)} className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200" title="Ubah Status">
-                      <Search className="w-4 h-4" />
-                    </button>
                     {(kandidat.status === 'SHORTLISTED' || kandidat.status === 'INTERVIEW') && (
                       <button onClick={() => openInterviewModal(kandidat)} className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100" title="Jadwalkan Interview">
                         <Calendar className="w-4 h-4" />
@@ -232,6 +256,39 @@ const ManajemenKandidat = () => {
           </table>
         </div>
       </div>
+
+      {/* PAGINATION UI */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 mt-4 pb-4">
+          <button 
+            disabled={currentPage === 1} 
+            onClick={() => handlePageChange(currentPage - 1)}
+            className="px-3 py-1 border border-gray-200 text-sm font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 text-gray-600"
+          >
+            Prev
+          </button>
+          {[...Array(totalPages)].map((_, i) => (
+            <button 
+              key={i} 
+              onClick={() => handlePageChange(i + 1)}
+              className={`px-3 py-1 border text-sm font-medium rounded-lg transition-colors ${
+                currentPage === i + 1 
+                  ? 'bg-indigo-600 border-indigo-600 text-white' 
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button 
+            disabled={currentPage === totalPages} 
+            onClick={() => handlePageChange(currentPage + 1)}
+            className="px-3 py-1 border border-gray-200 text-sm font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 text-gray-600"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* MODAL UBAH STATUS */}
       {activeModal === 'STATUS' && (

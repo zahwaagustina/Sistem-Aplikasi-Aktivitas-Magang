@@ -46,6 +46,7 @@ const Sidebar = ({ isOpen }) => {
       return [
         ...baseItems,
         { name: 'Status Lamaran', path: '/kandidat/dashboard', icon: <User size={20} /> },
+        { name: 'Onboarding', path: '/kandidat/onboarding', icon: <CheckCircle size={20} /> },
       ];
     }
 

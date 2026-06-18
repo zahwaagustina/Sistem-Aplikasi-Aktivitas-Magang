@@ -56,6 +56,19 @@ enum StatusAktivitas {
   TELAT_MENGISI
 }
 
+enum StatusOnboarding {
+  WAITING_CONFIRMATION
+  REJECTED_BY_CANDIDATE
+  DOCUMENT_VERIFICATION
+  DOCUMENT_REVISION
+  LOA_ISSUED
+  PLACEMENT_ASSIGNED
+  ACCOUNT_CREATED
+  CHECKLIST_IN_PROGRESS
+  ORIENTATION_SCHEDULED
+  COMPLETED
+}
+
 enum StatusAbsensi {
   HADIR
   IZIN
@@ -104,6 +117,7 @@ model User {
   evaluasiDiterima  Evaluasi[]        @relation("EvaluasiPeserta")
   dokumen           Dokumen[]
   auditTrails       AuditTrail[]
+  onboardingDimementori Onboarding[]  @relation("OnboardingMentor")
 }
 
 model ProfilKandidat {
@@ -173,6 +187,7 @@ model Pendaftaran {
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
   interview       Interview?
+  onboarding      Onboarding?
 }
 
 model Interview {
@@ -282,3 +297,36 @@ model AuditTrail {
   detail     String?  @db.Text
   created_at DateTime @default(now())
 }
+
+model Onboarding {
+  id              Int               @id @default(autoincrement())
+  pendaftaran_id  Int               @unique
+  pendaftaran     Pendaftaran       @relation(fields: [pendaftaran_id], references: [id], onDelete: Cascade)
+  status          StatusOnboarding  @default(WAITING_CONFIRMATION)
+  
+  // Placement
+  divisi          String?
+  mentor_id       Int?
+  mentor          User?             @relation("OnboardingMentor", fields: [mentor_id], references: [id])
+  
+  // Orientation
+  jadwal_orientasi DateTime?
+  link_orientasi   String?
+  lokasi_orientasi String?
+  konfirmasi_hadir Boolean          @default(false)
+
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  checklist       OnboardingChecklist[]
+}
+
+model OnboardingChecklist {
+  id              Int               @id @default(autoincrement())
+  onboarding_id   Int
+  onboarding      Onboarding        @relation(fields: [onboarding_id], references: [id], onDelete: Cascade)
+  tugas           String
+  is_completed    Boolean           @default(false)
+  created_at      DateTime          @default(now())
+}
+

@@ -77,8 +77,27 @@ const DashboardKandidat = () => {
                   <h3 className="font-bold text-lg text-gray-800 mb-1">{app.lowongan.posisi}</h3>
                   <p className="text-sm text-gray-500 mb-4">{app.lowongan.program.nama}</p>
 
-                  {/* Info Wawancara jika ada jadwal */}
-                  {app.interview && (
+                  {/* Info Wawancara atau Hasil */}
+                  {app.status === 'ACCEPTED' ? (
+                    <div className="mt-4 bg-green-50 border border-green-100 rounded-lg p-4 text-center">
+                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-600 mb-2">
+                        <CheckCircle className="w-6 h-6" />
+                      </div>
+                      <h4 className="text-sm font-bold text-green-800 mb-1">Selamat! Anda Diterima</h4>
+                      <p className="text-xs text-green-700 mb-3">Silakan lanjutkan ke tahap Onboarding.</p>
+                      <Link to="/kandidat/onboarding" className="inline-block w-full py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors">
+                        Mulai Onboarding
+                      </Link>
+                    </div>
+                  ) : app.status === 'REJECTED' ? (
+                    <div className="mt-4 p-3 bg-red-50 text-red-800 rounded-lg text-sm font-medium border border-red-100 flex items-center">
+                       <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" /> 
+                       <div>
+                         <span className="block font-bold">Tidak Lolos</span>
+                         <span className="text-xs mt-1 block">Maaf, Anda belum terpilih untuk posisi ini.</span>
+                       </div>
+                    </div>
+                  ) : app.interview && (
                     <div className="mt-4 bg-indigo-50 rounded-lg p-4 border border-indigo-100">
                       <h4 className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-2 flex items-center">
                         <Calendar className="w-4 h-4 mr-1" /> Jadwal Wawancara
@@ -95,16 +114,6 @@ const DashboardKandidat = () => {
                         >
                           <Video className="w-4 h-4 mr-2" /> Gabung Meeting Online
                         </a>
-                      )}
-                      {app.status === 'ACCEPTED' && (
-                        <div className="mt-3 p-2 bg-green-100 text-green-800 rounded-md text-xs font-bold text-center">
-                          Selamat! Anda diterima.
-                        </div>
-                      )}
-                      {app.status === 'REJECTED' && (
-                        <div className="mt-3 p-2 bg-red-100 text-red-800 rounded-md text-xs font-bold text-center">
-                          Maaf, Anda belum lolos.
-                        </div>
                       )}
                     </div>
                   )}
