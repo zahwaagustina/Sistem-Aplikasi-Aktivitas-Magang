@@ -169,63 +169,70 @@ const Logbook = () => {
       {/* Modal Tambah Logbook */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white">
-              <h2 className="text-2xl font-bold text-gray-800">Isi Logbook Harian</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <X className="w-6 h-6" />
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
+            
+            {/* Modal Header (Fixed) */}
+            <div className="flex justify-between items-center px-6 py-5 border-b bg-white rounded-t-2xl flex-shrink-0 relative z-10">
+              <h2 className="text-xl font-bold text-gray-800">Isi Logbook Harian</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 p-2 rounded-xl -mr-2">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Modal Body (Scrollable) */}
+            <div className="overflow-y-auto p-6 flex-grow custom-scrollbar">
+              <form id="formLogbook" onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
+                    <input type="date" name="tanggal" required value={formData.tanggal} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Jam Mulai</label>
+                    <input type="time" name="waktu_mulai" required value={formData.waktu_mulai} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Jam Selesai</label>
+                    <input type="time" name="waktu_selesai" required value={formData.waktu_selesai} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
-                  <input type="date" name="tanggal" required value={formData.tanggal} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Kegiatan</label>
+                  <textarea name="deskripsi_kegiatan" required rows="3" value={formData.deskripsi_kegiatan} onChange={handleChange} placeholder="Ceritakan apa saja yang Anda kerjakan..." className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Jam Mulai</label>
-                  <input type="time" name="waktu_mulai" required value={formData.waktu_mulai} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Hasil Kegiatan</label>
+                  <textarea name="hasil_kegiatan" required rows="2" value={formData.hasil_kegiatan} onChange={handleChange} placeholder="Output atau pencapaian yang dihasilkan" className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Jam Selesai</label>
-                  <input type="time" name="waktu_selesai" required value={formData.waktu_selesai} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Kendala (Opsional)</label>
+                  <textarea name="kendala" rows="2" value={formData.kendala} onChange={handleChange} placeholder="Hambatan yang ditemui saat bekerja" className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Kegiatan</label>
-                <textarea name="deskripsi_kegiatan" required rows="3" value={formData.deskripsi_kegiatan} onChange={handleChange} placeholder="Ceritakan apa saja yang Anda kerjakan..." className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Hasil Kegiatan</label>
-                <textarea name="hasil_kegiatan" required rows="2" value={formData.hasil_kegiatan} onChange={handleChange} placeholder="Output atau pencapaian yang dihasilkan" className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Kendala (Opsional)</label>
-                <textarea name="kendala" rows="2" value={formData.kendala} onChange={handleChange} placeholder="Hambatan yang ditemui saat bekerja" className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
-              </div>
-
-              <div className="border border-gray-300 rounded-xl p-4 bg-gray-50 border-dashed">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Upload className="w-5 h-5 text-indigo-500" />
-                  <label className="text-sm font-semibold text-gray-800">Lampiran Bukti Kerja / Dokumen Pendukung</label>
+                <div className="border border-gray-300 rounded-xl p-4 bg-gray-50 border-dashed">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Upload className="w-5 h-5 text-indigo-500" />
+                    <label className="text-sm font-semibold text-gray-800">Lampiran Bukti Kerja / Dokumen Pendukung</label>
+                  </div>
+                  <input type="file" multiple onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 mt-2" />
+                  <p className="text-xs text-gray-400 mt-2">Bisa mengunggah lebih dari 1 file (Gambar/PDF/Doc)</p>
                 </div>
-                <input type="file" multiple onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 mt-2" />
-                <p className="text-xs text-gray-400 mt-2">Bisa mengunggah lebih dari 1 file (Gambar/PDF/Doc)</p>
-              </div>
+              </form>
+            </div>
 
-              <div className="flex justify-end pt-4 border-t">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 mr-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
-                  Batal
-                </button>
-                <button type="submit" disabled={loading} className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-70 flex items-center">
-                  {loading ? 'Menyimpan...' : 'Kirim Logbook'}
-                </button>
-              </div>
-            </form>
+            {/* Modal Footer (Fixed) */}
+            <div className="flex justify-end p-5 border-t bg-gray-50 rounded-b-2xl flex-shrink-0">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 mr-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition-colors bg-white">
+                Batal
+              </button>
+              <button type="submit" form="formLogbook" disabled={loading} className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-70 flex items-center">
+                {loading ? 'Menyimpan...' : 'Kirim Logbook'}
+              </button>
+            </div>
+
           </div>
         </div>
       )}
