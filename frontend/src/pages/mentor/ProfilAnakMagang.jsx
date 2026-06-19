@@ -92,26 +92,26 @@ const ProfilAnakMagang = () => {
       </button>
 
       {/* Profil Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="bg-indigo-600 h-24"></div>
-        <div className="px-8 pb-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 -mt-12 mb-6">
-            <div className="flex items-end gap-5">
-              <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center p-2">
-                <div className="w-full h-full bg-indigo-50 rounded-lg flex items-center justify-center">
-                  <User className="w-10 h-10 text-indigo-400" />
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 relative">
+        <div className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-500 h-32"></div>
+        <div className="px-6 md:px-10 pb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 relative z-10">
+            <div className="flex flex-col md:flex-row gap-6 text-center md:text-left items-center md:items-start">
+              <div className="w-32 h-32 bg-white rounded-2xl shadow-md flex items-center justify-center p-2 border border-gray-50 flex-shrink-0 -mt-16">
+                <div className="w-full h-full bg-indigo-50/50 rounded-xl flex items-center justify-center">
+                  <User className="w-12 h-12 text-indigo-400" />
                 </div>
               </div>
-              <div className="mb-1">
-                <h1 className="text-2xl font-bold text-gray-900">{profil.user?.nama}</h1>
-                <p className="text-gray-500 font-medium">{profil.universitas} • {profil.jurusan}</p>
+              <div className="pt-0 md:pt-3">
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{profil.user?.nama}</h1>
+                <p className="text-gray-500 font-medium mt-1">{profil.universitas} • {profil.jurusan}</p>
               </div>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex flex-wrap justify-center gap-3 pt-0 md:pt-3">
               <button 
                 onClick={() => setIsEvaluasiModalOpen(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center justify-center gap-2"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-all flex items-center gap-2"
               >
                 <Award className="w-5 h-5" />
                 Beri Evaluasi
@@ -119,7 +119,7 @@ const ProfilAnakMagang = () => {
               {profil.status !== 'SELESAI' && (
                 <button 
                   onClick={handleSelesaikan}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center justify-center gap-2"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-all flex items-center gap-2"
                 >
                   <CheckCircle className="w-5 h-5" />
                   Luluskan Program
@@ -128,22 +128,22 @@ const ProfilAnakMagang = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-gray-100">
-            <div>
-              <p className="text-sm text-gray-500 font-medium mb-1">ID Magang</p>
-              <p className="font-semibold text-gray-800">{profil.id_magang || '-'}</p>
+          <div className="grid grid-cols-2 md:grid-cols-12 gap-4 md:gap-6 pt-6 border-t border-gray-100 bg-gray-50/50 -mx-6 md:-mx-10 px-6 md:px-10 pb-2">
+            <div className="md:col-span-3 lg:col-span-2">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">ID Magang</p>
+              <p className="font-semibold text-gray-900">{profil.id_magang || '-'}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium mb-1">Divisi</p>
-              <p className="font-semibold text-gray-800">{profil.divisi || '-'}</p>
+            <div className="md:col-span-3">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Divisi</p>
+              <p className="font-semibold text-gray-900">{profil.divisi || '-'}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium mb-1">Email</p>
-              <p className="font-semibold text-gray-800">{profil.user?.email}</p>
+            <div className="md:col-span-4 min-w-0">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Email</p>
+              <p className="font-semibold text-gray-900 truncate pr-4" title={profil.user?.email}>{profil.user?.email}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium mb-1">No. Telepon</p>
-              <p className="font-semibold text-gray-800">{profil.user?.no_telepon || '-'}</p>
+            <div className="md:col-span-2 lg:col-span-3">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">No. Telepon</p>
+              <p className="font-semibold text-gray-900">{profil.user?.no_telepon || '-'}</p>
             </div>
           </div>
         </div>
