@@ -90,7 +90,7 @@ export const applyLowongan = async (req, res) => {
       }
     });
 
-    // Create notification
+    // Create notification untuk Kandidat
     await prisma.notifikasi.create({
       data: {
         user_id,
@@ -99,6 +99,21 @@ export const applyLowongan = async (req, res) => {
         link: '/kandidat/dashboard'
       }
     });
+
+    // Create notification untuk HR_ADMIN dan SUPER_ADMIN
+    const hrAdmins = await prisma.user.findMany({
+      where: { role: { in: ['HR_ADMIN', 'SUPER_ADMIN'] } }
+    });
+
+    if (hrAdmins.length > 0) {
+      const hrNotifs = hrAdmins.map(admin => ({
+        user_id: admin.id,
+        judul: 'Pelamar Baru 🚀',
+        pesan: `${req.user.nama} melamar untuk posisi ${lowongan.posisi}. Segera cek di halaman Manajemen Kandidat.`,
+        link: '/hr/kandidat'
+      }));
+      await prisma.notifikasi.createMany({ data: hrNotifs });
+    }
 
     res.status(201).json({ message: 'Berhasil melamar lowongan', data: pendaftaran });
   } catch (error) {
