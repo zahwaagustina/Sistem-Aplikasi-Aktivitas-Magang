@@ -49,16 +49,16 @@ const ProfilPeserta = () => {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-max">
+        <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <table className="w-full text-left border-collapse min-w-full">
             <thead>
               <tr className="bg-indigo-50 border-b border-gray-100">
-                <th className="py-3 px-4 font-semibold text-indigo-900">ID Magang</th>
-                <th className="py-3 px-4 font-semibold text-indigo-900">Nama Lengkap</th>
-                <th className="py-3 px-4 font-semibold text-indigo-900">Universitas</th>
-                <th className="py-3 px-4 font-semibold text-indigo-900">Divisi & Mentor</th>
-                <th className="py-3 px-4 font-semibold text-indigo-900">Periode Magang</th>
-                <th className="py-3 px-4 font-semibold text-indigo-900">Status</th>
+                <th className="py-2.5 px-3 text-sm font-semibold text-indigo-900">ID Magang</th>
+                <th className="py-2.5 px-3 text-sm font-semibold text-indigo-900">Nama Lengkap</th>
+                <th className="py-2.5 px-3 text-sm font-semibold text-indigo-900">Universitas</th>
+                <th className="py-2.5 px-3 text-sm font-semibold text-indigo-900">Divisi & Mentor</th>
+                <th className="py-2.5 px-3 text-sm font-semibold text-indigo-900">Periode Magang</th>
+                <th className="py-2.5 px-3 text-sm font-semibold text-indigo-900">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -69,30 +69,29 @@ const ProfilPeserta = () => {
               ) : (
                 filteredPeserta.map((p) => (
                   <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 text-sm font-medium text-gray-600">{p.id_magang}</td>
-                    <td className="py-3 px-4">
-                      <div className="font-bold text-gray-900">{p.user?.nama}</div>
-                      <div className="text-sm text-gray-500">{p.user?.email}</div>
+                    <td className="py-2.5 px-3 text-xs font-medium text-gray-600">{p.id_magang}</td>
+                    <td className="py-2.5 px-3">
+                      <div className="text-sm font-bold text-gray-900">{p.user?.nama}</div>
+                      <div className="text-xs text-gray-500">{p.user?.email}</div>
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm text-gray-800 flex items-center"><Building className="w-4 h-4 mr-1 text-gray-400"/> {p.universitas || '-'}</div>
-                      <div className="text-xs text-gray-500 flex items-center mt-1"><GraduationCap className="w-4 h-4 mr-1 text-gray-400"/> {p.jurusan || '-'}</div>
+                    <td className="py-2.5 px-3">
+                      <div className="text-xs text-gray-800 flex items-center"><Building className="w-3.5 h-3.5 mr-1 text-gray-400"/> {p.universitas || '-'}</div>
+                      <div className="text-xs text-gray-500 flex items-center mt-1"><GraduationCap className="w-3.5 h-3.5 mr-1 text-gray-400"/> {p.jurusan || '-'}</div>
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm font-semibold text-indigo-600">{p.divisi}</div>
+                    <td className="py-2.5 px-3">
+                      <div className="text-xs font-semibold text-indigo-600">{p.divisi}</div>
                       <div className="text-xs text-gray-500 mt-1">Mentor: {p.mentor?.nama || '-'}</div>
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm text-gray-800">
-                        {p.tanggal_mulai ? new Date(p.tanggal_mulai).toLocaleDateString('id-ID') : '-'} <br/> 
-                        s/d <br/> 
+                    <td className="py-2.5 px-3">
+                      <div className="text-xs text-gray-800">
+                        {p.tanggal_mulai ? new Date(p.tanggal_mulai).toLocaleDateString('id-ID') : '-'} <span className="text-gray-400 mx-1">s/d</span> 
                         {p.tanggal_selesai ? new Date(p.tanggal_selesai).toLocaleDateString('id-ID') : '-'}
                       </div>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        p.status === 'AKTIF' ? 'bg-green-100 text-green-800' :
-                        p.status === 'SELESAI' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                    <td className="py-2.5 px-3">
+                      <span className={`px-2 py-1 rounded-md text-[11px] font-semibold tracking-wide uppercase ${
+                        p.status === 'AKTIF' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
+                        p.status === 'SELESAI' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-gray-100 text-gray-700 border border-gray-200'
                       }`}>
                         {p.status}
                       </span>

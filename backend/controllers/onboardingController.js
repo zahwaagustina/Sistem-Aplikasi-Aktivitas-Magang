@@ -116,7 +116,7 @@ export const verifyDocuments = async (req, res) => {
     if (approved) {
       await prisma.onboarding.update({
         where: { id: parseInt(id) },
-        data: { status: 'DOCUMENT_VERIFICATION' } // Tetap di verifikasi agar admin bisa menerbitkan LoA
+        data: { status: 'LOA_ISSUED' } // Lanjut ke LOA_ISSUED, tombol Upload LoA akan muncul di FE jika belum ada file LoA
       });
       await sendEmail(onboarding.pendaftaran.user.email, 'Dokumen Diterima', 'Dokumen Anda valid. Silakan menunggu penerbitan LoA.');
       await prisma.notifikasi.create({
@@ -192,17 +192,59 @@ export const assignPlacement = async (req, res) => {
     const { id } = req.params;
     const { divisi, mentor_id } = req.body;
 
-    const onboarding = await prisma.onboarding.update({
+    const onboarding = await prisma.onboarding.findUnique({
+      where: { id: parseInt(id) },
+      include: { pendaftaran: { include: { user: true } } }
+    });
+
+    if (!onboarding) return res.status(404).json({ message: 'Onboarding tidak ditemukan' });
+
+    const userId = onboarding.pendaftaran.user.id;
+    const id_magang = `MAG-${new Date().getFullYear()}-${userId.toString().padStart(4, '0')}`;
+
+    const profilKandidat = await prisma.profilKandidat.findUnique({
+      where: { user_id: userId }
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: 'MAGANG' }
+    });
+
+    await prisma.profilMagang.upsert({
+      where: { user_id: userId },
+      update: {
+        id_magang,
+        divisi,
+        mentor_id: parseInt(mentor_id),
+        universitas: profilKandidat?.universitas,
+        jurusan: profilKandidat?.jurusan,
+        angkatan: profilKandidat?.angkatan,
+        semester: profilKandidat?.semester,
+        lokasi: 'Kadu, Tangerang'
+      },
+      create: {
+        user_id: userId,
+        id_magang,
+        divisi,
+        mentor_id: parseInt(mentor_id),
+        universitas: profilKandidat?.universitas,
+        jurusan: profilKandidat?.jurusan,
+        angkatan: profilKandidat?.angkatan,
+        semester: profilKandidat?.semester,
+        lokasi: 'Kadu, Tangerang'
+      }
+    });
+
+    const updatedOnboarding = await prisma.onboarding.update({
       where: { id: parseInt(id) },
       data: { 
         divisi, 
         mentor_id: parseInt(mentor_id),
-        status: 'PLACEMENT_ASSIGNED' // Status agar tombol Upgrade Akun muncul
-      },
-      include: { pendaftaran: { include: { user: true } } }
+        status: 'CHECKLIST_IN_PROGRESS' 
+      }
     });
 
-    // Buat checklist default untuk kandidat
     const defaultTasks = [
       'Membaca aturan perusahaan',
       'Menandatangani NDA',
@@ -217,17 +259,29 @@ export const assignPlacement = async (req, res) => {
       });
     }
 
+    // Notifikasi untuk Kandidat
     await prisma.notifikasi.create({
       data: {
-        user_id: onboarding.pendaftaran.user.id,
-        judul: 'Informasi Penempatan',
-        pesan: `Anda telah ditempatkan di divisi ${divisi}. Silakan selesaikan Checklist Onboarding Anda sebelum jadwal orientasi.`
+        user_id: userId,
+        judul: 'Akun Magang Aktif & Informasi Penempatan',
+        pesan: `Selamat! Akun Anda telah di-upgrade. Anda ditempatkan di divisi ${divisi}. Silakan selesaikan Checklist Onboarding Anda.`
       }
     });
+    
+    // Notifikasi untuk Mentor
+    if (mentor_id) {
+      await prisma.notifikasi.create({
+        data: {
+          user_id: parseInt(mentor_id),
+          judul: 'Penugasan Peserta Magang Baru',
+          pesan: `Anda telah ditugaskan sebagai mentor untuk peserta magang baru: ${onboarding.pendaftaran.user.nama} di divisi ${divisi}.`
+        }
+      });
+    }
 
-    res.status(200).json({ message: 'Placement ditetapkan', data: onboarding });
+    res.status(200).json({ message: 'Penempatan ditetapkan & Akun diupgrade', data: updatedOnboarding });
   } catch (error) {
-    res.status(500).json({ message: 'Gagal menetapkan placement', error: error.message });
+    res.status(500).json({ message: 'Gagal menetapkan penempatan', error: error.message });
   }
 };
 
@@ -315,7 +369,7 @@ export const scheduleOrientation = async (req, res) => {
         jadwal_orientasi: new Date(jadwal_orientasi),
         link_orientasi,
         lokasi_orientasi,
-        status: 'ORIENTATION_SCHEDULED'
+        status: 'COMPLETED'
       },
       include: { pendaftaran: { include: { user: true } } }
     });

@@ -3,29 +3,37 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Briefcase, Calendar, CheckCircle, Clock, Video, AlertCircle, ArrowRight, Zap, FileText, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../../api';
 
 const DashboardKandidat = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [applications, setApplications] = useState([]);
+  const [onboarding, setOnboarding] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchApplications = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/kandidat/applications', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setApplications(res.data.data);
+        const res = await api.get('/kandidat/applications').catch(() => ({ data: { data: [] } }));
+        setApplications(res.data?.data || []);
+
+        const resOnb = await api.get('/onboarding/my').catch(() => ({ data: { data: null } }));
+        setOnboarding(resOnb.data?.data || null);
+
+        // Auto-update local role if backend upgraded them to MAGANG
+        const currentDbRole = resOnb.data?.data?.pendaftaran?.user?.role;
+        if (currentDbRole === 'MAGANG' && user?.role !== 'MAGANG') {
+          updateUser({ role: 'MAGANG' });
+        }
       } catch (error) {
-        console.error('Error fetching applications:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchApplications();
+    fetchData();
   }, []);
 
   const getStatusDisplay = (status) => {
@@ -65,18 +73,58 @@ const DashboardKandidat = () => {
         <div className="space-y-8">
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Empty State Box */}
-            <div className="lg:col-span-2 bg-white/60 backdrop-blur-xl p-10 rounded-3xl shadow-sm border border-white/50 flex flex-col justify-center items-center text-center min-h-[300px]">
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                <Briefcase className="w-10 h-10 text-blue-600" />
-              </div>
-              <h2 className="text-2xl font-extrabold text-slate-900 mb-3 tracking-tight">Belum Ada Lamaran Aktif</h2>
-              <p className="text-slate-500 mb-8 max-w-md leading-relaxed text-lg">
-                Perjalanan magang impian Anda dimulai dari sini. Temukan posisi yang cocok dan jadilah bagian dari inovasi kami!
-              </p>
-              <Link to="/#lowongan-section" className="bg-slate-900 text-white px-8 py-3.5 rounded-full font-bold text-lg hover:bg-slate-800 transition-all shadow-md hover:shadow-lg">
-                Cari Lowongan Magang
-              </Link>
+            <div className="lg:col-span-2">
+              {onboarding && ['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED'].includes(onboarding.status) ? (
+                <div className="bg-white/60 backdrop-blur-xl p-10 rounded-3xl shadow-sm border border-indigo-100 min-h-[300px]">
+                  <h2 className="text-2xl font-extrabold text-slate-900 mb-6 tracking-tight">Status Onboarding Anda</h2>
+                  <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6">
+                    <p className="text-gray-700 font-medium mb-2">Anda telah diterima di divisi <b>{onboarding.divisi || '-'}</b>.</p>
+                    
+                    {onboarding.status === 'ORIENTATION_SCHEDULED' ? (
+                      <div className="mt-6 border-t border-indigo-200 pt-6">
+                        <h3 className="text-lg font-bold text-indigo-900 mb-4 flex items-center"><Calendar className="w-5 h-5 mr-2" /> Jadwal Orientasi Anda</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-indigo-700/70 mb-1">Tanggal & Waktu</p>
+                            <p className="font-bold text-indigo-900">{new Date(onboarding.jadwal_orientasi).toLocaleString('id-ID')}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-indigo-700/70 mb-1">Lokasi</p>
+                            {onboarding.lokasi_orientasi ? (
+                              <a href={onboarding.lokasi_orientasi} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline">Buka Peta Orientasi</a>
+                            ) : (
+                              <p className="font-bold text-indigo-900">-</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-6 bg-white p-4 rounded-lg border border-indigo-100">
+                        <p className="text-indigo-800 text-sm flex items-center"><Clock className="w-4 h-4 mr-2" /> Saat ini Admin sedang memproses data magang Anda atau Anda sedang menunggu jadwal orientasi ditetapkan. Silakan cek halaman Onboarding secara berkala.</p>
+                      </div>
+                    )}
+                    
+                    <div className="mt-8">
+                      <Link to="/kandidat/onboarding" className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors">
+                        Buka Halaman Onboarding <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white/60 backdrop-blur-xl p-10 rounded-3xl shadow-sm border border-white/50 flex flex-col justify-center items-center text-center min-h-[300px]">
+                  <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                    <Briefcase className="w-10 h-10 text-blue-600" />
+                  </div>
+                  <h2 className="text-2xl font-extrabold text-slate-900 mb-3 tracking-tight">Belum Ada Lamaran Aktif</h2>
+                  <p className="text-slate-500 mb-8 max-w-md leading-relaxed text-lg">
+                    Perjalanan magang impian Anda dimulai dari sini. Temukan posisi yang cocok dan jadilah bagian dari inovasi kami!
+                  </p>
+                  <Link to="/#lowongan-section" className="bg-slate-900 text-white px-8 py-3.5 rounded-full font-bold text-lg hover:bg-slate-800 transition-all shadow-md hover:shadow-lg">
+                    Cari Lowongan Magang
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Quick Tips Box */}

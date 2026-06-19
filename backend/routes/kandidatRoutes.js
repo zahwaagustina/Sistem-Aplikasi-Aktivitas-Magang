@@ -6,7 +6,7 @@ import { upload } from '../middleware/upload.js';
 const router = express.Router();
 
 router.use(authenticateToken);
-router.use(authorizeRole(['KANDIDAT']));
+router.use(authorizeRole(['KANDIDAT', 'MAGANG']));
 
 router.post('/apply', upload.fields([
   { name: 'cv', maxCount: 1 },

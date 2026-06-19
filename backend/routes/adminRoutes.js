@@ -4,9 +4,9 @@ import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Only ADMIN can access these routes
+// Only authorized admins can access these routes
 router.use(authenticateToken);
-router.use(authorizeRole(['ADMIN']));
+router.use(authorizeRole(['SUPER_ADMIN', 'HR_ADMIN']));
 
 router.get('/stats', getAdminStats);
 router.get('/users', getUsers);

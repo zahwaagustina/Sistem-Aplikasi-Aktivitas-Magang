@@ -11,7 +11,7 @@ const STEPS = [
   { id: 'LOA_ISSUED', label: 'LoA Diterbitkan' },
   { id: 'PLACEMENT_ASSIGNED', label: 'Penempatan' },
   { id: 'ACCOUNT_CREATED', label: 'Akun Dibuat' },
-  { id: 'CHECKLIST_IN_PROGRESS', label: 'Checklist Berjalan' },
+  { id: 'CHECKLIST_IN_PROGRESS', label: 'Menunggu Orientasi' },
   { id: 'ORIENTATION_SCHEDULED', label: 'Jadwal Orientasi' },
   { id: 'COMPLETED', label: 'Selesai' }
 ];
@@ -88,17 +88,8 @@ const OnboardingDashboard = () => {
     e.preventDefault();
     try {
       await api.put(`/onboarding/${selectedItem.id}/assign-placement`, formData);
-      alert('Penempatan berhasil disimpan');
+      alert('Penempatan berhasil disimpan dan Akun Magang kandidat otomatis ter-upgrade!');
       setModalType('');
-      fetchData();
-    } catch (e) { alert('Error: ' + e.message); }
-  };
-
-  const handleCreateAccount = async (id) => {
-    if (!window.confirm('Yakin buat akun magang untuk peserta ini?')) return;
-    try {
-      await api.put(`/onboarding/${id}/create-account`);
-      alert('Akun berhasil dibuat dan role di-upgrade ke MAGANG');
       fetchData();
     } catch (e) { alert('Error: ' + e.message); }
   };
@@ -124,7 +115,7 @@ const OnboardingDashboard = () => {
         </div>
       </div>
 
-      <div className="flex overflow-x-auto space-x-2 pb-4 mb-6">
+      <div className="flex overflow-x-auto space-x-2 pb-4 mb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <button onClick={() => setActiveTab('ALL')} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'ALL' ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>Semua Proses</button>
         {STEPS.map(s => (
           <button key={s.id} onClick={() => setActiveTab(s.id)} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === s.id ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>
@@ -167,20 +158,20 @@ const OnboardingDashboard = () => {
                       {item.status === 'DOCUMENT_VERIFICATION' && (
                         <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
                       )}
-                      {(item.status === 'DOCUMENT_VERIFICATION' || item.status === 'DOCUMENT_REVISION') && (
+                      {!item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') && ['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED'].includes(item.status) && (
                         <button onClick={() => openModal(item, 'ISSUE_LOA')} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
                       )}
-                      {item.status === 'LOA_ISSUED' && (
+                      {(item.status === 'LOA_ISSUED' || item.status === 'PLACEMENT_ASSIGNED' || item.status === 'ACCOUNT_CREATED') && (
                         <button onClick={() => openModal(item, 'PLACEMENT')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Atur Penempatan</button>
-                      )}
-                      {(item.status === 'PLACEMENT_ASSIGNED' || item.status === 'ACCOUNT_CREATED') && (
-                        <button onClick={() => handleCreateAccount(item.id)} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Upgrade Akun</button>
                       )}
                       {item.status === 'CHECKLIST_IN_PROGRESS' && (
                         <button onClick={() => openModal(item, 'ORIENTATION')} className="whitespace-nowrap text-sm bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg hover:bg-purple-100 font-medium">Jadwal Orientasi</button>
                       )}
-                      {['WAITING_CONFIRMATION', 'REJECTED_BY_CANDIDATE', 'ORIENTATION_SCHEDULED', 'COMPLETED'].includes(item.status) && (
+                      {['WAITING_CONFIRMATION', 'REJECTED_BY_CANDIDATE'].includes(item.status) && (
                         <span className="whitespace-nowrap text-sm text-gray-400 italic">Menunggu Kandidat</span>
+                      )}
+                      {['ORIENTATION_SCHEDULED', 'COMPLETED'].includes(item.status) && (
+                        <span className="whitespace-nowrap text-sm text-emerald-600 font-bold"><CheckCircle size={16} className="inline mr-1" /> Selesai</span>
                       )}
                     </div>
                   </td>
@@ -309,17 +300,14 @@ const OnboardingDashboard = () => {
 
               {modalType === 'ORIENTATION' && (
                 <form onSubmit={handleOrientation} className="space-y-4">
+                  <p className="text-gray-600 mb-2">Masa pengenalan awal</p>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal & Waktu Orientasi</label>
                     <input type="datetime-local" required value={formData.jadwal_orientasi || ''} onChange={e => setFormData({...formData, jadwal_orientasi: e.target.value})} className="w-full border border-gray-300 rounded-lg p-2" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi (Gedung/Ruangan)</label>
-                    <input type="text" value={formData.lokasi_orientasi || ''} onChange={e => setFormData({...formData, lokasi_orientasi: e.target.value})} placeholder="Opsional" className="w-full border border-gray-300 rounded-lg p-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Link Meeting (Online)</label>
-                    <input type="url" value={formData.link_orientasi || ''} onChange={e => setFormData({...formData, link_orientasi: e.target.value})} placeholder="https://zoom.us/..." className="w-full border border-gray-300 rounded-lg p-2" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Share Location (Google Maps URL)</label>
+                    <input type="url" value={formData.lokasi_orientasi || ''} onChange={e => setFormData({...formData, lokasi_orientasi: e.target.value})} placeholder="https://maps.app.goo.gl/..." className="w-full border border-gray-300 rounded-lg p-2" />
                   </div>
                   <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Jadwalkan Orientasi</button>
                 </form>

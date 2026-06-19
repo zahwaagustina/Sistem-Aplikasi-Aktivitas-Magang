@@ -9,7 +9,8 @@ import {
   getLowonganHR,
   createLowonganHR,
   updateLowonganHR,
-  deleteLowonganHR
+  deleteLowonganHR,
+  getPesertaAktif
 } from '../controllers/hrController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 
@@ -24,6 +25,7 @@ router.put('/kandidat/:id/status', updateStatusLamaran);
 router.post('/kandidat/:id/interview', scheduleInterview);
 router.put('/kandidat/:id/interview', submitNilaiInterview);
 router.get('/mentors', getMentors);
+router.get('/peserta-aktif', getPesertaAktif);
 
 // Rute Manajemen Lowongan
 router.get('/program-batch', getProgramBatch);

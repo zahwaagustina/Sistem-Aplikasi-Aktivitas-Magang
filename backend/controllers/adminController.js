@@ -8,7 +8,7 @@ export const getAdminStats = async (req, res) => {
   try {
     // Total users by role
     const totalMagang = await prisma.user.count({ where: { role: 'MAGANG' } });
-    const totalPembimbing = await prisma.user.count({ where: { role: 'PEMBIMBING' } });
+    const totalPembimbing = await prisma.user.count({ where: { role: 'MENTOR' } });
 
     // Today's activities
     const today = new Date();
@@ -60,7 +60,7 @@ export const getUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       where: {
-        role: { in: ['MAGANG', 'PEMBIMBING'] }
+        role: { in: ['MAGANG', 'MENTOR'] }
       },
       select: {
         id: true,
@@ -68,16 +68,29 @@ export const getUsers = async (req, res) => {
         username: true,
         role: true,
         email: true,
-        universitas: true,
-        jurusan: true,
-        tanggal_selesai: true,
-        id_magang: true,
-        created_at: true
+        created_at: true,
+        profilMagang: {
+          select: {
+            universitas: true,
+            jurusan: true,
+            tanggal_selesai: true,
+            id_magang: true
+          }
+        }
       },
       orderBy: { created_at: 'desc' }
     });
 
-    res.status(200).json({ data: users });
+    // Map the users to flatten profilMagang for frontend
+    const mappedUsers = users.map(user => {
+      const { profilMagang, ...rest } = user;
+      return {
+        ...rest,
+        ...(profilMagang || {})
+      };
+    });
+
+    res.status(200).json({ data: mappedUsers });
   } catch (error) {
     res.status(500).json({ message: 'Gagal mengambil data pengguna', error: error.message });
   }
@@ -132,17 +145,23 @@ export const createUser = async (req, res) => {
         password: hashedPassword,
         role,
         email: email || null,
-        universitas: universitas || null,
-        jurusan: jurusan || null,
-        tanggal_selesai: tanggal_selesai ? new Date(tanggal_selesai) : null,
-        id_magang: generated_id_magang
+        ...(role === 'MAGANG' ? {
+          profilMagang: {
+            create: {
+              id_magang: generated_id_magang,
+              universitas: universitas || null,
+              jurusan: jurusan || null,
+              tanggal_selesai: tanggal_selesai ? new Date(tanggal_selesai) : null
+            }
+          }
+        } : {})
       },
       select: {
         id: true,
         nama: true,
         username: true,
         role: true,
-        id_magang: true
+        profilMagang: true
       }
     });
 
@@ -185,9 +204,6 @@ export const updateUser = async (req, res) => {
       username,
       role,
       email: email || null,
-      universitas: universitas || null,
-      jurusan: jurusan || null,
-      tanggal_selesai: tanggal_selesai ? new Date(tanggal_selesai) : null
     };
 
     // If password provided, update it
@@ -196,20 +212,42 @@ export const updateUser = async (req, res) => {
       updateData.password = await bcrypt.hash(password, salt);
     }
 
+    let generated_id_magang = null;
     // Handle ID Magang generation if role changed to MAGANG
-    if (role === 'MAGANG' && existingUser.role !== 'MAGANG' && !existingUser.id_magang) {
-      const lastMagang = await prisma.user.findFirst({
-        where: { role: 'MAGANG', id_magang: { not: null } },
-        orderBy: { id_magang: 'desc' }
-      });
-      let nextNumber = 1;
-      if (lastMagang && lastMagang.id_magang) {
-        const parts = lastMagang.id_magang.split('-');
-        if (parts.length === 2 && !isNaN(parts[1])) {
-          nextNumber = parseInt(parts[1], 10) + 1;
+    if (role === 'MAGANG') {
+      const profilMagangExisting = await prisma.profilMagang.findUnique({ where: { user_id: parseInt(id) } });
+      if (!profilMagangExisting || !profilMagangExisting.id_magang) {
+        const lastMagang = await prisma.user.findFirst({
+          where: { role: 'MAGANG' },
+          include: { profilMagang: true },
+          orderBy: { created_at: 'desc' }
+        });
+        
+        let nextNumber = 1;
+        if (lastMagang && lastMagang.profilMagang && lastMagang.profilMagang.id_magang) {
+          const parts = lastMagang.profilMagang.id_magang.split('-');
+          if (parts.length === 2 && !isNaN(parts[1])) {
+            nextNumber = parseInt(parts[1], 10) + 1;
+          }
         }
+        generated_id_magang = `MAG-${nextNumber.toString().padStart(3, '0')}`;
       }
-      updateData.id_magang = `MAG-${nextNumber.toString().padStart(3, '0')}`;
+      
+      updateData.profilMagang = {
+        upsert: {
+          create: {
+            id_magang: profilMagangExisting?.id_magang || generated_id_magang,
+            universitas: universitas || null,
+            jurusan: jurusan || null,
+            tanggal_selesai: tanggal_selesai ? new Date(tanggal_selesai) : null
+          },
+          update: {
+            universitas: universitas || null,
+            jurusan: jurusan || null,
+            tanggal_selesai: tanggal_selesai ? new Date(tanggal_selesai) : null
+          }
+        }
+      };
     }
 
     const updatedUser = await prisma.user.update({
@@ -220,7 +258,7 @@ export const updateUser = async (req, res) => {
         nama: true,
         username: true,
         role: true,
-        id_magang: true
+        profilMagang: true
       }
     });
 

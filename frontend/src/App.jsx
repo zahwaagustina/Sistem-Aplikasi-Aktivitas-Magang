@@ -56,7 +56,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
 
             {/* KANDIDAT Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['KANDIDAT']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['KANDIDAT', 'MAGANG']} />}>
               <Route path="/apply" element={<ApplyLowongan />} />
               <Route path="/kandidat/pilih-posisi" element={<PilihPosisi />} />
               <Route path="/kandidat/dashboard" element={<DashboardKandidat />} />

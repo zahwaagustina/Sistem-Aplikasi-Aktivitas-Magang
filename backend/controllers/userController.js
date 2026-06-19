@@ -103,9 +103,22 @@ export const getProfile = async (req, res) => {
     // Hilangkan relasi utuh dari object response agar rapi
     const { password, profilMagang, profilKandidat, ...baseUser } = user;
     
+    // Ambil nama mentor jika ada mentor_id di profilMagang
+    let mentorName = '-';
+    if (user.role === 'MAGANG' && profileData.mentor_id) {
+      const mentorUser = await prisma.user.findUnique({
+        where: { id: profileData.mentor_id },
+        select: { nama: true }
+      });
+      if (mentorUser) {
+        mentorName = mentorUser.nama;
+      }
+    }
+    
     const responseData = {
       ...baseUser,
-      ...profileData
+      ...profileData,
+      mentor: mentorName // tambahkan field mentor untuk frontend
     };
 
     res.status(200).json({ data: responseData });

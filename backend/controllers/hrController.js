@@ -287,3 +287,33 @@ export const deleteLowonganHR = async (req, res) => {
     res.status(500).json({ message: 'Gagal menghapus lowongan', error: error.message });
   }
 };
+
+// Data Peserta Aktif
+export const getPesertaAktif = async (req, res) => {
+  try {
+    const peserta = await prisma.profilMagang.findMany({
+      include: {
+        user: { select: { nama: true, email: true } }
+      },
+      orderBy: { id: 'desc' }
+    });
+
+    const mentorIds = peserta.map(p => p.mentor_id).filter(id => id !== null);
+    const mentors = await prisma.user.findMany({
+      where: { id: { in: mentorIds } },
+      select: { id: true, nama: true }
+    });
+
+    const mentorMap = {};
+    mentors.forEach(m => mentorMap[m.id] = m);
+
+    const mappedPeserta = peserta.map(p => ({
+      ...p,
+      mentor: p.mentor_id ? mentorMap[p.mentor_id] : null
+    }));
+
+    res.json({ data: mappedPeserta });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+  }
+};

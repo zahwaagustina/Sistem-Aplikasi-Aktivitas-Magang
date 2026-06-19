@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { FileText, CheckCircle, Clock, XCircle, ArrowRight, UploadCloud, Info } from 'lucide-react';
+import { FileText, CheckCircle, Clock, XCircle, ArrowRight, UploadCloud, Info, MapPin } from 'lucide-react';
 import api from '../../api';
 
 const STEPS = [
   { id: 'WAITING_CONFIRMATION', title: 'Konfirmasi Tawaran', icon: Clock },
   { id: 'DOCUMENT_VERIFICATION', title: 'Verifikasi Dokumen', icon: FileText },
   { id: 'LOA_ISSUED', title: 'Letter of Acceptance', icon: CheckCircle },
-  { id: 'CHECKLIST_IN_PROGRESS', title: 'Checklist Onboarding', icon: CheckCircle },
   { id: 'ORIENTATION_SCHEDULED', title: 'Orientasi', icon: Clock },
   { id: 'COMPLETED', title: 'Selesai', icon: CheckCircle },
 ];
 
 const OnboardingKandidat = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ktpFile, setKtpFile] = useState(null);
@@ -28,6 +27,12 @@ const OnboardingKandidat = () => {
     try {
       const res = await api.get('/onboarding/my');
       setData(res.data.data);
+      
+      // Update local user role if backend has upgraded it to MAGANG
+      const currentDbRole = res.data.data?.pendaftaran?.user?.role;
+      if (currentDbRole === 'MAGANG' && user?.role !== 'MAGANG') {
+        updateUser({ role: 'MAGANG' });
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -93,7 +98,12 @@ const OnboardingKandidat = () => {
   );
 
   const { onboarding, pendaftaran, dokumen } = data;
-  const currentStepIndex = STEPS.findIndex(s => s.id === onboarding.status);
+  
+  let currentStepIndex = STEPS.findIndex(s => s.id === onboarding.status);
+  if (['CHECKLIST_IN_PROGRESS', 'ACCOUNT_CREATED', 'PLACEMENT_ASSIGNED'].includes(onboarding.status)) {
+    // Berada di antara LOA dan ORIENTASI (setengah jalan)
+    currentStepIndex = STEPS.findIndex(s => s.id === 'LOA_ISSUED') + 0.5;
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
@@ -294,7 +304,7 @@ const OnboardingKandidat = () => {
           </div>
         )}
 
-        {onboarding.status === 'PLACEMENT_ASSIGNED' && (
+        {(onboarding.status === 'PLACEMENT_ASSIGNED' || onboarding.status === 'ACCOUNT_CREATED') && (
           <div className="text-center py-8">
             <h2 className="text-xl font-bold mb-4">Menunggu Pembuatan Akun</h2>
             <p className="text-gray-600">Admin sedang menyiapkan kredensial akun magang Anda. Anda telah ditempatkan di divisi <b>{onboarding.divisi}</b>.</p>
@@ -302,28 +312,16 @@ const OnboardingKandidat = () => {
         )}
 
         {onboarding.status === 'CHECKLIST_IN_PROGRESS' && (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Checklist Persiapan</h2>
-            <p className="text-gray-600 mb-6">Silakan selesaikan tugas-tugas persiapan berikut sebelum hari pertama Anda.</p>
-            <div className="space-y-3">
-              {onboarding.checklist.map(task => (
-                <label key={task.id} className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${task.is_completed ? 'bg-indigo-50 border-indigo-200' : 'hover:bg-gray-50'}`}>
-                  <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded border-gray-300 mr-4" checked={task.is_completed} onChange={(e) => handleChecklist(task.id, e.target.checked)} />
-                  <span className={`flex-1 ${task.is_completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>{task.tugas}</span>
-                </label>
-              ))}
-            </div>
-            {onboarding.checklist.every(c => c.is_completed) && (
-              <div className="mt-6 p-4 bg-emerald-50 text-emerald-800 rounded-lg">
-                Mantap! Anda telah menyelesaikan semua checklist. Tunggu jadwal orientasi dari Admin.
-              </div>
-            )}
+          <div className="text-center py-8">
+            <h2 className="text-xl font-bold mb-4">Akun Magang Telah Aktif</h2>
+            <p className="text-gray-600">Selamat! Akun magang Anda sudah aktif dan Anda telah ditempatkan di divisi <b>{onboarding.divisi}</b>. Saat ini Admin sedang menyiapkan jadwal Orientasi Anda. Harap menunggu instruksi selanjutnya.</p>
           </div>
         )}
 
-        {onboarding.status === 'ORIENTATION_SCHEDULED' && (
+        {(onboarding.status === 'ORIENTATION_SCHEDULED' || onboarding.status === 'COMPLETED') && (
           <div className="text-center py-8">
-            <h2 className="text-xl font-bold mb-6">Jadwal Orientasi</h2>
+            <h2 className="text-xl font-bold mb-2">Jadwal Orientasi</h2>
+            <p className="text-gray-600 mb-6">Masa pengenalan awal</p>
             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 inline-block text-left mb-8">
               <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                 <div>
@@ -331,28 +329,29 @@ const OnboardingKandidat = () => {
                   <p className="font-semibold text-indigo-900">{new Date(onboarding.jadwal_orientasi).toLocaleString('id-ID')}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Lokasi / Link</p>
-                  <p className="font-semibold text-indigo-900">{onboarding.lokasi_orientasi || '-'}</p>
-                  {onboarding.link_orientasi && <a href={onboarding.link_orientasi} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">Buka Link Meeting</a>}
+                  <p className="text-sm text-gray-500 mb-1">Share Location (Maps)</p>
+                  {onboarding.lokasi_orientasi ? (
+                    <a href={onboarding.lokasi_orientasi} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-semibold hover:underline flex items-center">
+                      <MapPin size={16} className="mr-1" /> Buka Peta
+                    </a>
+                  ) : (
+                    <p className="font-semibold text-gray-400">-</p>
+                  )}
                 </div>
               </div>
             </div>
-            <div>
-              <button onClick={handleConfirmOrientation} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 inline-flex items-center">
-                Konfirmasi Kehadiran <ArrowRight size={18} className="ml-2" />
-              </button>
+            
+            <div className="mt-2 border-t border-gray-100 pt-8">
+              <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Onboarding Selesai!</h2>
+              <p className="text-gray-600 mb-6">Selamat datang! Anda sekarang resmi menjadi peserta aktif magang.</p>
+              
+              {onboarding.status === 'ORIENTATION_SCHEDULED' && (
+                <button onClick={handleConfirmOrientation} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 inline-flex items-center mr-4">
+                  Konfirmasi Kehadiran <ArrowRight size={18} className="ml-2" />
+                </button>
+              )}
             </div>
-          </div>
-        )}
-
-        {onboarding.status === 'COMPLETED' && (
-          <div className="text-center py-8">
-            <CheckCircle size={64} className="mx-auto text-emerald-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Onboarding Selesai!</h2>
-            <p className="text-gray-600 mb-6">Selamat datang! Proses onboarding Anda telah selesai dan Anda sekarang resmi menjadi peserta aktif magang.</p>
-            <button onClick={() => window.location.href = '/magang/dashboard'} className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
-              Masuk ke Dashboard Magang
-            </button>
           </div>
         )}
       </div>

@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Clock, CalendarCheck, CheckSquare, ClipboardList, Briefcase, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import api from '../../api';
 
 const DashboardMagang = () => {
   const { user } = useAuth();
+  const [onboarding, setOnboarding] = useState(null);
+
+  React.useEffect(() => {
+    const fetchOnboarding = async () => {
+      try {
+        const res = await api.get('/onboarding/my');
+        if (res.data?.data?.onboarding) {
+          setOnboarding(res.data.data.onboarding);
+        }
+      } catch (err) {
+        console.error('Failed to fetch onboarding:', err);
+      }
+    };
+    fetchOnboarding();
+  }, []);
   
   const sisaHari = () => {
     if (!user?.tanggal_selesai) return '?';
@@ -115,6 +131,34 @@ const DashboardMagang = () => {
             </div>
           </div>
         </div>
+        
+        {/* Jadwal Orientasi Card */}
+        {onboarding?.jadwal_orientasi && (
+          <div className="bg-white/40 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-indigo-200">
+            <h3 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center tracking-tight">
+              <CalendarCheck className="w-6 h-6 mr-3 text-indigo-600" />
+              Jadwal Orientasi
+            </h3>
+            <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6">
+              <div className="flex flex-col space-y-4">
+                <div>
+                  <p className="text-sm text-indigo-700/70 mb-1 font-bold">Tanggal & Waktu</p>
+                  <p className="font-extrabold text-indigo-900 text-lg">{new Date(onboarding.jadwal_orientasi).toLocaleString('id-ID')}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-indigo-700/70 mb-1 font-bold">Lokasi / Share Location</p>
+                  {onboarding.lokasi_orientasi ? (
+                    <a href={onboarding.lokasi_orientasi} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-blue-600 font-bold hover:text-blue-800 transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-blue-100">
+                      Buka Peta Lokasi
+                    </a>
+                  ) : (
+                    <p className="font-bold text-indigo-900">-</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
     </div>

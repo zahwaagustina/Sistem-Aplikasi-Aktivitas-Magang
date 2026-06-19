@@ -206,7 +206,7 @@ const UserManagement = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-1
-                        ${u.role === 'PEMBIMBING' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
+                        ${u.role === 'MENTOR' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
                         {u.role}
                       </span>
                       {u.role === 'MAGANG' && (
@@ -334,10 +334,10 @@ const UserManagement = () => {
                           </div>
                           <span className="font-medium text-gray-800 text-sm">Anak Magang</span>
                         </label>
-                        <label className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all ${formData.role === 'PEMBIMBING' ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-600' : 'border-gray-200 hover:bg-gray-50'}`}>
-                          <input type="radio" name="role" value="PEMBIMBING" checked={formData.role === 'PEMBIMBING'} onChange={handleInputChange} className="hidden" />
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${formData.role === 'PEMBIMBING' ? 'border-emerald-600' : 'border-gray-300'}`}>
-                            {formData.role === 'PEMBIMBING' && <div className="w-2 h-2 rounded-full bg-emerald-600"></div>}
+                        <label className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all ${formData.role === 'MENTOR' ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-600' : 'border-gray-200 hover:bg-gray-50'}`}>
+                          <input type="radio" name="role" value="MENTOR" checked={formData.role === 'MENTOR'} onChange={handleInputChange} className="hidden" />
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${formData.role === 'MENTOR' ? 'border-emerald-600' : 'border-gray-300'}`}>
+                            {formData.role === 'MENTOR' && <div className="w-2 h-2 rounded-full bg-emerald-600"></div>}
                           </div>
                           <span className="font-medium text-gray-800 text-sm">Pembimbing</span>
                         </label>
