@@ -148,6 +148,18 @@ export const createLogbook = async (req, res) => {
       return aktivitas;
     });
 
+    // Notify Mentor
+    const profilMagang = await prisma.profilMagang.findUnique({ where: { user_id } });
+    if (profilMagang && profilMagang.mentor_id) {
+      await prisma.notifikasi.create({
+        data: {
+          user_id: profilMagang.mentor_id,
+          judul: 'Logbook Baru Terkirim',
+          pesan: `Peserta magang telah mengirimkan logbook untuk tanggal ${new Date(tanggal).toLocaleDateString('id-ID')} untuk direview.`,
+        }
+      });
+    }
+
     res.status(201).json({ message: 'Logbook berhasil disimpan', data: result });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
@@ -201,6 +213,14 @@ export const submitTugas = async (req, res) => {
       }
     });
 
+    await prisma.notifikasi.create({
+      data: {
+        user_id: tugas.mentor_id,
+        judul: 'Tugas Dikumpulkan',
+        pesan: `Tugas "${tugas.judul}" telah dikumpulkan dan menunggu review Anda.`,
+      }
+    });
+
     res.json({ message: 'Tugas berhasil disubmit', data: updatedTugas });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
@@ -225,6 +245,17 @@ export const updateStatusTugas = async (req, res) => {
       where: { id: parseInt(id) },
       data: { status }
     });
+
+    // Kirim notifikasi jika statusnya DONE (di-review mentor)
+    if (status === 'DONE') {
+      await prisma.notifikasi.create({
+        data: {
+          user_id: tugas.peserta_id,
+          judul: 'Tugas Disetujui',
+          pesan: `Tugas "${tugas.judul}" telah disetujui oleh Mentor.`
+        }
+      });
+    }
 
     res.json({ message: 'Status tugas diperbarui', data: updatedTugas });
   } catch (error) {

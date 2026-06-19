@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { sendVerificationEmail } from '../utils/mailer.js';
 
 const prisma = new PrismaClient();
 
@@ -55,6 +57,10 @@ export const registerKandidat = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 24);
+
     const newUser = await prisma.user.create({
       data: {
         nama,
@@ -63,28 +69,21 @@ export const registerKandidat = async (req, res) => {
         password: hashedPassword,
         no_telepon,
         role: 'KANDIDAT',
+        is_verified: false,
+        verification_token: verificationToken,
+        verification_expires: verificationExpires,
         profilKandidat: {
           create: {} // ProfilKandidat created empty, will be filled during Apply
         }
       }
     });
 
-    const token = jwt.sign(
-      { id: newUser.id, role: newUser.role },
-      process.env.JWT_SECRET || 'secret_key',
-      { expiresIn: '1d' }
-    );
+    // Kirim email verifikasi
+    await sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({ 
-      message: 'Pendaftaran akun berhasil.', 
-      data: newUser.username,
-      token,
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-        role: newUser.role,
-        nama: newUser.nama
-      }
+      message: 'Pendaftaran akun berhasil. Silakan cek email Anda untuk verifikasi sebelum login.', 
+      data: newUser.username
     });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });

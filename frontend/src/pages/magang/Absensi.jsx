@@ -7,6 +7,10 @@ const Absensi = () => {
   const [loading, setLoading] = useState(false);
   const [todayAbsen, setTodayAbsen] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // State untuk menyimpan nama lokasi (Reverse Geocoding)
+  const [addressMasuk, setAddressMasuk] = useState('Memuat lokasi...');
+  const [addressKeluar, setAddressKeluar] = useState('Memuat lokasi...');
 
   // Update jam real-time
   useEffect(() => {
@@ -38,6 +42,49 @@ const Absensi = () => {
   useEffect(() => {
     fetchAbsensi();
   }, []);
+
+  // Effect untuk Reverse Geocoding
+  useEffect(() => {
+    const getAddress = async (coordString, setter, defaultText) => {
+      if (!coordString || !coordString.includes(',')) {
+        setter(coordString || defaultText);
+        return;
+      }
+      
+      const parts = coordString.split(',');
+      if (parts.length === 2) {
+        const lat = parts[0].trim();
+        const lon = parts[1].trim();
+        try {
+          const res = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+          if (res.data && res.data.display_name) {
+            // Ambil 3 komponen pertama saja agar tidak terlalu panjang (misal: "Nama Gedung, Nama Jalan, Kecamatan")
+            const simpleName = res.data.display_name.split(',').slice(0, 3).join(',');
+            setter(simpleName);
+          } else {
+            setter(coordString);
+          }
+        } catch (err) {
+          console.error("Geocoding error", err);
+          setter(coordString);
+        }
+      } else {
+        setter(coordString);
+      }
+    };
+
+    if (todayAbsen?.lokasi_masuk) {
+      getAddress(todayAbsen.lokasi_masuk, setAddressMasuk, 'Lokasi tidak direkam');
+    } else {
+      setAddressMasuk('Lokasi tidak direkam');
+    }
+
+    if (todayAbsen?.lokasi_keluar) {
+      getAddress(todayAbsen.lokasi_keluar, setAddressKeluar, 'Belum check-out');
+    } else {
+      setAddressKeluar('Belum check-out');
+    }
+  }, [todayAbsen]);
 
   const getLokasi = () => {
     return new Promise((resolve) => {
@@ -148,9 +195,9 @@ const Absensi = () => {
               <div>
                 <p className="text-sm text-gray-500 font-semibold">Waktu Masuk (Check-In)</p>
                 <p className="text-xl font-bold text-gray-800">{formatTime(todayAbsen?.waktu_masuk)}</p>
-                <p className="text-xs text-gray-400 mt-1 flex items-center">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {todayAbsen?.lokasi_masuk || 'Lokasi tidak direkam'}
+                <p className="text-xs text-gray-400 mt-1 flex items-start">
+                  <MapPin className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
+                  <span>{addressMasuk}</span>
                 </p>
               </div>
             </div>
@@ -162,9 +209,9 @@ const Absensi = () => {
               <div>
                 <p className="text-sm text-gray-500 font-semibold">Waktu Keluar (Check-Out)</p>
                 <p className="text-xl font-bold text-gray-800">{formatTime(todayAbsen?.waktu_keluar)}</p>
-                <p className="text-xs text-gray-400 mt-1 flex items-center">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {todayAbsen?.lokasi_keluar || 'Belum check-out'}
+                <p className="text-xs text-gray-400 mt-1 flex items-start">
+                  <MapPin className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
+                  <span>{addressKeluar}</span>
                 </p>
               </div>
             </div>

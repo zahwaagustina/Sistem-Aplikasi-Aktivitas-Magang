@@ -56,9 +56,9 @@ const Sidebar = ({ isOpen }) => {
   const navItems = getNavItems();
 
   return (
-    <aside className={`bg-indigo-900 text-white w-64 min-h-screen flex-shrink-0 transition-all duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full absolute'} md:relative md:translate-x-0`}>
-      <div className="h-16 flex items-center justify-center border-b border-indigo-800">
-        <h1 className="text-xl font-bold tracking-wider">SI MAGANG</h1>
+    <aside className={`bg-white/40 backdrop-blur-xl border-r border-white/50 shadow-[4px_0_24px_0_rgba(31,38,135,0.05)] w-64 min-h-screen flex-shrink-0 transition-all duration-300 z-50 ${isOpen ? 'translate-x-0' : '-translate-x-full absolute'} md:relative md:translate-x-0`}>
+      <div className="h-16 flex items-center justify-center border-b border-white/50">
+        <h1 className="text-xl font-extrabold tracking-tight text-slate-900">PCS Portal</h1>
       </div>
       <nav className="p-4 space-y-2">
         {navItems.map((item) => (
@@ -66,13 +66,13 @@ const Sidebar = ({ isOpen }) => {
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-800 hover:text-white'
+              `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-white/60 hover:text-blue-700 hover:shadow-sm'
               }`
             }
           >
             {item.icon}
-            <span className="font-medium">{item.name}</span>
+            <span>{item.name}</span>
           </NavLink>
         ))}
       </nav>

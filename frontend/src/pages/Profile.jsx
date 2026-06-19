@@ -203,7 +203,7 @@ const Profile = () => {
                 <Building size={16} className="mr-1.5" />
                 <span>Perusahaan</span>
               </div>
-              <p className="font-medium text-gray-900">{user?.perusahaan || '-'}</p>
+              <p className="font-medium text-gray-900">{user?.perusahaan || 'PT Pandu Cipta Solusi'}</p>
             </div>
 
             {/* Lokasi */}
@@ -212,7 +212,7 @@ const Profile = () => {
                 <MapPin size={16} className="mr-1.5" />
                 <span>Lokasi</span>
               </div>
-              <p className="font-medium text-gray-900">{user?.lokasi || '-'}</p>
+              <p className="font-medium text-gray-900">{user?.lokasi || 'Kadu, Tangerang'}</p>
             </div>
           </div>
 
@@ -287,12 +287,12 @@ const Profile = () => {
                   <input type="text" name="mentor" value={formData.mentor} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Perusahaan</label>
-                  <input type="text" name="perusahaan" value={formData.perusahaan} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Perusahaan (Otomatis)</label>
+                  <input type="text" value={user?.perusahaan || 'PT Pandu Cipta Solusi'} disabled className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                  <input type="text" name="lokasi" value={formData.lokasi} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi (Otomatis)</label>
+                  <input type="text" value={user?.lokasi || 'Kadu, Tangerang'} disabled className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai Magang</label>

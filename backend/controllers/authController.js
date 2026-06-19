@@ -86,6 +86,12 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Username/Email atau password salah' });
     }
 
+    if (user.role === 'KANDIDAT' && user.is_verified === false) {
+      return res.status(403).json({ 
+        message: 'Email belum diverifikasi. Silakan periksa email Anda (termasuk folder Spam) untuk link verifikasi.' 
+      });
+    }
+
     const validPassword = await bcrypt.compare(validatedData.password, user.password);
     if (!validPassword) {
       return res.status(400).json({ message: 'Username atau password salah' });
@@ -126,5 +132,41 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Validasi gagal', errors: error.errors });
     }
     res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ message: 'Token verifikasi tidak disediakan' });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        verification_token: token,
+        verification_expires: {
+          gt: new Date() // pastikan token belum kedaluwarsa
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Token tidak valid atau sudah kedaluwarsa' });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        is_verified: true,
+        verification_token: null,
+        verification_expires: null
+      }
+    });
+
+    res.status(200).json({ message: 'Email berhasil diverifikasi! Silakan login.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
   }
 };

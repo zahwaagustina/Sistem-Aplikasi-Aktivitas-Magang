@@ -126,6 +126,14 @@ export const submitEvaluasi = async (req, res) => {
       }
     });
 
+    await prisma.notifikasi.create({
+      data: {
+        user_id: parseInt(id),
+        judul: 'Evaluasi Diterima',
+        pesan: `Mentor telah memberikan penilaian untuk Evaluasi ${tipe} Anda.`
+      }
+    });
+
     res.status(201).json({ message: 'Evaluasi berhasil disimpan', data: evaluasi });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
@@ -157,6 +165,14 @@ export const approveLogbook = async (req, res) => {
       data: {
         status,
         komentar_mentor
+      }
+    });
+
+    await prisma.notifikasi.create({
+      data: {
+        user_id: logbook.user_id,
+        judul: 'Review Logbook',
+        pesan: `Mentor telah me-review logbook harian Anda pada tanggal ${new Date(logbook.tanggal).toLocaleDateString('id-ID')} dengan status ${status}.`
       }
     });
 

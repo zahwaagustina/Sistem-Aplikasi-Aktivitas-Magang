@@ -39,6 +39,14 @@ export const uploadLaporan = async (req, res) => {
       });
     }
 
+    await prisma.notifikasi.create({
+      data: {
+        user_id: userId,
+        judul: 'Laporan Akhir Terkirim',
+        pesan: 'Laporan akhir Anda berhasil diunggah. Silakan menunggu proses penerbitan Sertifikat Kelulusan oleh Mentor.'
+      }
+    });
+
     res.json({ message: 'Laporan akhir berhasil diunggah', data: dokumen });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan', error: error.message });
@@ -166,6 +174,14 @@ export const generateSertifikat = async (req, res) => {
             }
         });
     }
+
+    await prisma.notifikasi.create({
+      data: {
+        user_id: targetUserId,
+        judul: 'Sertifikat Kelulusan Terbit',
+        pesan: 'Selamat! Anda telah menyelesaikan program magang. Sertifikat Kelulusan Anda sudah dapat diunduh di portal.'
+      }
+    });
 
     res.json({ message: 'Sertifikat berhasil dibuat', data: sertifikatRecord });
 

@@ -35,7 +35,18 @@ export const updateStatusLamaran = async (req, res) => {
 
     const pendaftaran = await prisma.pendaftaran.update({
       where: { id: parseInt(id) },
-      data: { status, catatan_hr }
+      data: { status, catatan_hr },
+      include: { lowongan: true }
+    });
+
+    // Buat notifikasi
+    await prisma.notifikasi.create({
+      data: {
+        user_id: pendaftaran.user_id,
+        judul: 'Pembaruan Status Lamaran',
+        pesan: `Status lamaran Anda untuk posisi ${pendaftaran.lowongan.posisi} telah berubah menjadi ${status}.`,
+        link: '/kandidat/dashboard'
+      }
     });
 
     res.json({ message: `Status berhasil diubah menjadi ${status}`, data: pendaftaran });
@@ -71,6 +82,16 @@ export const scheduleInterview = async (req, res) => {
         }
       });
 
+      // 3. Buat notifikasi jadwal interview
+      await tx.notifikasi.create({
+        data: {
+          user_id: pendaftaran.user_id,
+          judul: 'Jadwal Wawancara',
+          pesan: `Anda mendapat undangan wawancara pada tanggal ${new Date(tanggal_waktu).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}. Harap cek halaman Status Lamaran.`,
+          link: '/kandidat/dashboard'
+        }
+      });
+
       return { pendaftaran, interview };
     });
 
@@ -99,7 +120,20 @@ export const submitNilaiInterview = async (req, res) => {
       // 2. Ubah status pendaftaran menjadi keputusan akhir (Lulus / Tidak Lulus)
       const pendaftaran = await tx.pendaftaran.update({
         where: { id: parseInt(id) },
-        data: { status: keputusan }
+        data: { status: keputusan },
+        include: { lowongan: true }
+      });
+
+      // 3. Notifikasi ke Kandidat
+      await tx.notifikasi.create({
+        data: {
+          user_id: pendaftaran.user_id,
+          judul: keputusan === 'ACCEPTED' ? 'Selamat! Anda Diterima' : 'Pengumuman Hasil Wawancara',
+          pesan: keputusan === 'ACCEPTED' 
+            ? `Selamat, Anda diterima magang untuk posisi ${pendaftaran.lowongan.posisi}. Silakan cek portal untuk tahap Onboarding.`
+            : `Mohon maaf, Anda belum berhasil lolos untuk posisi ${pendaftaran.lowongan.posisi}. Tetap semangat!`,
+          link: '/kandidat/dashboard'
+        }
       });
 
       // Jika diterima, trigger onboarding!
@@ -133,7 +167,7 @@ export const getMentors = async (req, res) => {
   try {
     const mentors = await prisma.user.findMany({
       where: { role: 'MENTOR' },
-      select: { id: true, nama: true, email: true, divisi: true }
+      select: { id: true, nama: true, email: true, no_telepon: true }
     });
     res.status(200).json({ data: mentors });
   } catch (error) {

@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Briefcase, MapPin, Clock, ArrowRight, CalendarDays, Building2 } from 'lucide-react';
+import { Briefcase, MapPin, Clock, ArrowRight, CalendarDays, Building2, UserCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const LandingPage = () => {
   const [lowongan, setLowongan] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { hash } = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchLowongan();
   }, []);
+
+  useEffect(() => {
+    if (!loading && hash === '#lowongan-section') {
+      const element = document.getElementById('lowongan-section');
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [hash, loading]);
 
   const fetchLowongan = async () => {
     try {
@@ -62,98 +76,143 @@ const LandingPage = () => {
   const activeProgramName = lowongan.length > 0 ? lowongan[0].program?.nama : 'Program Magang Terkini';
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-sans">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-blue-200 font-sans">
+      {/* Background Glows (Synthesia style) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-60"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-60"></div>
+      </div>
+
       {/* Navigation Bar */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="relative z-10 bg-transparent py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <Building2 className="h-7 w-7 text-indigo-700" />
-              <span className="font-bold text-xl text-gray-900">InternHub</span>
+            <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <img src="/logo pcs.png.png" alt="Logo PCS" className="h-10 w-auto object-contain" />
+              <span className="font-extrabold text-xl tracking-tight text-slate-900">PCS Internship Portal</span>
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex space-x-8">
-              <a href="#lowongan-section" className="text-gray-600 hover:text-gray-900 font-medium">Posisi tersedia</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">Benefit</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">Alur seleksi</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">FAQ</a>
+            <div className="hidden md:flex space-x-8 items-center">
+              <a href="#lowongan-section" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">Posisi tersedia</a>
+              <a href="#" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">Benefit</a>
+              <a href="#" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">Alur seleksi</a>
+              <a href="#" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">FAQ</a>
             </div>
 
             {/* CTA Button */}
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => navigate('/login')}
-                className="text-gray-600 hover:text-gray-900 font-medium hidden sm:block"
-              >
-                Masuk
-              </button>
-              <button 
-                onClick={() => navigate('/register')}
-                className="bg-white border border-gray-300 text-gray-900 px-5 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition shadow-sm"
-              >
-                Daftar sekarang
-              </button>
+            <div className="flex items-center gap-6">
+              {user ? (
+                <div 
+                  onClick={() => navigate(user.role === 'KANDIDAT' ? '/kandidat/dashboard' : '/dashboard')}
+                  className="flex items-center gap-3 cursor-pointer hover:bg-slate-100 px-4 py-2 rounded-full transition-colors"
+                >
+                  <div className="text-right hidden sm:block">
+                    <p className="text-sm font-bold text-slate-900 leading-tight">{user.nama || user.username}</p>
+                    <p className="text-xs text-slate-500">{user.role}</p>
+                  </div>
+                  <UserCircle className="w-8 h-8 text-blue-600" />
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="text-slate-600 hover:text-slate-900 font-medium text-sm hidden sm:block transition-colors"
+                  >
+                    Log in
+                  </button>
+                  <button 
+                    onClick={() => navigate('/register')}
+                    className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-blue-700 transition shadow-sm flex items-center gap-2"
+                  >
+                    Get started <ArrowRight className="w-4 h-4" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-medium mb-8">
-          <CalendarDays className="w-4 h-4" />
-          {activeProgramName} · Pendaftaran dibuka
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 flex flex-col items-center justify-center min-h-[60vh]">
+        
+        {/* Left Image (Hidden on mobile, absolutely positioned) */}
+        <div className="hidden xl:block absolute left-4 top-1/2 -translate-y-1/2 w-[280px] opacity-90 hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          <img src="/hero-left.png.png" alt="Illustration" className="w-full object-contain drop-shadow-2xl pointer-events-auto hover:-translate-y-2 transition-transform duration-300" />
         </div>
 
-        {/* Headlines */}
-        <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 tracking-tight leading-tight mb-6">
-          Mulai karier impianmu lewat program magang kami
-        </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Bergabunglah dengan ratusan mahasiswa terbaik yang mengembangkan diri bersama tim profesional PT Pandu Cipta Solusi.
-        </p>
+        {/* Center Content (Restored to original wide layout) */}
+        <div className="relative z-10 max-w-4xl text-center px-4">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-white shadow-md text-slate-900 px-5 py-2 rounded-full text-sm font-medium mb-10">
+            <CalendarDays className="w-4 h-4" />
+            Batch Juli 2025 &middot; Pendaftaran dibuka
+          </div>
 
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button 
-            onClick={() => navigate('/register')}
-            className="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-900 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition shadow-sm text-lg"
-          >
-            <ArrowRight className="w-5 h-5" />
-            Daftar sekarang
-          </button>
-          <button 
-            onClick={() => document.getElementById('lowongan-section').scrollIntoView({ behavior: 'smooth' })}
-            className="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-900 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition shadow-sm text-lg"
-          >
-            Lihat posisi tersedia
-          </button>
+          {/* Headlines */}
+          <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] mb-8">
+            Selamat datang di<br />
+            <span className="text-blue-600">PCS Internship Portal</span>
+          </h1>
+          <p className="text-lg text-slate-500 max-w-xl mx-auto mb-12 leading-relaxed">
+            Bangun pengalaman kerja profesional bersama tim terbaik kami di <span className="whitespace-nowrap">PT Pandu Cipta Solusi</span>.
+          </p>
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
+            {user ? (
+              <button 
+                onClick={() => navigate(user.role === 'KANDIDAT' ? '/kandidat/dashboard' : '/dashboard')}
+                className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3.5 rounded-xl font-medium hover:bg-blue-700 transition shadow-sm text-lg"
+              >
+                <ArrowRight className="w-5 h-5" />
+                Ke Dashboard
+              </button>
+            ) : (
+              <button 
+                onClick={() => navigate('/register')}
+                className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-800 px-6 py-3.5 rounded-xl font-medium hover:bg-slate-50 hover:border-slate-300 transition shadow-sm text-lg"
+              >
+                <ArrowRight className="w-5 h-5" />
+                Daftar sekarang
+              </button>
+            )}
+            <button 
+              onClick={() => document.getElementById('lowongan-section').scrollIntoView({ behavior: 'smooth' })}
+              className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-800 px-6 py-3.5 rounded-xl font-medium hover:bg-slate-50 hover:border-slate-300 transition shadow-sm text-lg"
+            >
+              Lihat posisi tersedia
+            </button>
+          </div>
+        </div>
+
+        {/* Right Image (Hidden on mobile, absolutely positioned) */}
+        <div className="hidden xl:block absolute right-4 top-1/2 -translate-y-1/2 w-[280px] opacity-90 hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          <img src="/hero-right.png.png" alt="Illustration" className="w-full object-contain drop-shadow-2xl pointer-events-auto hover:-translate-y-2 transition-transform duration-300" />
         </div>
       </div>
 
       {/* Lowongan Section */}
-      <div id="lowongan-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-gray-100">
-        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 text-center">Posisi magang tersedia</h2>
-        <p className="text-gray-600 text-center mb-6 text-lg max-w-2xl mx-auto">
-          Pilih bidang yang sesuai minat dan jurusanmu. Semua posisi dibuka untuk {activeProgramName}.
-        </p>
+      <div id="lowongan-section" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Posisi magang tersedia</h2>
+          <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+            Pilih bidang yang sesuai minat dan jurusanmu. Semua posisi dibuka untuk {activeProgramName}.
+          </p>
+        </div>
         
-        {/* Separator Line */}
-        <div className="w-12 h-0.5 bg-indigo-600 mx-auto mb-8 rounded-full"></div>
-
         {/* Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        <div className="flex flex-wrap justify-center gap-3 mb-16">
           {filters.map(filter => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-6 py-2 rounded-lg font-medium border transition ${
+              className={`px-6 py-2.5 rounded-full text-sm font-medium border transition-all ${
                 activeFilter === filter 
-                  ? 'bg-gray-50 border-gray-300 text-gray-900' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300'
+                  ? 'bg-slate-900 border-slate-900 text-white shadow-md' 
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
               }`}
             >
               {filter}
@@ -163,36 +222,36 @@ const LandingPage = () => {
         
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
           </div>
         ) : filteredLowongan.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-200">
-            <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900">Belum Ada Lowongan</h3>
-            <p className="text-gray-500 mt-2">Saat ini belum ada posisi yang tersedia di kategori ini.</p>
+          <div className="text-center py-24 bg-white/50 backdrop-blur-sm rounded-3xl shadow-sm border border-slate-100">
+            <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900">Belum Ada Lowongan</h3>
+            <p className="text-slate-500 mt-2">Saat ini belum ada posisi yang tersedia di kategori ini.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredLowongan.map((job) => {
               const styles = getDivisiStyle(job.divisi);
               return (
-                <div key={job.id} onClick={() => navigate(`/lowongan/${job.id}`)} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 flex flex-col h-full cursor-pointer group">
-                  <div className="mb-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${styles.iconBg}`}>
+                <div key={job.id} onClick={() => navigate(`/lowongan/${job.id}`)} className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer group">
+                  <div className="mb-6">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${styles.iconBg} group-hover:scale-110 transition-transform`}>
                       {styles.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">{job.posisi}</h3>
-                    <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors tracking-tight">{job.posisi}</h3>
+                    <p className="text-slate-500 text-sm line-clamp-3 leading-relaxed">
                       {job.deskripsi}
                     </p>
                   </div>
                   
-                  <div className="mt-auto pt-6 flex flex-wrap gap-2">
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${styles.bg} ${styles.text}`}>
-                      {job.divisi}
+                  <div className="mt-auto pt-6 flex flex-wrap gap-2 border-t border-slate-50">
+                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wide ${styles.bg} ${styles.text}`}>
+                      {job.divisi.toUpperCase()}
                     </span>
-                    <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-green-50 text-green-700">
-                      {job.kuota} kuota
+                    <span className="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide bg-slate-100 text-slate-600">
+                      {job.kuota} KUOTA
                     </span>
                   </div>
                 </div>

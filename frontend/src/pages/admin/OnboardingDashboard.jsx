@@ -35,14 +35,18 @@ const OnboardingDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [resOnb, resMentors] = await Promise.all([
-        api.get('/onboarding/all'),
-        api.get('/hr/mentors') // Assuming this endpoint exists based on old code
-      ]);
+      const resOnb = await api.get('/onboarding/all');
       setOnboardings(resOnb.data.data);
+    } catch (err) {
+      console.error('Error fetching onboardings:', err);
+    }
+    
+    try {
+      const resMentors = await api.get('/hr/mentors');
       setMentors(resMentors.data.data);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching mentors:', err);
+      // It's ok if mentors fail, we still want to see onboardings
     } finally {
       setLoading(false);
     }
@@ -154,29 +158,31 @@ const OnboardingDashboard = () => {
                     <div className="text-sm text-gray-500">{item.divisi || item.pendaftaran.lowongan.divisi}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex whitespace-nowrap px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {STEPS.find(s => s.id === item.status)?.label || item.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right space-x-2 flex justify-end">
-                    {item.status === 'DOCUMENT_VERIFICATION' && (
-                      <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
-                    )}
-                    {(item.status === 'DOCUMENT_VERIFICATION' || item.status === 'DOCUMENT_REVISION') && (
-                      <button onClick={() => openModal(item, 'ISSUE_LOA')} className="text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
-                    )}
-                    {item.status === 'LOA_ISSUED' && (
-                      <button onClick={() => openModal(item, 'PLACEMENT')} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Atur Penempatan</button>
-                    )}
-                    {item.status === 'PLACEMENT_ASSIGNED' && (
-                      <button onClick={() => handleCreateAccount(item.id)} className="text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Upgrade Akun Magang</button>
-                    )}
-                    {item.status === 'CHECKLIST_IN_PROGRESS' && (
-                      <button onClick={() => openModal(item, 'ORIENTATION')} className="text-sm bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg hover:bg-purple-100 font-medium">Jadwalkan Orientasi</button>
-                    )}
-                    {['WAITING_CONFIRMATION', 'REJECTED_BY_CANDIDATE', 'ORIENTATION_SCHEDULED', 'COMPLETED'].includes(item.status) && (
-                      <span className="text-sm text-gray-400 italic">Menunggu Tindakan Kandidat</span>
-                    )}
+                  <td className="px-6 py-4">
+                    <div className="flex justify-end gap-2">
+                      {item.status === 'DOCUMENT_VERIFICATION' && (
+                        <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
+                      )}
+                      {(item.status === 'DOCUMENT_VERIFICATION' || item.status === 'DOCUMENT_REVISION') && (
+                        <button onClick={() => openModal(item, 'ISSUE_LOA')} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
+                      )}
+                      {item.status === 'LOA_ISSUED' && (
+                        <button onClick={() => openModal(item, 'PLACEMENT')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Atur Penempatan</button>
+                      )}
+                      {(item.status === 'PLACEMENT_ASSIGNED' || item.status === 'ACCOUNT_CREATED') && (
+                        <button onClick={() => handleCreateAccount(item.id)} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Upgrade Akun</button>
+                      )}
+                      {item.status === 'CHECKLIST_IN_PROGRESS' && (
+                        <button onClick={() => openModal(item, 'ORIENTATION')} className="whitespace-nowrap text-sm bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg hover:bg-purple-100 font-medium">Jadwal Orientasi</button>
+                      )}
+                      {['WAITING_CONFIRMATION', 'REJECTED_BY_CANDIDATE', 'ORIENTATION_SCHEDULED', 'COMPLETED'].includes(item.status) && (
+                        <span className="whitespace-nowrap text-sm text-gray-400 italic">Menunggu Kandidat</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -202,7 +208,71 @@ const OnboardingDashboard = () => {
             <div className="p-6">
               {modalType === 'VERIFY_DOCS' && (
                 <div>
-                  <p className="text-gray-600 mb-6">Periksa dokumen yang telah diunggah oleh <b>{selectedItem.pendaftaran.user.nama}</b>.</p>
+                  <p className="text-gray-600 mb-4">Periksa dokumen yang telah diunggah oleh <b>{selectedItem.pendaftaran.user.nama}</b>.</p>
+                  
+                  <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-100 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm font-medium text-gray-700">
+                        <FileText size={16} className="text-indigo-500 mr-2" />
+                        Kartu Tanda Penduduk (KTP)
+                      </div>
+                      {selectedItem.pendaftaran.user.dokumen?.find(d => d.tipe === 'KTP') ? (
+                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'KTP').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                          Buka PDF/Gambar
+                        </a>
+                      ) : (
+                        <span className="text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded">Belum Diunggah</span>
+                      )}
+                    </div>
+                    {selectedItem.pendaftaran.user.profilKandidat?.cv_path && (
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 mt-3">
+                        <div className="flex items-center text-sm font-medium text-gray-700">
+                          <FileText size={16} className="text-emerald-500 mr-2" />
+                          Curriculum Vitae (CV)
+                        </div>
+                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.profilKandidat.cv_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                          Buka PDF
+                        </a>
+                      </div>
+                    )}
+
+                    {selectedItem.pendaftaran.user.dokumen?.find(d => d.tipe === 'TRANSKRIP') && (
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 mt-3">
+                        <div className="flex items-center text-sm font-medium text-gray-700">
+                          <FileText size={16} className="text-emerald-500 mr-2" />
+                          Transkrip Nilai Akademik
+                        </div>
+                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'TRANSKRIP').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                          Buka PDF
+                        </a>
+                      </div>
+                    )}
+
+                    {selectedItem.pendaftaran.user.profilKandidat?.portofolio_url && (
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 mt-3">
+                        <div className="flex items-center text-sm font-medium text-gray-700">
+                          <FileText size={16} className="text-emerald-500 mr-2" />
+                          Link Portofolio
+                        </div>
+                        <a href={selectedItem.pendaftaran.user.profilKandidat.portofolio_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                          Kunjungi URL
+                        </a>
+                      </div>
+                    )}
+                    
+                    {selectedItem.pendaftaran.surat_pengantar && (
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 mt-3">
+                        <div className="flex items-center text-sm font-medium text-gray-700">
+                          <FileText size={16} className="text-emerald-500 mr-2" />
+                          Surat Pengantar Kampus
+                        </div>
+                        <a href={`http://localhost:5000${selectedItem.pendaftaran.surat_pengantar}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                          Buka PDF
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex space-x-3">
                     <button onClick={() => handleVerifyDocs(false)} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg font-medium hover:bg-red-100">Minta Revisi</button>
                     <button onClick={() => handleVerifyDocs(true)} className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700">Setujui Dokumen</button>

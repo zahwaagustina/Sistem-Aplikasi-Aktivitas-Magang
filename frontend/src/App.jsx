@@ -9,6 +9,7 @@ import LandingPage from './pages/publik/LandingPage';
 import RegisterKandidat from './pages/publik/RegisterKandidat';
 import Login from './pages/Login';
 import DetailLowongan from './pages/publik/DetailLowongan';
+import VerifyEmail from './pages/publik/VerifyEmail';
 
 // Admin / HR Pages
 import Dashboard from './pages/Dashboard';
@@ -45,8 +46,9 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/lowongan/:id" element={<DetailLowongan />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterKandidat />} />
-        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+        <Route path="/register" element={user ? (user.role === 'KANDIDAT' ? <Navigate to="/#lowongan-section" /> : <Navigate to="/dashboard" />) : <RegisterKandidat />} />
+        <Route path="/verify-email" element={user ? (user.role === 'KANDIDAT' ? <Navigate to="/#lowongan-section" /> : <Navigate to="/dashboard" />) : <VerifyEmail />} />
+        <Route path="/login" element={user ? (user.role === 'KANDIDAT' ? <Navigate to="/#lowongan-section" /> : <Navigate to="/dashboard" />) : <Login />} />
 
         {/* Authenticated Routes */}
         <Route element={<ProtectedRoute />}>

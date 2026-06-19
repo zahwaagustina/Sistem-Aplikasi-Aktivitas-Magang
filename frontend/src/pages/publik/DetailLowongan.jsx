@@ -43,20 +43,26 @@ const DetailLowongan = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-sans pb-20">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-blue-200 font-sans pb-20 overflow-x-hidden">
+      {/* Background Glows */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-60"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-60"></div>
+      </div>
+
       {/* Navigation Bar (Sederhana) */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="bg-white/70 backdrop-blur-md border-b border-white/20 relative z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <Building2 className="h-7 w-7 text-indigo-700" />
-              <span className="font-bold text-xl text-gray-900">InternHub</span>
+            <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <img src="/logo pcs.png.png" alt="Logo PCS" className="h-10 w-auto object-contain" />
+              <span className="font-bold text-xl text-gray-900">PCS Internship Portal</span>
             </div>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 relative z-10">
         <button 
           onClick={() => navigate('/')}
           className="flex items-center text-gray-600 hover:text-indigo-600 font-medium mb-6 transition-colors"
@@ -66,10 +72,10 @@ const DetailLowongan = () => {
         </button>
 
         {/* Header Section */}
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-200 mb-8">
+        <div className="bg-white/60 backdrop-blur-xl rounded-3xl p-8 shadow-sm border border-white/50 mb-8">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-6">
             <div>
-              <span className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-sm font-bold mb-4">
+              <span className="inline-block px-4 py-1.5 bg-blue-100/50 text-blue-800 rounded-full text-sm font-bold mb-4">
                 {lowongan.divisi}
               </span>
               <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">{lowongan.posisi}</h1>
@@ -88,7 +94,7 @@ const DetailLowongan = () => {
                     navigate('/register', { state: { lowonganId: lowongan.id } });
                   }
                 }}
-                className="w-full md:w-auto bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-indigo-700 transition-colors shadow-md flex items-center justify-center gap-2"
+                className="w-full md:w-auto bg-[#004aad] text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-blue-800 transition-colors shadow-md flex items-center justify-center gap-2"
               >
                 Daftar Sekarang
               </button>
@@ -97,7 +103,7 @@ const DetailLowongan = () => {
         </div>
 
         {/* Main Content */}
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-200 space-y-10">
+        <div className="bg-white/60 backdrop-blur-xl rounded-3xl p-8 shadow-sm border border-white/50 space-y-10">
           
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b pb-2">Deskripsi Pekerjaan</h2>
@@ -123,8 +129,8 @@ const DetailLowongan = () => {
           )}
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b pb-2">Informasi Program</h2>
-            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b pb-2 border-slate-200/60">Informasi Program</h2>
+            <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/60 shadow-sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Nama Batch</h4>

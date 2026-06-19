@@ -90,6 +90,16 @@ export const applyLowongan = async (req, res) => {
       }
     });
 
+    // Create notification
+    await prisma.notifikasi.create({
+      data: {
+        user_id,
+        judul: 'Lamaran Terkirim',
+        pesan: `Lamaran Anda untuk posisi ${lowongan.posisi} berhasil dikirim dan sedang dalam status SUBMITTED.`,
+        link: '/kandidat/dashboard'
+      }
+    });
+
     res.status(201).json({ message: 'Berhasil melamar lowongan', data: pendaftaran });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });

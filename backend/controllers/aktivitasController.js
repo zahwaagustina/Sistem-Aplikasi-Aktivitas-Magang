@@ -177,6 +177,16 @@ export const approveAktivitas = async (req, res) => {
       data: { status }
     });
 
+    // Notifikasi ke peserta magang
+    await prisma.notifikasi.create({
+      data: {
+        user_id: aktivitas.user_id,
+        judul: 'Review Logbook',
+        pesan: `Logbook Anda tanggal ${new Date(aktivitas.tanggal).toLocaleDateString('id-ID')} telah di-review dengan status ${status}.`,
+        link: '/magang/logbook'
+      }
+    });
+
     res.status(200).json({ message: `Aktivitas berhasil di-${status.toLowerCase()}`, data: aktivitas });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -209,8 +219,21 @@ export const kirimAktivitas = async (req, res) => {
 
     const updated = await prisma.aktivitasHarian.update({
       where: { id: parseInt(id) },
-      data: { status: finalStatus }
+      data: { status: finalStatus },
+      include: { user: { select: { nama: true, profilMagang: { select: { mentor_id: true } } } } }
     });
+
+    // Notifikasi ke mentor
+    if (updated.user.profilMagang?.mentor_id) {
+      await prisma.notifikasi.create({
+        data: {
+          user_id: updated.user.profilMagang.mentor_id,
+          judul: 'Logbook Baru Terkirim',
+          pesan: `${updated.user.nama} telah mengirimkan logbook untuk direview.`,
+          link: '/mentor/profil-anak-magang' // Assuming mentor reviews there
+        }
+      });
+    }
 
     res.status(200).json({ message: 'Aktivitas berhasil dikirim', data: updated });
   } catch (error) {

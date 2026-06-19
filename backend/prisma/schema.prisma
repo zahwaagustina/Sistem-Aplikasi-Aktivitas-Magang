@@ -98,10 +98,13 @@ model User {
   id         Int      @id @default(autoincrement())
   username   String   @unique
   password   String
-  email      String?  @unique
-  nama       String
-  role       Role
-  no_telepon String?
+  email                String?   @unique
+  is_verified          Boolean   @default(true)
+  verification_token   String?   @unique
+  verification_expires DateTime?
+  nama                 String
+  role                 Role
+  no_telepon           String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -118,6 +121,7 @@ model User {
   dokumen           Dokumen[]
   auditTrails       AuditTrail[]
   onboardingDimementori Onboarding[]  @relation("OnboardingMentor")
+  notifikasi        Notifikasi[]
 }
 
 model ProfilKandidat {
@@ -328,5 +332,18 @@ model OnboardingChecklist {
   tugas           String
   is_completed    Boolean           @default(false)
   created_at      DateTime          @default(now())
+}
+
+model Notifikasi {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  judul      String
+  pesan      String   @db.Text
+  is_read    Boolean  @default(false)
+  link       String?
+  created_at DateTime @default(now())
+  
+  @@map("notifikasi")
 }
 

@@ -11,6 +11,7 @@ export const getMyOnboarding = async (req, res) => {
       where: { user_id: userId, status: 'ACCEPTED' },
       include: {
         lowongan: { include: { program: true } },
+        user: { include: { profilKandidat: true, dokumen: true } }
       }
     });
 
@@ -83,7 +84,17 @@ export const getAllOnboarding = async (req, res) => {
   try {
     const onboardings = await prisma.onboarding.findMany({
       include: {
-        pendaftaran: { include: { user: true, lowongan: true } },
+        pendaftaran: { 
+          include: { 
+            user: { 
+              include: { 
+                profilKandidat: true,
+                dokumen: true 
+              } 
+            }, 
+            lowongan: true 
+          } 
+        },
         mentor: true
       },
       orderBy: { updated_at: 'desc' }
@@ -105,15 +116,29 @@ export const verifyDocuments = async (req, res) => {
     if (approved) {
       await prisma.onboarding.update({
         where: { id: parseInt(id) },
-        data: { status: 'LOA_ISSUED' } // Atau status selanjutnya, kita langsung minta Admin rilis LoA
+        data: { status: 'DOCUMENT_VERIFICATION' } // Tetap di verifikasi agar admin bisa menerbitkan LoA
       });
       await sendEmail(onboarding.pendaftaran.user.email, 'Dokumen Diterima', 'Dokumen Anda valid. Silakan menunggu penerbitan LoA.');
+      await prisma.notifikasi.create({
+        data: {
+          user_id: onboarding.pendaftaran.user.id,
+          judul: 'Pembaruan Status Onboarding',
+          pesan: 'Dokumen Anda telah divalidasi oleh Tim HR. Menunggu penerbitan Letter of Acceptance (LoA).'
+        }
+      });
     } else {
       await prisma.onboarding.update({
         where: { id: parseInt(id) },
         data: { status: 'DOCUMENT_REVISION' }
       });
       await sendEmail(onboarding.pendaftaran.user.email, 'Revisi Dokumen Onboarding', 'Ada dokumen yang tidak valid. Mohon unggah ulang di portal.');
+      await prisma.notifikasi.create({
+        data: {
+          user_id: onboarding.pendaftaran.user.id,
+          judul: 'Revisi Dokumen',
+          pesan: 'Ada dokumen Anda yang perlu direvisi. Silakan cek halaman Onboarding untuk melihat detail dan mengunggah ulang.'
+        }
+      });
     }
     res.status(200).json({ message: approved ? 'Dokumen disetujui' : 'Minta revisi dokumen' });
   } catch (error) {
@@ -142,10 +167,19 @@ export const issueLoa = async (req, res) => {
 
     const updated = await prisma.onboarding.update({
       where: { id: parseInt(id) },
-      data: { status: 'PLACEMENT_ASSIGNED' } // Langsung masuk tahap penempatan
+      data: { status: 'LOA_ISSUED' } // Masuk ke tahap LOA Diterbitkan
     });
 
     await sendEmail(onboarding.pendaftaran.user.email, 'Letter of Acceptance (LoA) Tersedia', 'LoA Anda sudah terbit. Silakan unduh di portal.');
+    
+    await prisma.notifikasi.create({
+      data: {
+        user_id: onboarding.pendaftaran.user.id,
+        judul: 'LoA Diterbitkan',
+        pesan: 'Letter of Acceptance (LoA) Anda sudah terbit. Silakan cek halaman Onboarding untuk mengunduhnya.'
+      }
+    });
+
     res.status(200).json({ message: 'LoA diterbitkan', data: updated });
   } catch (error) {
     res.status(500).json({ message: 'Gagal menerbitkan LoA', error: error.message });
@@ -163,7 +197,7 @@ export const assignPlacement = async (req, res) => {
       data: { 
         divisi, 
         mentor_id: parseInt(mentor_id),
-        status: 'ACCOUNT_CREATED' // Langsung set status berikutnya untuk disiapkan checklist
+        status: 'PLACEMENT_ASSIGNED' // Status agar tombol Upgrade Akun muncul
       },
       include: { pendaftaran: { include: { user: true } } }
     });
@@ -183,6 +217,14 @@ export const assignPlacement = async (req, res) => {
       });
     }
 
+    await prisma.notifikasi.create({
+      data: {
+        user_id: onboarding.pendaftaran.user.id,
+        judul: 'Informasi Penempatan',
+        pesan: `Anda telah ditempatkan di divisi ${divisi}. Silakan selesaikan Checklist Onboarding Anda sebelum jadwal orientasi.`
+      }
+    });
+
     res.status(200).json({ message: 'Placement ditetapkan', data: onboarding });
   } catch (error) {
     res.status(500).json({ message: 'Gagal menetapkan placement', error: error.message });
@@ -195,16 +237,48 @@ export const createAccount = async (req, res) => {
     const { id } = req.params;
     const onboarding = await prisma.onboarding.findUnique({ where: { id: parseInt(id) }, include: { pendaftaran: { include: { user: true } } } });
 
-    // Generate id_magang
-    const id_magang = `MAG-${new Date().getFullYear()}-${onboarding.pendaftaran.user.id.toString().padStart(4, '0')}`;
+    const userId = onboarding.pendaftaran.user.id;
 
-    // Upgrade role
+    // Generate id_magang
+    const id_magang = `MAG-${new Date().getFullYear()}-${userId.toString().padStart(4, '0')}`;
+
+    // Get candidate profile to copy academic data
+    const profilKandidat = await prisma.profilKandidat.findUnique({
+      where: { user_id: userId }
+    });
+
+    // Upgrade role in User table
     await prisma.user.update({
-      where: { id: onboarding.pendaftaran.user.id },
+      where: { id: userId },
       data: { 
-        role: 'MAGANG',
+        role: 'MAGANG'
+      }
+    });
+
+    // Create ProfilMagang with data copied from ProfilKandidat
+    await prisma.profilMagang.upsert({
+      where: { user_id: userId },
+      update: {
+        id_magang: id_magang,
         divisi: onboarding.divisi,
-        mentor: onboarding.mentor_id ? String(onboarding.mentor_id) : null, // Assuming mentor name needs to be looked up, but saving ID is better in DB
+        mentor_id: onboarding.mentor_id,
+        universitas: profilKandidat?.universitas,
+        jurusan: profilKandidat?.jurusan,
+        angkatan: profilKandidat?.angkatan,
+        semester: profilKandidat?.semester,
+        // Set fixed lokasi as requested previously, or leave null to let profile fallback handle it
+        lokasi: 'Kadu, Tangerang'
+      },
+      create: {
+        user_id: userId,
+        id_magang: id_magang,
+        divisi: onboarding.divisi,
+        mentor_id: onboarding.mentor_id,
+        universitas: profilKandidat?.universitas,
+        jurusan: profilKandidat?.jurusan,
+        angkatan: profilKandidat?.angkatan,
+        semester: profilKandidat?.semester,
+        lokasi: 'Kadu, Tangerang'
       }
     });
 
@@ -213,9 +287,18 @@ export const createAccount = async (req, res) => {
       data: { status: 'CHECKLIST_IN_PROGRESS' }
     });
 
+    await prisma.notifikasi.create({
+      data: {
+        user_id: userId,
+        judul: 'Akun Magang Aktif',
+        pesan: 'Selamat! Akun Anda telah di-upgrade. Anda sekarang dapat mengakses menu khusus peserta magang aktif.'
+      }
+    });
+
     await sendEmail(onboarding.pendaftaran.user.email, 'Akun Magang Aktif', `Akun magang Anda siap. Role Anda sudah di-upgrade menjadi MAGANG. Silakan lanjutkan checklist onboarding.`);
     res.status(200).json({ message: 'Akun dibuat/diupgrade', data: updated });
   } catch (error) {
+    console.error("Create account error:", error);
     res.status(500).json({ message: 'Gagal buat akun', error: error.message });
   }
 };
@@ -235,6 +318,14 @@ export const scheduleOrientation = async (req, res) => {
         status: 'ORIENTATION_SCHEDULED'
       },
       include: { pendaftaran: { include: { user: true } } }
+    });
+
+    await prisma.notifikasi.create({
+      data: {
+        user_id: updated.pendaftaran.user.id,
+        judul: 'Jadwal Orientasi',
+        pesan: `Jadwal orientasi Anda telah ditetapkan pada tanggal ${new Date(jadwal_orientasi).toLocaleString('id-ID')}. Mohon cek halaman Onboarding untuk konfirmasi kehadiran.`
+      }
     });
 
     await sendEmail(updated.pendaftaran.user.email, 'Jadwal Orientasi Magang', `Orientasi dijadwalkan pada ${jadwal_orientasi}. Silakan cek portal untuk link/lokasinya dan lakukan konfirmasi kehadiran.`);
@@ -271,9 +362,74 @@ export const confirmOrientation = async (req, res) => {
       include: { pendaftaran: { include: { user: true } } }
     });
 
-    await sendEmail(updated.pendaftaran.user.email, 'Onboarding Selesai', `Terima kasih atas konfirmasinya. Onboarding Anda telah selesai. Anda sekarang adalah Peserta Aktif Magang!`);
-    res.status(200).json({ message: 'Konfirmasi berhasil, Onboarding selesai', data: updated });
+    await sendEmail(updated.pendaftaran.user.email, 'Orientasi Dikonfirmasi', 'Terima kasih telah mengonfirmasi kehadiran orientasi. Sampai jumpa!');
+    res.status(200).json({ message: 'Orientasi dikonfirmasi', data: updated });
   } catch (error) {
-    res.status(500).json({ message: 'Gagal konfirmasi', error: error.message });
+    res.status(500).json({ message: 'Gagal mengonfirmasi', error: error.message });
+  }
+};
+
+// 10. Kandidat: Unggah Dokumen Onboarding (KTP)
+export const uploadOnboardingDocs = async (req, res) => {
+  try {
+    const { id } = req.params; // onboarding id
+    const userId = req.user.id;
+    const files = req.files;
+
+    if (!files || !files['ktp']) {
+      return res.status(400).json({ message: 'Pilih dokumen (KTP) untuk diunggah.' });
+    }
+
+    const onboarding = await prisma.onboarding.findUnique({
+      where: { id: parseInt(id) },
+      include: { pendaftaran: true }
+    });
+
+    if (!onboarding || onboarding.pendaftaran.user_id !== userId) {
+      return res.status(403).json({ message: 'Akses ditolak.' });
+    }
+
+    // Save KTP
+    if (files['ktp'] && files['ktp'].length > 0) {
+      const existingKtp = await prisma.dokumen.findFirst({ where: { user_id: userId, tipe: 'KTP' } });
+      if (existingKtp) {
+        await prisma.dokumen.update({
+          where: { id: existingKtp.id },
+          data: { nama_file: files['ktp'][0].originalname, file_path: `/uploads/${files['ktp'][0].filename}` }
+        });
+      } else {
+        await prisma.dokumen.create({
+          data: {
+            user_id: userId,
+            tipe: 'KTP',
+            nama_file: files['ktp'][0].originalname,
+            file_path: `/uploads/${files['ktp'][0].filename}`
+          }
+        });
+      }
+    }
+
+    // Update status to DOCUMENT_VERIFICATION so Admin knows it's ready for review
+    const updated = await prisma.onboarding.update({
+      where: { id: parseInt(id) },
+      data: { status: 'DOCUMENT_VERIFICATION' }
+    });
+
+    // Notify Admin (we'll notify all admins or just general HR)
+    const admins = await prisma.user.findMany({ where: { role: { in: ['ADMIN', 'HR_ADMIN', 'SUPER_ADMIN'] } } });
+    if (admins.length > 0) {
+      const notifs = admins.map(admin => ({
+        user_id: admin.id,
+        judul: 'Dokumen Onboarding Baru',
+        pesan: `Kandidat telah mengunggah dokumen onboarding (KTP). Silakan verifikasi.`
+      }));
+      for (const notif of notifs) {
+        await prisma.notifikasi.create({ data: notif });
+      }
+    }
+
+    res.status(200).json({ message: 'Dokumen berhasil diunggah', data: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal mengunggah dokumen', error: error.message });
   }
 };
