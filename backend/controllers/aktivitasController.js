@@ -66,7 +66,18 @@ export const getAllAktivitas = async (req, res) => {
     let where = {};
     if (req.user.role === 'MAGANG') {
       where = { user_id: req.user.id };
-    } else if (req.user.role === 'PEMBIMBING') {
+    } else if (req.user.role === 'PEMBIMBING' || req.user.role === 'MENTOR') {
+      const myInterns = await prisma.profilMagang.findMany({
+        where: { mentor_id: req.user.id },
+        select: { user_id: true }
+      });
+      const myInternIds = myInterns.map(i => i.user_id);
+      
+      where = { 
+        user_id: { in: myInternIds },
+        status: { not: 'DRAFT' } 
+      };
+    } else {
       where = { status: { not: 'DRAFT' } };
     }
 
@@ -74,7 +85,7 @@ export const getAllAktivitas = async (req, res) => {
       where,
       include: {
         user: {
-          select: { nama: true, divisi: true }
+          select: { nama: true }
         },
         lampiran: true
       },
@@ -96,7 +107,7 @@ export const getAktivitasById = async (req, res) => {
       where: { id: parseInt(id) },
       include: {
         user: {
-          select: { nama: true, divisi: true }
+          select: { nama: true }
         },
         lampiran: true
       }
