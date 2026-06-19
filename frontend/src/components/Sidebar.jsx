@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, BookOpen, Settings, User, UserPlus, Briefcase, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Settings, User, UserPlus, Briefcase, CheckCircle, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ isOpen }) => {
@@ -21,6 +21,7 @@ const Sidebar = ({ isOpen }) => {
         { name: 'Onboarding Kandidat', path: '/hr/onboarding', icon: <UserPlus size={20} /> },
         { name: 'Data Peserta Aktif', path: '/hr/peserta', icon: <Briefcase size={20} /> },
         { name: 'Administrasi', path: '/admin/users', icon: <Settings size={20} /> },
+        { name: 'Audit Trail', path: '/admin/audit-logs', icon: <Shield size={20} /> },
       ];
     }
 

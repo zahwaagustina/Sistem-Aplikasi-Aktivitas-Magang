@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Clock, FileText, CheckCircle, Download, Calendar, Users } from 'lucide-react';
 import api from '../api';
+import DashboardAnalitik from './admin/DashboardAnalitik';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex items-start space-x-4">
@@ -166,27 +167,7 @@ const Dashboard = () => {
   }
 
   if (user?.role === 'HR_ADMIN' || user?.role === 'SUPER_ADMIN') {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Dashboard HR & Recruitment</h1>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Link to="/hr/lowongan" className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 flex flex-col items-center hover:border-indigo-500 transition-colors">
-            <FileText size={48} className="text-indigo-500 mb-4" />
-            <h2 className="text-xl font-bold text-gray-800">Manajemen Lowongan</h2>
-            <p className="text-gray-500 mt-2 text-center">Kelola lowongan aktif, tutup pendaftaran, atau buat posisi baru.</p>
-          </Link>
-
-          <Link to="/hr/kandidat" className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 flex flex-col items-center hover:border-emerald-500 transition-colors">
-            <Users size={48} className="text-emerald-500 mb-4" />
-            <h2 className="text-xl font-bold text-gray-800">Manajemen Kandidat</h2>
-            <p className="text-gray-500 mt-2 text-center">Seleksi pelamar, atur jadwal wawancara, dan berikan penilaian akhir.</p>
-          </Link>
-        </div>
-      </div>
-    );
+    return <DashboardAnalitik />;
   }
 
   if (user?.role === 'PEMBIMBING' || user?.role === 'MENTOR') {

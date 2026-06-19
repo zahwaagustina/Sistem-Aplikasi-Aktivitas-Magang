@@ -13,6 +13,7 @@ import mentorRoutes from './routes/mentorRoutes.js';
 import penyelesaianRoutes from './routes/penyelesaianRoutes.js';
 import onboardingRoutes from './routes/onboardingRoutes.js';
 import notifikasiRoutes from './routes/notifikasiRoutes.js';
+import { auditTrail } from './middleware/auditTrail.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -26,6 +27,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use(auditTrail);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

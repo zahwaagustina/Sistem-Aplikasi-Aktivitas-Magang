@@ -55,6 +55,68 @@ export const getAdminStats = async (req, res) => {
   }
 };
 
+// Get Dashboard Analytics untuk Chart
+export const getDashboardAnalytics = async (req, res) => {
+  try {
+    const totalKandidat = await prisma.user.count({ where: { role: 'KANDIDAT' } });
+    const totalPeserta = await prisma.user.count({ where: { role: 'MAGANG' } });
+    const totalMentor = await prisma.user.count({ where: { role: 'MENTOR' } });
+    const totalLowongan = await prisma.lowongan.count();
+
+    const totalPendaftar = await prisma.pendaftaran.count();
+    const lolosScreening = await prisma.pendaftaran.count({
+      where: { status: { in: ['SHORTLISTED', 'ACCEPTED'] } }
+    });
+    
+    // Aggregate by Divisi
+    const divisiGroups = await prisma.profilMagang.groupBy({
+      by: ['divisi'],
+      _count: { id: true },
+      where: { status: 'AKTIF' }
+    });
+
+    const divisiData = divisiGroups.map(d => ({
+      name: d.divisi || 'Belum Ditempatkan',
+      value: d._count.id
+    }));
+
+    res.status(200).json({
+      data: {
+        overview: {
+          kandidat: totalKandidat,
+          pesertaAktif: totalPeserta,
+          mentor: totalMentor,
+          lowonganAktif: totalLowongan
+        },
+        funnelData: [
+          { name: 'Pendaftar', value: totalPendaftar },
+          { name: 'Lolos Screening', value: lolosScreening },
+          { name: 'Diterima Magang', value: totalPeserta }
+        ],
+        divisiData: divisiData.length > 0 ? divisiData : [{ name: 'Belum Ada', value: 0 }]
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal mengambil data analitik', error: error.message });
+  }
+};
+
+// Get Audit Logs
+export const getAuditLogs = async (req, res) => {
+  try {
+    const logs = await prisma.auditTrail.findMany({
+      orderBy: { created_at: 'desc' },
+      take: 100, // Ambil 100 log terbaru untuk performa
+      include: {
+        user: { select: { nama: true, email: true, role: true } }
+      }
+    });
+    res.status(200).json({ data: logs });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal mengambil log audit', error: error.message });
+  }
+};
+
 // Get All Users
 export const getUsers = async (req, res) => {
   try {
