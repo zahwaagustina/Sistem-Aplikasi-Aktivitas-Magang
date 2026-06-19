@@ -44,14 +44,15 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (user?.role === 'MAGANG' || user?.role === 'PEMBIMBING') {
+    if (user?.role === 'MAGANG' || user?.role === 'PEMBIMBING' || user?.role === 'MENTOR') {
       const fetchData = async () => {
         try {
+          // Hanya load jika MAGANG. Untuk MENTOR/PEMBIMBING mungkin endpointsnya berbeda, tapi kita ikutin logika sebelumnya dulu
           const resLogs = await api.get('/aktivitas');
           setLogs(resLogs.data.data || []);
           
           if (user?.role === 'PEMBIMBING' || user?.role === 'MENTOR') {
-            const resUsers = await api.get('/users/magang');
+            const resUsers = await api.get('/mentor/anak-magang');
             setMagangUsers(resUsers.data.data || []);
           }
         } catch (error) {

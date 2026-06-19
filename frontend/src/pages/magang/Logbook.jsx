@@ -9,8 +9,8 @@ const Logbook = () => {
 
   const [formData, setFormData] = useState({
     tanggal: new Date().toISOString().split('T')[0],
-    waktu_mulai: '',
-    waktu_selesai: '',
+    waktu_mulai: '08:00',
+    waktu_selesai: '17:00',
     deskripsi_kegiatan: '',
     hasil_kegiatan: '',
     kendala: ''
@@ -41,6 +41,50 @@ const Logbook = () => {
     setLampiran(e.target.files); // bisa multiple
   };
 
+  const handleNumberingFocus = (e) => {
+    const { name, value } = e.target;
+    if (value.trim() === '') {
+      setFormData(prev => ({ ...prev, [name]: '1. ' }));
+    }
+  };
+
+  const handleNumberingKeyDown = (e) => {
+    const { name, value, selectionStart } = e.target;
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const linesBeforeCursor = value.substring(0, selectionStart).split('\n');
+      const lastLine = linesBeforeCursor[linesBeforeCursor.length - 1];
+      
+      const match = lastLine.match(/^(\d+)\.\s*/);
+      if (match) {
+        // Jika baris kosong (hanya nomor), Enter dua kali untuk keluar dari penomoran
+        if (lastLine.trim() === `${match[1]}.`) {
+           const newValue = value.substring(0, selectionStart - lastLine.length) + '\n' + value.substring(selectionStart);
+           setFormData(prev => ({ ...prev, [name]: newValue }));
+           setTimeout(() => e.target.setSelectionRange(selectionStart - lastLine.length + 1, selectionStart - lastLine.length + 1), 0);
+           return;
+        }
+      
+        const nextNum = parseInt(match[1]) + 1;
+        const insertText = `\n${nextNum}. `;
+        const newValue = value.substring(0, selectionStart) + insertText + value.substring(selectionStart);
+        setFormData(prev => ({ ...prev, [name]: newValue }));
+        setTimeout(() => {
+          const newPos = selectionStart + insertText.length;
+          e.target.setSelectionRange(newPos, newPos);
+        }, 0);
+      } else {
+        const insertText = `\n`;
+        const newValue = value.substring(0, selectionStart) + insertText + value.substring(selectionStart);
+        setFormData(prev => ({ ...prev, [name]: newValue }));
+        setTimeout(() => {
+          const newPos = selectionStart + insertText.length;
+          e.target.setSelectionRange(newPos, newPos);
+        }, 0);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -66,8 +110,8 @@ const Logbook = () => {
       setIsModalOpen(false);
       setFormData({
         tanggal: new Date().toISOString().split('T')[0],
-        waktu_mulai: '',
-        waktu_selesai: '',
+        waktu_mulai: '08:00',
+        waktu_selesai: '17:00',
         deskripsi_kegiatan: '',
         hasil_kegiatan: '',
         kendala: ''
@@ -126,9 +170,9 @@ const Logbook = () => {
                   </td>
                   <td className="p-4">
                     <p className="text-sm font-bold text-gray-800 mb-1">Deskripsi:</p>
-                    <p className="text-sm text-gray-600 mb-3">{log.deskripsi_kegiatan}</p>
+                    <p className="text-sm text-gray-600 mb-3 whitespace-pre-wrap leading-relaxed">{log.deskripsi_kegiatan}</p>
                     <p className="text-sm font-bold text-gray-800 mb-1">Hasil:</p>
-                    <p className="text-sm text-gray-600">{log.hasil_kegiatan}</p>
+                    <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{log.hasil_kegiatan}</p>
                   </td>
                   <td className="p-4">
                     {log.lampiran && log.lampiran.length > 0 ? (
@@ -168,7 +212,7 @@ const Logbook = () => {
 
       {/* Modal Tambah Logbook */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
             
             {/* Modal Header (Fixed) */}
@@ -199,12 +243,12 @@ const Logbook = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Kegiatan</label>
-                  <textarea name="deskripsi_kegiatan" required rows="3" value={formData.deskripsi_kegiatan} onChange={handleChange} placeholder="Ceritakan apa saja yang Anda kerjakan..." className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
+                  <textarea name="deskripsi_kegiatan" required rows="4" value={formData.deskripsi_kegiatan} onChange={handleChange} onFocus={handleNumberingFocus} onKeyDown={handleNumberingKeyDown} placeholder="Contoh:&#10;1. Melakukan riset pasar&#10;2. Membuat laporan keuangan" className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none leading-relaxed"></textarea>
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Hasil Kegiatan</label>
-                  <textarea name="hasil_kegiatan" required rows="2" value={formData.hasil_kegiatan} onChange={handleChange} placeholder="Output atau pencapaian yang dihasilkan" className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none"></textarea>
+                  <textarea name="hasil_kegiatan" required rows="3" value={formData.hasil_kegiatan} onChange={handleChange} onFocus={handleNumberingFocus} onKeyDown={handleNumberingKeyDown} placeholder="Contoh:&#10;1. Fitur login berhasil dibuat" className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800 resize-none leading-relaxed"></textarea>
                 </div>
 
                 <div>

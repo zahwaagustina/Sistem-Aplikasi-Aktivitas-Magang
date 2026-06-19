@@ -33,7 +33,7 @@ const Layout = () => {
               ></div>
             )}
             
-            <div className="max-w-7xl mx-auto z-10 relative">
+            <div className="max-w-7xl mx-auto w-full relative">
               <Outlet />
             </div>
           </main>
