@@ -272,7 +272,7 @@ const Dashboard = () => {
                     // Kalkulasi absensi bulan berjalan
                     const currentMonth = new Date().getMonth();
                     const currentYear = new Date().getFullYear();
-                    const userLogs = logs.filter(l => l.user_id === magang.id && l.status !== 'DRAFT');
+                    const userLogs = logs.filter(l => l.user_id === magang.user_id && l.status !== 'DRAFT');
                     
                     const absensiBulanIni = userLogs.filter(l => {
                       const d = new Date(l.tanggal);
@@ -306,10 +306,10 @@ const Dashboard = () => {
                         <td className="py-4">
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-                              {magang.nama.charAt(0)}
+                              {magang.user?.nama?.charAt(0) || '?'}
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-800">{magang.nama}</p>
+                              <p className="font-semibold text-gray-800">{magang.user?.nama || 'Anak Magang'}</p>
                               <p className="text-xs text-gray-500">{magang.universitas || 'Universitas -'} • {magang.jurusan || 'Jurusan -'}</p>
                             </div>
                           </div>
@@ -331,8 +331,8 @@ const Dashboard = () => {
                           <button onClick={() => setSelectedProfile(magang)} className="inline-flex items-center px-3 py-1.5 border border-indigo-100 text-indigo-600 bg-white hover:bg-indigo-50 rounded-lg text-xs font-medium transition-colors">
                             Profil
                           </button>
-                          <Link to={`/pembimbing/monitor?user=${magang.id}`} className="inline-flex items-center px-3 py-1.5 border border-indigo-100 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg text-xs font-medium transition-colors">
-                            Aktivitas
+                          <Link to={`/mentor/profil-magang`} state={{ userId: magang.user_id }} className="inline-flex items-center px-3 py-1.5 border border-indigo-100 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg text-xs font-medium transition-colors">
+                            Detail
                           </Link>
                         </td>
                       </tr>

@@ -13,6 +13,7 @@ const ProfilAnakMagang = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEvaluasiModalOpen, setIsEvaluasiModalOpen] = useState(false);
+  const [isConfirmSelesaiOpen, setIsConfirmSelesaiOpen] = useState(false);
   
   const [activeTab, setActiveTab] = useState('logbook'); // 'logbook', 'tugas', 'evaluasi'
 
@@ -54,9 +55,12 @@ const ProfilAnakMagang = () => {
     }
   };
 
-  const handleSelesaikan = async () => {
-    if (!window.confirm('Apakah Anda yakin ingin menyelesaikan program untuk anak magang ini dan menerbitkan sertifikat?')) return;
-    
+  const handleSelesaikan = () => {
+    setIsConfirmSelesaiOpen(true);
+  };
+
+  const executeSelesaikan = async () => {
+    setIsConfirmSelesaiOpen(false);
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -349,10 +353,46 @@ const ProfilAnakMagang = () => {
         )}
       </div>
 
-      {/* Modal Evaluasi */}
+      {/* Modal Konfirmasi Selesai */}
+      {isConfirmSelesaiOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                <Award className="w-8 h-8 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Konfirmasi Kelulusan</h3>
+              <p className="text-gray-500 text-sm">
+                Apakah Anda yakin ingin menyelesaikan program untuk anak magang ini dan menerbitkan sertifikat kelulusannya?
+              </p>
+              <div className="mt-4 p-3 bg-amber-50 text-amber-800 text-xs rounded-lg border border-amber-100">
+                <p className="font-semibold mb-1">Perhatian:</p>
+                <p>Tindakan ini tidak dapat dibatalkan. Pastikan semua evaluasi dan nilai akhir sudah terisi dengan benar sebelum melanjutkan.</p>
+              </div>
+            </div>
+            <div className="p-4 bg-gray-50 flex justify-end gap-3">
+              <button
+                onClick={() => setIsConfirmSelesaiOpen(false)}
+                className="px-5 py-2.5 rounded-xl font-medium text-gray-600 hover:bg-gray-200 bg-gray-100 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={executeSelesaikan}
+                className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm"
+              >
+                Ya, Selesaikan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Form Evaluasi */}
       {isEvaluasiModalOpen && (
         <FormEvaluasi 
-          pesertaId={state.userId} 
+          profilId={profil.id} 
+          userId={state.userId}
           onClose={() => setIsEvaluasiModalOpen(false)}
           onSuccess={() => {
             setIsEvaluasiModalOpen(false);
