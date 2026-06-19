@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, X, Upload, FileText, CheckCircle, Clock, AlertCircle, Calendar } from 'lucide-react';
+import { Plus, X, Upload, FileText, CheckCircle, Clock, AlertCircle, Calendar, Activity } from 'lucide-react';
 
 const Logbook = () => {
   const [logbooks, setLogbooks] = useState([]);
@@ -184,9 +184,13 @@ const Logbook = () => {
         </div>
       )}
 
-      <div className="space-y-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-5 bg-white border-b border-gray-100">
+          <h2 className="text-gray-800 font-bold text-lg">Riwayat Aktivitas Anda</h2>
+        </div>
+
         {logbooks.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center text-gray-500 italic">
+          <div className="p-8 text-center text-gray-500 italic">
             Belum ada logbook yang diisi.
           </div>
         ) : (
@@ -199,63 +203,64 @@ const Logbook = () => {
             acc[monthYear].push(log);
             return acc;
           }, {})).map(([monthYear, logsInMonth]) => (
-            <div key={monthYear} className="space-y-4">
-              <h2 className="text-xl font-bold text-gray-800 border-b-2 border-indigo-100 pb-2 mb-4 inline-block">{monthYear}</h2>
-              {logsInMonth.map((log) => (
-                <div key={log.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col hover:border-indigo-200 transition-colors">
-                  {/* Header card */}
-                  <div className="flex justify-between items-start mb-5">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-gray-800 uppercase tracking-wide">
-                          {log.user?.profilMagang?.nama_lengkap || 'Siti Zahwa Agustina'}
-                        </h3>
-                        <span className="px-2.5 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
-                          {log.user?.profilMagang?.divisi || 'Magang'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 font-medium">
-                        <span className="flex items-center"><Calendar className="w-4 h-4 mr-1.5 text-gray-400"/> {new Date(log.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                        <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5 text-gray-400"/> {log.waktu_mulai} - {log.waktu_selesai}</span>
-                      </div>
-                    </div>
-                    <div>
+            <div key={monthYear}>
+              {/* Header Bulan */}
+              <div className="bg-indigo-50/50 border-b border-indigo-100 px-6 py-4 flex justify-between items-center">
+                <span className="text-indigo-900 font-bold text-sm tracking-wide">{monthYear}</span>
+                <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-xs font-bold">
+                  {logsInMonth.length} Laporan Terkirim
+                </span>
+              </div>
+
+              {/* Item Logbook */}
+              <div className="flex flex-col">
+                {logsInMonth.map((log) => (
+                  <div key={log.id} className="p-6 border-b border-gray-100 last:border-b-0 hover:bg-gray-50/50 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-gray-800 font-bold text-base">Laporan Aktivitas</h3>
                       {getStatusBadge(log.status)}
                     </div>
-                  </div>
-
-                  {/* Body card */}
-                  <div className="pl-4 border-l-[3px] border-indigo-100 py-1 mb-4">
-                    <p className="text-sm font-bold text-gray-800 mb-1">Deskripsi Kegiatan:</p>
-                    <p className="text-sm text-gray-600 mb-5 whitespace-pre-wrap leading-relaxed">{log.deskripsi_kegiatan}</p>
                     
-                    <p className="text-sm font-bold text-gray-800 mb-1">Hasil:</p>
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{log.hasil_kegiatan}</p>
-                  </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500 font-medium mb-5">
+                      <span className="flex items-center"><Activity className="w-4 h-4 mr-1.5"/> {new Date(log.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                      <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5"/> {log.waktu_mulai} - {log.waktu_selesai}</span>
+                    </div>
 
-                  {/* Footer card - Lampiran & Komentar */}
-                  <div className="flex flex-col gap-3">
-                    {log.lampiran && log.lampiran.length > 0 && (
-                      <div className="flex items-center gap-3 pt-2">
-                        <div className="flex flex-wrap gap-2">
-                          {log.lampiran.map(file => (
-                            <a key={file.id} href={`http://localhost:5000${file.file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs font-semibold text-indigo-600 bg-indigo-50/50 border border-indigo-100 px-3 py-1.5 rounded-lg hover:underline hover:bg-indigo-100 transition-colors shadow-sm">
-                              <FileText className="w-3.5 h-3.5 mr-1.5" /> {file.nama_file}
-                            </a>
-                          ))}
-                        </div>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs font-bold text-gray-800 mb-1.5">Deskripsi Kegiatan:</p>
+                        <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{log.deskripsi_kegiatan}</p>
                       </div>
-                    )}
-                    
-                    {log.komentar_mentor && (
-                      <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-lg">
-                        <p className="text-xs font-bold text-red-800 mb-1">Komentar Mentor:</p>
-                        <p className="text-xs text-red-700 italic">{log.komentar_mentor}</p>
+                      <div>
+                        <p className="text-xs font-bold text-gray-800 mb-1.5">Hasil:</p>
+                        <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{log.hasil_kegiatan}</p>
                       </div>
-                    )}
+                      
+                      <div className="pt-2 flex flex-col gap-3">
+                        {log.lampiran && log.lampiran.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-gray-800 mr-2">Lampiran:</span>
+                            <div className="flex flex-wrap gap-2">
+                              {log.lampiran.map(file => (
+                                <a key={file.id} href={`http://localhost:5000${file.file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-lg hover:underline hover:bg-indigo-100 transition-colors shadow-sm">
+                                  <FileText className="w-3.5 h-3.5 mr-1.5" /> {file.nama_file}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {log.komentar_mentor && (
+                          <div className="p-3 bg-red-50 border border-red-100 rounded-lg inline-block w-max mt-1">
+                            <p className="text-xs font-bold text-red-800 mb-1">Komentar Mentor:</p>
+                            <p className="text-xs text-red-700 italic pr-8">{log.komentar_mentor}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ))
         )}
