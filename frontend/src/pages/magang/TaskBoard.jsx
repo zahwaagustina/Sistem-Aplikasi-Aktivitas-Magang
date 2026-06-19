@@ -197,37 +197,57 @@ const TaskBoard = () => {
 
       {/* Modal Submit Tugas */}
       {isSubmitModalOpen && selectedTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-            <div className="bg-indigo-600 p-6 text-white">
-              <h2 className="text-xl font-bold">Kumpulkan Hasil Tugas</h2>
-              <p className="text-indigo-100 text-sm mt-1">{selectedTask.judul}</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 pb-2 text-left">
+              <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                <Upload className="w-8 h-8 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Kumpulkan Hasil Tugas</h3>
+              <p className="text-gray-500 text-sm">
+                Unggah hasil akhir untuk tugas <span className="font-semibold text-gray-700">"{selectedTask.judul}"</span>.
+              </p>
             </div>
             
-            <form onSubmit={handleSubmitResult} className="p-6 space-y-5">
-              <div className="bg-yellow-50 p-4 border border-yellow-100 rounded-xl">
-                <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-yellow-800">Pastikan file hasil akhir sudah benar.</p>
-                    <p className="text-xs text-yellow-700 mt-1">Setelah dikumpulkan, tugas akan masuk ke kolom Review untuk dinilai oleh mentor.</p>
-                  </div>
+            <form onSubmit={handleSubmitResult}>
+              <div className="p-6 pt-4 space-y-5">
+                <div className="p-3 bg-amber-50 text-amber-800 text-xs rounded-lg border border-amber-100 text-left">
+                  <p className="font-semibold mb-1 flex items-center">
+                    <AlertCircle className="w-3.5 h-3.5 mr-1" /> Perhatian:
+                  </p>
+                  <p>Pastikan file hasil akhir sudah benar. Setelah dikumpulkan, tugas akan pindah ke kolom Review.</p>
+                </div>
+
+                <div className="w-full text-left">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload File (PDF/Zip/Gambar)</label>
+                  <input 
+                    type="file" 
+                    required 
+                    onChange={(e) => setFileHasil(e.target.files[0])} 
+                    className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-indigo-50 file:text-indigo-700
+                      hover:file:bg-indigo-100
+                      border border-gray-200 rounded-lg"
+                  />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Unggah File (PDF/Zip)</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors">
-                  <Upload className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
-                  <input type="file" required onChange={(e) => setFileHasil(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <button type="button" onClick={() => { setIsSubmitModalOpen(false); setFileHasil(null); }} className="px-5 py-2 mr-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-colors">
+              <div className="p-4 bg-gray-50 flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => { setIsSubmitModalOpen(false); setFileHasil(null); }} 
+                  className="px-5 py-2.5 rounded-xl font-medium text-gray-600 hover:bg-gray-200 bg-gray-100 transition-colors"
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={loading} className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-70 flex items-center">
+                <button 
+                  type="submit" 
+                  disabled={loading} 
+                  className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                >
                   {loading ? 'Mengirim...' : 'Kirim ke Mentor'}
                 </button>
               </div>

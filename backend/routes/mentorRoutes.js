@@ -3,7 +3,10 @@ import {
   getAnakMagang, 
   getDetailAnakMagang, 
   submitEvaluasi,
-  approveLogbook
+  approveLogbook,
+  createTugas,
+  deleteTugas,
+  reviewTugas
 } from '../controllers/mentorController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 
@@ -23,5 +26,10 @@ router.post('/anak-magang/:id/evaluasi', submitEvaluasi);
 
 // Approve logbook
 router.put('/logbook/:id/approve', approveLogbook);
+
+// Manajemen Tugas
+router.post('/tugas', createTugas);
+router.delete('/tugas/:id', deleteTugas);
+router.put('/tugas/:id/review', reviewTugas);
 
 export default router;

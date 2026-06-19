@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, X, Upload, FileText, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Plus, X, Upload, FileText, CheckCircle, Clock, AlertCircle, Calendar } from 'lucide-react';
 
 const Logbook = () => {
   const [logbooks, setLogbooks] = useState([]);
@@ -134,6 +134,25 @@ const Logbook = () => {
     }
   };
 
+  const getLogbookStatsPerMonth = () => {
+    const stats = {};
+    logbooks.forEach(log => {
+      const date = new Date(log.tanggal);
+      const monthYearKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthYearLabel = date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+      
+      if (!stats[monthYearKey]) {
+        stats[monthYearKey] = { label: monthYearLabel, count: 0 };
+      }
+      stats[monthYearKey].count++;
+    });
+    
+    // Sort descending
+    return Object.keys(stats).sort().reverse().map(key => stats[key]);
+  };
+
+  const monthStats = getLogbookStatsPerMonth();
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
@@ -150,64 +169,83 @@ const Logbook = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
-                <th className="p-4 font-semibold">Tanggal & Waktu</th>
-                <th className="p-4 font-semibold w-1/3">Aktivitas & Hasil</th>
-                <th className="p-4 font-semibold">Lampiran</th>
-                <th className="p-4 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logbooks.map((log) => (
-                <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors align-top">
-                  <td className="p-4">
-                    <p className="font-semibold text-gray-800">{new Date(log.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                    <p className="text-xs text-gray-500 font-mono mt-1">{log.waktu_mulai} - {log.waktu_selesai}</p>
-                  </td>
-                  <td className="p-4">
-                    <p className="text-sm font-bold text-gray-800 mb-1">Deskripsi:</p>
-                    <p className="text-sm text-gray-600 mb-3 whitespace-pre-wrap leading-relaxed">{log.deskripsi_kegiatan}</p>
-                    <p className="text-sm font-bold text-gray-800 mb-1">Hasil:</p>
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{log.hasil_kegiatan}</p>
-                  </td>
-                  <td className="p-4">
-                    {log.lampiran && log.lampiran.length > 0 ? (
-                      <div className="space-y-2">
-                        {log.lampiran.map(file => (
-                          <a key={file.id} href={`http://localhost:5000${file.file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs text-indigo-600 hover:underline">
-                            <FileText className="w-4 h-4 mr-1" /> {file.nama_file}
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-gray-400 italic">Tidak ada lampiran</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    {getStatusBadge(log.status)}
-                    {log.komentar_mentor && (
-                      <div className="mt-3 p-3 bg-red-50 border border-red-100 rounded-lg">
-                        <p className="text-xs font-bold text-red-800 mb-1">Komentar Mentor:</p>
-                        <p className="text-xs text-red-700 italic">{log.komentar_mentor}</p>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {logbooks.length === 0 && (
-                <tr>
-                  <td colSpan="4" className="p-8 text-center text-gray-500 italic">
-                    Belum ada logbook yang diisi.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {/* Tampilan Statistik Per Bulan */}
+      {monthStats.length > 0 && (
+        <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+          {monthStats.map((stat, idx) => (
+            <div key={idx} className="bg-white border border-gray-100 shadow-sm rounded-xl px-4 py-3 min-w-[140px] flex flex-col justify-center shrink-0">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{stat.label}</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-extrabold text-indigo-600">{stat.count}</span>
+                <span className="text-xs text-gray-400 font-medium">terkirim</span>
+              </div>
+            </div>
+          ))}
         </div>
+      )}
+
+      <div className="space-y-4">
+        {logbooks.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center text-gray-500 italic">
+            Belum ada logbook yang diisi.
+          </div>
+        ) : (
+          logbooks.map((log) => (
+            <div key={log.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col hover:border-indigo-200 transition-colors">
+              {/* Header card */}
+              <div className="flex justify-between items-start mb-5">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-bold text-gray-800 uppercase tracking-wide">
+                      {log.user?.profilMagang?.nama_lengkap || 'Siti Zahwa Agustina'}
+                    </h3>
+                    <span className="px-2.5 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
+                      {log.user?.profilMagang?.divisi || 'Magang'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-500 font-medium">
+                    <span className="flex items-center"><Calendar className="w-4 h-4 mr-1.5 text-gray-400"/> {new Date(log.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5 text-gray-400"/> {log.waktu_mulai} - {log.waktu_selesai}</span>
+                  </div>
+                </div>
+                <div>
+                  {getStatusBadge(log.status)}
+                </div>
+              </div>
+
+              {/* Body card */}
+              <div className="pl-4 border-l-[3px] border-indigo-100 py-1 mb-4">
+                <p className="text-sm font-bold text-gray-800 mb-1">Deskripsi Kegiatan:</p>
+                <p className="text-sm text-gray-600 mb-5 whitespace-pre-wrap leading-relaxed">{log.deskripsi_kegiatan}</p>
+                
+                <p className="text-sm font-bold text-gray-800 mb-1">Hasil:</p>
+                <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{log.hasil_kegiatan}</p>
+              </div>
+
+              {/* Footer card - Lampiran & Komentar */}
+              <div className="flex flex-col gap-3">
+                {log.lampiran && log.lampiran.length > 0 && (
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {log.lampiran.map(file => (
+                        <a key={file.id} href={`http://localhost:5000${file.file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs font-semibold text-indigo-600 bg-indigo-50/50 border border-indigo-100 px-3 py-1.5 rounded-lg hover:underline hover:bg-indigo-100 transition-colors shadow-sm">
+                          <FileText className="w-3.5 h-3.5 mr-1.5" /> {file.nama_file}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {log.komentar_mentor && (
+                  <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-lg">
+                    <p className="text-xs font-bold text-red-800 mb-1">Komentar Mentor:</p>
+                    <p className="text-xs text-red-700 italic">{log.komentar_mentor}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modal Tambah Logbook */}

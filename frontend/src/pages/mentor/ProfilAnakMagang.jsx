@@ -16,6 +16,15 @@ const ProfilAnakMagang = () => {
   const [isConfirmSelesaiOpen, setIsConfirmSelesaiOpen] = useState(false);
   const [sertifikatFile, setSertifikatFile] = useState(null);
   
+  const [isFormTugasOpen, setIsFormTugasOpen] = useState(false);
+  const [formTugas, setFormTugas] = useState({
+    judul: '', deskripsi: '', deadline: '', prioritas: 'MEDIUM'
+  });
+
+  const [isReviewTugasOpen, setIsReviewTugasOpen] = useState(false);
+  const [selectedTugasForReview, setSelectedTugasForReview] = useState(null);
+  const [reviewFeedback, setReviewFeedback] = useState('');
+
   const [activeTab, setActiveTab] = useState('logbook'); // 'logbook', 'tugas', 'evaluasi'
 
   useEffect(() => {
@@ -85,6 +94,60 @@ const ProfilAnakMagang = () => {
     } catch (error) {
       console.error('Error upload sertifikat:', error);
       alert(error.response?.data?.message || 'Gagal mengunggah sertifikat.');
+      setLoading(false);
+    }
+  };
+
+  const handleCreateTugas = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:5000/api/mentor/tugas', {
+        peserta_id: state.userId,
+        ...formTugas
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setIsFormTugasOpen(false);
+      setFormTugas({ judul: '', deskripsi: '', deadline: '', prioritas: 'MEDIUM' });
+      fetchDetail();
+    } catch (error) {
+      console.error('Error create tugas:', error);
+      alert('Gagal membuat tugas baru');
+    }
+  };
+
+  const handleDeleteTugas = async (id) => {
+    if(!window.confirm('Hapus tugas ini?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/mentor/tugas/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchDetail();
+    } catch (error) {
+      console.error('Error delete tugas:', error);
+      alert('Gagal menghapus tugas');
+    }
+  };
+
+  const executeReviewTugas = async (status) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:5000/api/mentor/tugas/${selectedTugasForReview.id}/review`, {
+        status,
+        feedback: reviewFeedback
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setIsReviewTugasOpen(false);
+      setSelectedTugasForReview(null);
+      setReviewFeedback('');
+      fetchDetail();
+    } catch (error) {
+      console.error('Error review tugas:', error);
+      alert('Gagal mengirim review tugas');
       setLoading(false);
     }
   };
@@ -289,22 +352,59 @@ const ProfilAnakMagang = () => {
 
         {activeTab === 'tugas' && (
           <div className="space-y-4">
+            <div className="flex justify-end mb-4">
+              <button 
+                onClick={() => setIsFormTugasOpen(true)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+              >
+                + Berikan Tugas Baru
+              </button>
+            </div>
+            
             {tugas.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Belum ada tugas yang diberikan.</p>
             ) : (
               tugas.map(t => (
-                <div key={t.id} className="border border-gray-100 rounded-lg p-4 flex justify-between items-center">
-                  <div>
-                    <h4 className="font-bold text-gray-800">{t.judul}</h4>
-                    <p className="text-sm text-gray-500">Deadline: {new Date(t.deadline).toLocaleDateString('id-ID')} • Prioritas: <span className="font-semibold">{t.prioritas}</span></p>
+                <div key={t.id} className="border border-gray-100 rounded-lg p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-bold text-gray-800">{t.judul}</h4>
+                      <p className="text-sm text-gray-500">Deadline: {new Date(t.deadline).toLocaleDateString('id-ID')} • Prioritas: <span className="font-semibold">{t.prioritas}</span></p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${t.status === 'DONE' ? 'bg-green-100 text-green-700' : t.status === 'REVIEW' ? 'bg-indigo-100 text-indigo-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {t.status}
+                      </span>
+                      {t.status === 'REVIEW' && (
+                        <button 
+                          onClick={() => {
+                            setSelectedTugasForReview(t);
+                            setReviewFeedback(t.feedback || '');
+                            setIsReviewTugasOpen(true);
+                          }}
+                          className="px-3 py-1.5 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 text-xs font-bold rounded-lg transition-colors"
+                        >
+                          Tinjau Hasil
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => handleDeleteTugas(t.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Hapus Tugas"
+                      >
+                        <XCircle className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${t.status === 'DONE' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {t.status}
-                  </span>
+                  {t.feedback && (
+                    <div className="mt-2 ml-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase mb-1">Feedback Anda:</p>
+                      <p className="text-sm text-gray-700">{t.feedback}</p>
+                    </div>
+                  )}
                 </div>
               ))
             )}
-            <p className="text-sm text-center text-gray-400 italic mt-6">Manajemen tugas selengkapnya dapat diakses dari menu Task Board (mendatang).</p>
           </div>
         )}
 
@@ -431,6 +531,146 @@ const ProfilAnakMagang = () => {
           }}
         />
       )}
+
+      {/* Modal Form Tugas */}
+      {isFormTugasOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-gray-800">Berikan Tugas Baru</h3>
+              <button onClick={() => setIsFormTugasOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateTugas} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Judul Tugas</label>
+                <input 
+                  type="text" 
+                  required
+                  value={formTugas.judul}
+                  onChange={(e) => setFormTugas({...formTugas, judul: e.target.value})}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  placeholder="Misal: Buat Laporan Mingguan"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                <textarea 
+                  required
+                  rows="3"
+                  value={formTugas.deskripsi}
+                  onChange={(e) => setFormTugas({...formTugas, deskripsi: e.target.value})}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  placeholder="Penjelasan detail mengenai tugas..."
+                ></textarea>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={formTugas.deadline}
+                    onChange={(e) => setFormTugas({...formTugas, deadline: e.target.value})}
+                    className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Prioritas</label>
+                  <select 
+                    value={formTugas.prioritas}
+                    onChange={(e) => setFormTugas({...formTugas, prioritas: e.target.value})}
+                    className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  >
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                  </select>
+                </div>
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button type="button" onClick={() => setIsFormTugasOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  Batal
+                </button>
+                <button type="submit" className="px-4 py-2 bg-indigo-600 rounded-lg text-sm font-medium text-white hover:bg-indigo-700">
+                  Simpan & Kirim
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Review Tugas */}
+      {isReviewTugasOpen && selectedTugasForReview && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">Tinjau Hasil Tugas</h3>
+                <p className="text-sm text-gray-500 mt-1">{selectedTugasForReview.judul}</p>
+              </div>
+              <button onClick={() => setIsReviewTugasOpen(false)} className="text-gray-400 hover:text-gray-600 mt-1">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 space-y-5">
+              
+              {selectedTugasForReview.file_hasil ? (
+                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <FileText className="w-8 h-8 text-indigo-500 mr-3" />
+                    <div>
+                      <p className="text-sm font-semibold text-indigo-900">File Hasil Kerja</p>
+                      <p className="text-xs text-indigo-700">Diunggah oleh anak magang</p>
+                    </div>
+                  </div>
+                  <a 
+                    href={`http://localhost:5000${selectedTugasForReview.file_hasil}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    Unduh File
+                  </a>
+                </div>
+              ) : (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
+                  <p className="text-sm text-gray-500 italic">Tidak ada file yang dilampirkan.</p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Feedback / Catatan (Opsional)</label>
+                <textarea 
+                  rows="3"
+                  value={reviewFeedback}
+                  onChange={(e) => setReviewFeedback(e.target.value)}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  placeholder="Ketik catatan evaluasi atau instruksi revisi jika ada..."
+                ></textarea>
+              </div>
+
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+              <button 
+                onClick={() => executeReviewTugas('IN_PROGRESS')}
+                className="px-4 py-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-lg text-sm font-bold transition-colors"
+              >
+                Minta Revisi
+              </button>
+              <button 
+                onClick={() => executeReviewTugas('DONE')}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold transition-colors shadow-sm"
+              >
+                Terima & Selesai
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
