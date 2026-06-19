@@ -14,15 +14,22 @@ const Sidebar = ({ isOpen }) => {
     const userRole = user?.role?.toUpperCase() || '';
 
     if (userRole === 'SUPER_ADMIN' || userRole === 'HR_ADMIN') {
-      return [
+      const items = [
         ...baseItems,
         { name: 'Lowongan Magang', path: '/hr/lowongan', icon: <BookOpen size={20} /> },
         { name: 'Kandidat Pelamar', path: '/hr/kandidat', icon: <Users size={20} /> },
         { name: 'Onboarding Kandidat', path: '/hr/onboarding', icon: <UserPlus size={20} /> },
         { name: 'Data Peserta Aktif', path: '/hr/peserta', icon: <Briefcase size={20} /> },
-        { name: 'Administrasi', path: '/admin/users', icon: <Settings size={20} /> },
-        { name: 'Audit Trail', path: '/admin/audit-logs', icon: <Shield size={20} /> },
       ];
+
+      if (userRole === 'SUPER_ADMIN') {
+        items.push(
+          { name: 'Administrasi', path: '/admin/users', icon: <Settings size={20} /> },
+          { name: 'Audit Trail', path: '/admin/audit-logs', icon: <Shield size={20} /> }
+        );
+      }
+
+      return items;
     }
 
     if (userRole === 'MENTOR') {

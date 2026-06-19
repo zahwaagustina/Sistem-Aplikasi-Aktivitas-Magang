@@ -64,12 +64,16 @@ function App() {
               <Route path="/kandidat/onboarding" element={<OnboardingKandidat />} />
             </Route>
 
-            {/* HR_ADMIN & SUPER_ADMIN Routes */}
+            {/* HR_ADMIN Routes (Bisa diakses Super Admin juga karena role hirarki, atau definisikan eksplisit) */}
             <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_ADMIN']} />}>
               <Route path="/hr/lowongan" element={<ManajemenLowongan />} />
               <Route path="/hr/kandidat" element={<ManajemenKandidat />} />
               <Route path="/hr/onboarding" element={<OnboardingDashboard />} />
               <Route path="/hr/peserta" element={<ProfilPeserta />} />
+            </Route>
+
+            {/* SUPER_ADMIN EXCLUSIVE Routes */}
+            <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
               <Route path="/admin/users" element={<UserManagement />} />
               <Route path="/admin/audit-logs" element={<AuditTrail />} />
             </Route>
