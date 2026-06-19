@@ -122,29 +122,68 @@ export const generateSertifikat = async (req, res) => {
     const doc = new PDFDocument({
       layout: 'landscape',
       size: 'A4',
+      margin: 0 // Remove margins for full background
     });
 
     doc.pipe(fs.createWriteStream(fullPath));
 
-    // Draw Certificate
-    doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
-    
-    // Add border
-    doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke('#4f46e5');
+    // Cek apakah ada file template_sertifikat.png
+    const templatePath = path.join(__dirname, '..', 'uploads', 'template_sertifikat.png');
+    if (fs.existsSync(templatePath)) {
+      doc.image(templatePath, 0, 0, { width: doc.page.width, height: doc.page.height });
+    } else {
+      // Fallback jika belum di-upload
+      doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
+      doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke('#4f46e5');
+      doc.fontSize(40).fillColor('#1e1b4b').text('SERTIFIKAT KELULUSAN', 0, 80, { align: 'center' });
+    }
 
-    doc.fontSize(40).fillColor('#1e1b4b').text('SERTIFIKAT KELULUSAN MAGANG', 0, 150, { align: 'center' });
-    doc.fontSize(20).fillColor('#4338ca').text('Diberikan Kepada:', 0, 220, { align: 'center' });
-    doc.fontSize(35).fillColor('#111827').text(profilMagang.user.nama, 0, 260, { align: 'center' });
-    
-    doc.fontSize(16).fillColor('#4b5563').text(`Universitas: ${profilMagang.universitas || '-'}`, 0, 320, { align: 'center' });
-    doc.text(`Telah menyelesaikan program magang pada divisi ${profilMagang.divisi || '-'}`, 0, 350, { align: 'center' });
-    
-    const tglMulai = profilMagang.tanggal_mulai ? new Date(profilMagang.tanggal_mulai).toLocaleDateString('id-ID') : '-';
-    const tglSelesai = profilMagang.tanggal_selesai ? new Date(profilMagang.tanggal_selesai).toLocaleDateString('id-ID') : '-';
-    doc.text(`Periode: ${tglMulai} s.d. ${tglSelesai}`, 0, 380, { align: 'center' });
+    // Register Custom Font for Signature/Name
+    const fontPath = path.join(__dirname, '..', 'uploads', 'fonts', 'DancingScript.ttf');
+    let hasCustomFont = false;
+    if (fs.existsSync(fontPath)) {
+      doc.registerFont('Cursive', fontPath);
+      hasCustomFont = true;
+    }
 
-    doc.fontSize(14).fillColor('#1f2937').text('Manager HR', 150, 480);
-    doc.text('Mentor Pembimbing', doc.page.width - 300, 480);
+    // Coordinates mapping based on the visual layout provided
+    const textX = 80;
+    
+    doc.fontSize(14).fillColor('#111827').text('Dengan bangga diberikan kepada :', textX, 220);
+    
+    if (hasCustomFont) {
+      doc.font('Cursive').fontSize(50).fillColor('#1e1b4b').text(profilMagang.user.nama, textX, 250);
+    } else {
+      doc.font('Helvetica-Bold').fontSize(35).fillColor('#1e1b4b').text(profilMagang.user.nama, textX, 260);
+    }
+    
+    // Reset font back to default (Helvetica)
+    doc.font('Helvetica');
+    
+    // Text Mahasiswa
+    const jurusanText = profilMagang.user.jurusan || 'Teknologi Informasi';
+    const univText = profilMagang.user.universitas || 'Universitas';
+    doc.fontSize(12).fillColor('#4b5563').font('Helvetica-Oblique')
+       .text(`Mahasiswa/i ${jurusanText} ${univText}`, textX, 330);
+       
+    doc.font('Helvetica');
+    
+    const tglMulai = profilMagang.tanggal_mulai ? new Date(profilMagang.tanggal_mulai).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}) : '-';
+    const tglSelesai = profilMagang.tanggal_selesai ? new Date(profilMagang.tanggal_selesai).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}) : '-';
+    
+    doc.fontSize(12).fillColor('#1f2937').text(
+      `Telah menyelesaikan program magang di perusahaan pada divisi ${profilMagang.divisi || '-'} ` +
+      `dimulai pada ${tglMulai} hingga ${tglSelesai}`,
+      textX, 360, { width: 500, align: 'left', lineGap: 4 }
+    );
+
+    // KETUA PANITIA / MENTOR section
+    // In template it is around x=580, y=450
+    // Signature placeholder
+    // We don't draw the signature line if using template, as template has it.
+    if (!fs.existsSync(templatePath)) {
+      doc.fontSize(12).fillColor('#1f2937').text('Ketua Panitia / Mentor', doc.page.width - 250, 480);
+    }
 
     doc.end();
 
