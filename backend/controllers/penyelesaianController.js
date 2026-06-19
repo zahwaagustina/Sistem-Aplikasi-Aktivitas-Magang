@@ -229,3 +229,72 @@ export const generateSertifikat = async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
   }
 };
+
+export const uploadSertifikatManual = async (req, res) => {
+  try {
+    const targetUserId = parseInt(req.params.userId);
+    const mentorId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'File sertifikat tidak ditemukan dalam request' });
+    }
+
+    const profilMagang = await prisma.profilMagang.findUnique({
+      where: { user_id: targetUserId },
+      include: {
+        user: { select: { nama: true } }
+      }
+    });
+
+    if (!profilMagang || profilMagang.mentor_id !== mentorId) {
+      return res.status(403).json({ message: 'Akses ditolak. Anda bukan mentor anak magang ini.' });
+    }
+
+    // Ubah status jadi SELESAI
+    await prisma.profilMagang.update({
+      where: { id: profilMagang.id },
+      data: { status: 'SELESAI' }
+    });
+
+    const dbPath = `/uploads/dokumen/${req.file.filename}`;
+
+    // Cek jika sudah pernah di-generate sebelumnya
+    const existingSertifikat = await prisma.dokumen.findFirst({
+        where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
+    });
+
+    let sertifikatRecord;
+    if (existingSertifikat) {
+        sertifikatRecord = await prisma.dokumen.update({
+            where: { id: existingSertifikat.id },
+            data: {
+                nama_file: req.file.originalname,
+                file_path: dbPath
+            }
+        });
+    } else {
+        sertifikatRecord = await prisma.dokumen.create({
+            data: {
+                user_id: targetUserId,
+                tipe: 'SERTIFIKAT',
+                nama_file: req.file.originalname,
+                file_path: dbPath
+            }
+        });
+    }
+
+    await prisma.notifikasi.create({
+      data: {
+        user_id: targetUserId,
+        judul: 'Sertifikat Kelulusan Diterbitkan',
+        pesan: 'Selamat! Anda telah menyelesaikan program magang. Sertifikat Kelulusan Anda telah diunggah oleh Mentor dan dapat diunduh di portal.'
+      }
+    });
+
+    res.json({ message: 'Sertifikat berhasil diunggah dan program diselesaikan', data: sertifikatRecord });
+
+  } catch (error) {
+    console.error('Upload sertifikat manual error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+  }
+};

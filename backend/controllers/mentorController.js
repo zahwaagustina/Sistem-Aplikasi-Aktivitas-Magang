@@ -181,3 +181,112 @@ export const approveLogbook = async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan', error: error.message });
   }
 };
+
+// ==========================================
+// TUGAS MANAGEMENT
+// ==========================================
+
+export const createTugas = async (req, res) => {
+  try {
+    const { peserta_id, judul, deskripsi, deadline, prioritas } = req.body;
+    const mentorId = req.user.id;
+
+    if (!peserta_id || !judul || !deskripsi || !deadline) {
+      return res.status(400).json({ message: 'Semua field wajib diisi' });
+    }
+
+    const tugas = await prisma.tugas.create({
+      data: {
+        mentor_id: mentorId,
+        peserta_id: parseInt(peserta_id),
+        judul,
+        deskripsi,
+        deadline: new Date(deadline),
+        prioritas: prioritas || 'MEDIUM',
+        status: 'TODO'
+      }
+    });
+
+    await prisma.notifikasi.create({
+      data: {
+        user_id: parseInt(peserta_id),
+        judul: 'Tugas Baru Diberikan',
+        pesan: `Mentor telah memberikan tugas baru: "${judul}". Segera cek Papan Tugas Anda.`
+      }
+    });
+
+    res.status(201).json({ message: 'Tugas berhasil dibuat', data: tugas });
+  } catch (error) {
+    console.error('Create tugas error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+  }
+};
+
+export const deleteTugas = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const mentorId = req.user.id;
+
+    const tugas = await prisma.tugas.findUnique({ where: { id: parseInt(id) } });
+
+    if (!tugas) {
+      return res.status(404).json({ message: 'Tugas tidak ditemukan' });
+    }
+
+    if (tugas.mentor_id !== mentorId) {
+      return res.status(403).json({ message: 'Anda tidak berhak menghapus tugas ini' });
+    }
+
+    await prisma.tugas.delete({ where: { id: parseInt(id) } });
+
+    res.json({ message: 'Tugas berhasil dihapus' });
+  } catch (error) {
+    console.error('Delete tugas error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+  }
+};
+
+export const reviewTugas = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, feedback } = req.body;
+    const mentorId = req.user.id;
+
+    if (!['DONE', 'IN_PROGRESS'].includes(status)) {
+      return res.status(400).json({ message: 'Status tidak valid' });
+    }
+
+    const tugas = await prisma.tugas.findUnique({ where: { id: parseInt(id) } });
+
+    if (!tugas) {
+      return res.status(404).json({ message: 'Tugas tidak ditemukan' });
+    }
+
+    if (tugas.mentor_id !== mentorId) {
+      return res.status(403).json({ message: 'Anda tidak berhak me-review tugas ini' });
+    }
+
+    const updatedTugas = await prisma.tugas.update({
+      where: { id: parseInt(id) },
+      data: {
+        status,
+        feedback: feedback || null
+      }
+    });
+
+    const statusText = status === 'DONE' ? 'diterima dan selesai' : 'dikembalikan untuk direvisi';
+
+    await prisma.notifikasi.create({
+      data: {
+        user_id: tugas.peserta_id,
+        judul: 'Hasil Review Tugas',
+        pesan: `Tugas "${tugas.judul}" telah di-review oleh mentor dan ${statusText}. Silakan cek Papan Tugas Anda.`
+      }
+    });
+
+    res.json({ message: 'Review berhasil disimpan', data: updatedTugas });
+  } catch (error) {
+    console.error('Review tugas error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+  }
+};

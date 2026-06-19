@@ -14,6 +14,7 @@ const ProfilAnakMagang = () => {
   const [loading, setLoading] = useState(true);
   const [isEvaluasiModalOpen, setIsEvaluasiModalOpen] = useState(false);
   const [isConfirmSelesaiOpen, setIsConfirmSelesaiOpen] = useState(false);
+  const [sertifikatFile, setSertifikatFile] = useState(null);
   
   const [activeTab, setActiveTab] = useState('logbook'); // 'logbook', 'tugas', 'evaluasi'
 
@@ -60,18 +61,30 @@ const ProfilAnakMagang = () => {
   };
 
   const executeSelesaikan = async () => {
+    if (!sertifikatFile) {
+      alert('Mohon unggah file sertifikat terlebih dahulu!');
+      return;
+    }
+
     setIsConfirmSelesaiOpen(false);
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/mentor/generate-sertifikat/${state.userId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
+      
+      const formData = new FormData();
+      formData.append('sertifikat', sertifikatFile);
+
+      await axios.post(`http://localhost:5000/api/mentor/upload-sertifikat/${state.userId}`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
-      alert('Program berhasil diselesaikan dan sertifikat telah diterbitkan!');
+      alert('Sertifikat berhasil diunggah dan program diselesaikan!');
       fetchDetail();
     } catch (error) {
-      console.error('Error generate sertifikat:', error);
-      alert(error.response?.data?.message || 'Gagal menerbitkan sertifikat. Pastikan laporan akhir sudah diunggah.');
+      console.error('Error upload sertifikat:', error);
+      alert(error.response?.data?.message || 'Gagal mengunggah sertifikat.');
       setLoading(false);
     }
   };
@@ -362,12 +375,29 @@ const ProfilAnakMagang = () => {
                 <Award className="w-8 h-8 text-indigo-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">Konfirmasi Kelulusan</h3>
-              <p className="text-gray-500 text-sm">
-                Apakah Anda yakin ingin menyelesaikan program untuk anak magang ini dan menerbitkan sertifikat kelulusannya?
+              <p className="text-gray-500 text-sm mb-4">
+                Silakan unggah sertifikat kelulusan anak magang ini untuk menyelesaikan program secara resmi.
               </p>
-              <div className="mt-4 p-3 bg-amber-50 text-amber-800 text-xs rounded-lg border border-amber-100">
+              
+              <div className="w-full mt-2 text-left">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Upload Sertifikat (PDF/Gambar)</label>
+                <input 
+                  type="file" 
+                  accept=".pdf,image/*"
+                  onChange={(e) => setSertifikatFile(e.target.files[0])}
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-indigo-50 file:text-indigo-700
+                    hover:file:bg-indigo-100
+                    border border-gray-200 rounded-lg"
+                />
+              </div>
+
+              <div className="mt-4 p-3 bg-amber-50 text-amber-800 text-xs rounded-lg border border-amber-100 text-left">
                 <p className="font-semibold mb-1">Perhatian:</p>
-                <p>Tindakan ini tidak dapat dibatalkan. Pastikan semua evaluasi dan nilai akhir sudah terisi dengan benar sebelum melanjutkan.</p>
+                <p>Tindakan ini tidak dapat dibatalkan. Sertifikat yang diunggah akan langsung dapat diunduh oleh anak magang.</p>
               </div>
             </div>
             <div className="p-4 bg-gray-50 flex justify-end gap-3">
@@ -379,9 +409,10 @@ const ProfilAnakMagang = () => {
               </button>
               <button
                 onClick={executeSelesaikan}
-                className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm"
+                disabled={!sertifikatFile}
+                className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Ya, Selesaikan
+                Unggah & Selesaikan
               </button>
             </div>
           </div>
