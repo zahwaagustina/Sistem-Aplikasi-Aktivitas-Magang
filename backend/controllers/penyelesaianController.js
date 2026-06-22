@@ -100,13 +100,22 @@ export const generateSertifikat = async (req, res) => {
       return res.status(403).json({ message: 'Akses ditolak atau peserta tidak ditemukan' });
     }
 
-    // Pastikan laporan akhir sudah ada (opsional, tapi disarankan)
+    // Pastikan laporan akhir sudah ada
     const laporanAkhir = await prisma.dokumen.findFirst({
       where: { user_id: targetUserId, tipe: 'LAPORAN_AKHIR' }
     });
 
     if (!laporanAkhir) {
       return res.status(400).json({ message: 'Peserta belum mengunggah Laporan Akhir' });
+    }
+
+    // Pastikan mentor sudah memberikan Evaluasi Akhir (FINAL)
+    const evaluasiFinal = await prisma.evaluasi.findFirst({
+      where: { peserta_id: targetUserId, tipe: 'FINAL' }
+    });
+
+    if (!evaluasiFinal) {
+      return res.status(400).json({ message: 'Tidak dapat meluluskan. Anda belum memberikan Evaluasi Akhir (Final) untuk peserta ini.' });
     }
 
     // Ubah status jadi SELESAI
