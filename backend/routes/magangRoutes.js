@@ -7,7 +7,8 @@ import {
   createLogbook, 
   getTugas, 
   submitTugas, 
-  updateStatusTugas 
+  updateStatusTugas,
+  ajukanIzin
 } from '../controllers/magangController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
@@ -21,6 +22,9 @@ router.use(authenticateToken, authorizeRole(['MAGANG']));
 router.get('/absensi', getRiwayatAbsensi);
 router.post('/absensi/checkin', checkIn);
 router.post('/absensi/checkout', checkOut);
+router.post('/absensi/izin', upload.fields([
+  { name: 'bukti', maxCount: 1 }
+]), ajukanIzin);
 
 // Rute Logbook
 router.get('/logbook', getLogbook);

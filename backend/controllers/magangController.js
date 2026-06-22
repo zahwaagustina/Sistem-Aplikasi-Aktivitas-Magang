@@ -94,7 +94,58 @@ export const checkOut = async (req, res) => {
 
     res.json({ message: 'Check-out berhasil', data: absensi });
   } catch (error) {
-    res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
+    res.status(500).json({ message: 'Terjadi kesalahan', error: error.message });
+  }
+};
+
+export const ajukanIzin = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const { tanggal, tipe, keterangan } = req.body;
+    
+    if (!['IZIN', 'SAKIT'].includes(tipe)) {
+      return res.status(400).json({ message: 'Tipe pengajuan tidak valid' });
+    }
+
+    const files = req.files;
+    let bukti_path = null;
+
+    if (files && files['bukti'] && files['bukti'].length > 0) {
+      bukti_path = '/uploads/' + files['bukti'][0].filename;
+    }
+
+    // Validasi wajib upload bukti untuk SAKIT
+    if (tipe === 'SAKIT' && !bukti_path) {
+      return res.status(400).json({ message: 'Surat Keterangan Dokter wajib diunggah untuk pengajuan Sakit' });
+    }
+
+    const tgl = new Date(tanggal);
+
+    // Cek apakah sudah ada absen/pengajuan di tanggal tersebut
+    const existingAbsensi = await prisma.absensi.findFirst({
+      where: {
+        user_id,
+        tanggal: tgl
+      }
+    });
+
+    if (existingAbsensi) {
+      return res.status(400).json({ message: 'Anda sudah melakukan absensi atau pengajuan pada tanggal tersebut' });
+    }
+
+    const absensi = await prisma.absensi.create({
+      data: {
+        user_id,
+        tanggal: tgl,
+        status: tipe,
+        keterangan,
+        bukti_path
+      }
+    });
+
+    res.status(201).json({ message: `Pengajuan ${tipe} berhasil dikirim`, data: absensi });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan', error: error.message });
   }
 };
 
