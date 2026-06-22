@@ -274,6 +274,12 @@ const ProfilAnakMagang = () => {
         >
           <Activity className="w-4 h-4 inline mr-2" /> Evaluasi ({evaluasi.length})
         </button>
+        <button 
+          onClick={() => setActiveTab('absensi')}
+          className={`flex-1 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'absensi' ? 'border-indigo-600 text-indigo-600 bg-indigo-50/30' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}
+        >
+          <Clock className="w-4 h-4 inline mr-2" /> Absensi ({absensi.length})
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -472,6 +478,63 @@ const ProfilAnakMagang = () => {
                   </div>
                 );
               })
+            )}
+          </div>
+        )}
+
+        {activeTab === 'absensi' && (
+          <div className="space-y-6">
+            {absensi.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">Belum ada riwayat absensi untuk peserta ini.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
+                      <th className="p-4 font-semibold rounded-tl-lg">Tanggal</th>
+                      <th className="p-4 font-semibold">Check-In</th>
+                      <th className="p-4 font-semibold">Check-Out</th>
+                      <th className="p-4 font-semibold">Status / Keterangan</th>
+                      <th className="p-4 font-semibold rounded-tr-lg">Bukti</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {absensi.map((absen) => (
+                      <tr key={absen.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td className="p-4 text-sm font-medium text-gray-800">
+                          {new Date(absen.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                        </td>
+                        <td className="p-4 text-sm text-gray-600">
+                          {absen.waktu_masuk ? new Date(absen.waktu_masuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                        </td>
+                        <td className="p-4 text-sm text-gray-600">
+                          {absen.waktu_keluar ? new Date(absen.waktu_keluar).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                              absen.status === 'HADIR' ? 'bg-green-100 text-green-800' :
+                              absen.status === 'IZIN' ? 'bg-amber-100 text-amber-800' :
+                              absen.status === 'SAKIT' ? 'bg-blue-100 text-blue-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {absen.status}
+                            </span>
+                            {absen.keterangan && <span className="text-xs text-gray-500 max-w-[200px] truncate" title={absen.keterangan}>{absen.keterangan}</span>}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          {absen.bukti_path ? (
+                            <a href={`http://localhost:5000${absen.bukti_path}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm font-medium">Lihat Bukti</a>
+                          ) : (
+                            <span className="text-gray-400 text-xs">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}
