@@ -155,9 +155,11 @@ const OnboardingDashboard = () => {
                       {item.status === 'DOCUMENT_VERIFICATION' && (
                         <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
                       )}
-                      {!item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') && ['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED'].includes(item.status) && (
+                      {!item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') && ['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED'].includes(item.status) ? (
                         <button onClick={() => openModal(item, 'ISSUE_LOA')} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
-                      )}
+                      ) : item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') ? (
+                        <button disabled className="whitespace-nowrap text-sm bg-gray-100 text-gray-500 px-3 py-1.5 rounded-lg font-medium cursor-not-allowed">LoA Telah Diterbitkan</button>
+                      ) : null}
                       {(item.status === 'LOA_ISSUED' || item.status === 'PLACEMENT_ASSIGNED' || item.status === 'ACCOUNT_CREATED') && (
                         <button onClick={() => openModal(item, 'PLACEMENT')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Atur Penempatan</button>
                       )}

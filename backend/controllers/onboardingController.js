@@ -206,6 +206,14 @@ export const issueLoa = async (req, res) => {
     const fullPath = path.resolve(filepath);
     await generateLoA(pdfData, fullPath);
 
+    // Hapus dokumen LOA yang lama jika ada (untuk regenerasi)
+    await prisma.dokumen.deleteMany({
+      where: {
+        user_id: onboarding.pendaftaran.user.id,
+        tipe: 'LOA'
+      }
+    });
+
     // Simpan dokumen LOA untuk user
     await prisma.dokumen.create({
       data: {

@@ -30,34 +30,37 @@ const generateLoA = (data, outputPath) => {
       // Header
       doc.fontSize(11).font('Helvetica');
       
-      drawRow(doc, 'Nomor', data.nomorSurat, 80);
-      drawRow(doc, 'Hal', 'Surat Keterangan Diterima Magang', 80, true, true);
+      const leftMargin = 60;
+      const colonOffset = 100; // Lebar standar untuk label agar rata vertikal
+
+      drawRow(doc, 'Nomor', data.nomorSurat, colonOffset);
+      drawRow(doc, 'Hal', 'Surat Keterangan Diterima Magang', colonOffset, true, true);
       doc.moveDown(2.5);
 
-      doc.text('Yang bertanda tangan dibawah ini :');
+      doc.text('Yang bertanda tangan dibawah ini :', leftMargin, doc.y);
       doc.moveDown(0.5);
       
-      drawRow(doc, 'Nama', 'Nanda Gita Anggini S.M', 80);
-      drawRow(doc, 'Jabatan', 'HR', 80);
-      drawRow(doc, 'Perusahaan', 'PT. Pandu Cipta Solusi', 80);
+      drawRow(doc, 'Nama', 'Nanda Gita Anggini S.M', colonOffset);
+      drawRow(doc, 'Jabatan', 'HR', colonOffset);
+      drawRow(doc, 'Perusahaan', 'PT. Pandu Cipta Solusi', colonOffset);
       doc.moveDown(2);
 
-      doc.text('Dengan ini menerangkan bahwa :');
+      doc.text('Dengan ini menerangkan bahwa :', leftMargin, doc.y);
       doc.moveDown(0.5);
       
-      drawRow(doc, 'Nama', data.nama, 80);
-      drawRow(doc, 'NPM/NIM', data.npm || '-', 80);
-      drawRow(doc, 'Universitas', data.universitas || '-', 80);
+      drawRow(doc, 'Nama', data.nama, colonOffset);
+      drawRow(doc, 'NPM/NIM', data.npm || '-', colonOffset);
+      drawRow(doc, 'Universitas', data.universitas || '-', colonOffset);
       doc.moveDown(2.5);
 
       // Rich text paragraph
-      doc.font('Helvetica').text('Mahasiswa tersebut ', { continued: true })
+      doc.font('Helvetica').text('Mahasiswa tersebut ', leftMargin, doc.y, { continued: true, align: 'justify' })
          .font('Helvetica-Bold').text('DITERIMA ', { continued: true })
-         .font('Helvetica').text('untuk melaksanakan program magang di PT. Pandu Cipta Solusi. Selama masa magang, mahasiswa yang bersangkutan diharapkan dapat mematuhi seluruh peraturan dan tata tertib yang berlaku di PT. Pandu Cipta Solusi.');
+         .font('Helvetica').text('untuk melaksanakan program magang di PT. Pandu Cipta Solusi. Selama masa magang, mahasiswa yang bersangkutan diharapkan dapat mematuhi seluruh peraturan dan tata tertib yang berlaku di PT. Pandu Cipta Solusi.', { align: 'justify' });
       
       doc.moveDown(2);
 
-      doc.text('Demikian surat penerimaan magang ini dibuat untuk dapat dipergunakan sebagaimana mestinya.');
+      doc.text('Demikian surat penerimaan magang ini dibuat untuk dapat dipergunakan sebagaimana mestinya.', leftMargin, doc.y, { align: 'justify' });
       doc.moveDown(3);
 
       // Signature area (Right side)
