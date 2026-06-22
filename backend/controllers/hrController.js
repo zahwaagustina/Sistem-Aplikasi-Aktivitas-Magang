@@ -105,14 +105,23 @@ export const scheduleInterview = async (req, res) => {
 export const submitNilaiInterview = async (req, res) => {
   try {
     const { id } = req.params; // ID pendaftaran
-    const { hasil_score, catatan, keputusan } = req.body; // keputusan = 'ACCEPTED' | 'REJECTED'
+    const { skor_wawancara, skor_psikotes, skor_teknikal, catatan, keputusan } = req.body; // keputusan = 'ACCEPTED' | 'REJECTED'
+
+    // Hitung rata-rata
+    const w = parseFloat(skor_wawancara) || 0;
+    const p = parseFloat(skor_psikotes) || 0;
+    const t = parseFloat(skor_teknikal) || 0;
+    const rataRata = (w + p + t) / 3;
 
     const result = await prisma.$transaction(async (tx) => {
       // 1. Simpan nilai ke tabel Interview
       const interview = await tx.interview.update({
         where: { pendaftaran_id: parseInt(id) },
         data: {
-          hasil_score: parseFloat(hasil_score),
+          skor_wawancara: w,
+          skor_psikotes: p,
+          skor_teknikal: t,
+          hasil_score: parseFloat(rataRata.toFixed(2)),
           catatan
         }
       });
