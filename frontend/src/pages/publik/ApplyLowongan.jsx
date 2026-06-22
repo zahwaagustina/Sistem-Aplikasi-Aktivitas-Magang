@@ -39,8 +39,8 @@ const ApplyLowongan = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!files.cv || !files.ktp || !files.transkrip) {
-      alert('Mohon unggah dokumen yang wajib (CV, KTP, dan Transkrip Nilai)');
+    if (!files.cv) {
+      alert('Mohon unggah dokumen Curriculum Vitae (CV) Anda');
       return;
     }
 
@@ -54,9 +54,6 @@ const ApplyLowongan = () => {
     });
 
     if (files.cv) submitData.append('cv', files.cv);
-    if (files.surat_pengantar) submitData.append('surat_pengantar', files.surat_pengantar);
-    if (files.ktp) submitData.append('ktp', files.ktp);
-    if (files.transkrip) submitData.append('transkrip', files.transkrip);
 
     try {
       const token = localStorage.getItem('token');
@@ -151,11 +148,11 @@ const ApplyLowongan = () => {
               </div>
               <div>
                 <h4 className="font-bold text-blue-900">Perhatian sebelum mengunggah</h4>
-                <p className="text-sm text-blue-700 mt-1">Pastikan format dokumen menggunakan PDF atau JPG (khusus KTM). Maksimal ukuran file adalah 5MB per dokumen.</p>
+                <p className="text-sm text-blue-700 mt-1">Pastikan format dokumen Curriculum Vitae (CV) menggunakan PDF. Maksimal ukuran file adalah 5MB.</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 max-w-2xl mx-auto">
               {/* CV */}
               <div className="border border-indigo-100 rounded-2xl p-5 hover:border-indigo-400 hover:shadow-md hover:-translate-y-1 transition-all bg-white/80 group">
                 <div className="flex items-center space-x-3 mb-4">
@@ -165,42 +162,6 @@ const ApplyLowongan = () => {
                   <label className="text-sm font-bold text-slate-800">Curriculum Vitae (CV) <span className="text-red-500">*</span></label>
                 </div>
                 <input type="file" name="cv" accept=".pdf" required onChange={handleFileChange} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer transition-colors" />
-              </div>
-
-              {/* Transkrip Nilai */}
-              <div className="border border-indigo-100 rounded-2xl p-5 hover:border-indigo-400 hover:shadow-md hover:-translate-y-1 transition-all bg-white/80 group">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors">
-                    <FileBadge className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <label className="text-sm font-bold text-slate-800">Transkrip Nilai <span className="text-red-500">*</span></label>
-                </div>
-                <input type="file" name="transkrip" accept=".pdf" required onChange={handleFileChange} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer transition-colors" />
-              </div>
-
-              {/* KTM */}
-              <div className="border border-indigo-100 rounded-2xl p-5 hover:border-indigo-400 hover:shadow-md hover:-translate-y-1 transition-all bg-white/80 group">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors">
-                    <FileBadge className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <label className="text-sm font-bold text-slate-800 flex flex-col">
-                    <span>Scan KTM <span className="text-red-500">*</span></span>
-                    <span className="text-xs text-slate-500 font-normal mt-0.5">(Kartu Tanda Mahasiswa)</span>
-                  </label>
-                </div>
-                <input type="file" name="ktp" accept=".pdf,.jpg,.jpeg,.png" required onChange={handleFileChange} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer transition-colors" />
-              </div>
-
-              {/* Surat Pengantar */}
-              <div className="border border-indigo-100 rounded-2xl p-5 hover:border-indigo-400 hover:shadow-md hover:-translate-y-1 transition-all bg-white/80 group">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors">
-                    <FileText className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <label className="text-sm font-bold text-slate-800">Surat Pengantar (Opsional)</label>
-                </div>
-                <input type="file" name="surat_pengantar" accept=".pdf" onChange={handleFileChange} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer transition-colors" />
               </div>
             </div>
           </div>
