@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MapPin, Clock, LogIn, LogOut, CheckCircle } from 'lucide-react';
+import { MapPin, Clock, LogIn, LogOut, CheckCircle, FileText, X } from 'lucide-react';
 
 const Absensi = () => {
   const [absensiList, setAbsensiList] = useState([]);
@@ -8,9 +8,14 @@ const Absensi = () => {
   const [todayAbsen, setTodayAbsen] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // State untuk menyimpan nama lokasi (Reverse Geocoding)
   const [addressMasuk, setAddressMasuk] = useState('Memuat lokasi...');
   const [addressKeluar, setAddressKeluar] = useState('Memuat lokasi...');
+
+  // State untuk Izin/Sakit
+  const [showIzinModal, setShowIzinModal] = useState(false);
+  const [izinData, setIzinData] = useState({ tipe: 'IZIN', tanggal: '', keterangan: '' });
+  const [izinFile, setIzinFile] = useState(null);
+  const [submittingIzin, setSubmittingIzin] = useState(false);
 
   // Update jam real-time
   useEffect(() => {
@@ -121,6 +126,36 @@ const Absensi = () => {
     }
   };
 
+  const handleSubmitIzin = async (e) => {
+    e.preventDefault();
+    setSubmittingIzin(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('tanggal', izinData.tanggal);
+      formData.append('tipe', izinData.tipe);
+      formData.append('keterangan', izinData.keterangan);
+      if (izinFile) formData.append('bukti', izinFile);
+
+      await axios.post('http://localhost:5000/api/magang/absensi/izin', formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      alert(`Pengajuan ${izinData.tipe} berhasil!`);
+      setShowIzinModal(false);
+      setIzinData({ tipe: 'IZIN', tanggal: '', keterangan: '' });
+      setIzinFile(null);
+      fetchAbsensi();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Gagal mengajukan izin/sakit');
+    } finally {
+      setSubmittingIzin(false);
+    }
+  };
+
   const formatTime = (isoString) => {
     if (!isoString) return '-';
     return new Date(isoString).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -133,9 +168,17 @@ const Absensi = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h1 className="text-2xl font-bold text-gray-800">Absensi Kehadiran</h1>
-        <p className="text-gray-500 mt-1">Lakukan check-in saat mulai bekerja dan check-out saat selesai bekerja.</p>
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Absensi Kehadiran</h1>
+          <p className="text-gray-500 mt-1">Lakukan check-in saat mulai bekerja dan check-out saat selesai bekerja.</p>
+        </div>
+        <button 
+          onClick={() => setShowIzinModal(true)} 
+          className="mt-4 md:mt-0 px-5 py-2 bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 rounded-lg font-semibold shadow-sm transition-colors flex items-center"
+        >
+          <FileText size={18} className="mr-2" /> Ajukan Izin / Sakit
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -251,9 +294,19 @@ const Absensi = () => {
                     )}
                   </td>
                   <td className="p-4">
-                    <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">
+                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                      item.status === 'HADIR' ? 'bg-green-100 text-green-800' :
+                      item.status === 'IZIN' ? 'bg-amber-100 text-amber-800' :
+                      item.status === 'SAKIT' ? 'bg-blue-100 text-blue-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
                       {item.status}
                     </span>
+                    {item.bukti_path && (
+                      <a href={`http://localhost:5000${item.bukti_path}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-blue-600 hover:underline">
+                        Lihat Bukti
+                      </a>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -268,6 +321,60 @@ const Absensi = () => {
           </table>
         </div>
       </div>
+      {/* Modal Izin/Sakit */}
+      {showIzinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100">
+              <h3 className="font-bold text-lg text-gray-800">Form Izin / Sakit</h3>
+              <button onClick={() => setShowIzinModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSubmitIzin} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Ketidakhadiran</label>
+                <div className="flex gap-4 mt-2">
+                  <label className="flex items-center">
+                    <input type="radio" name="tipe" value="IZIN" checked={izinData.tipe === 'IZIN'} onChange={(e) => setIzinData({...izinData, tipe: e.target.value})} className="mr-2" />
+                    Izin
+                  </label>
+                  <label className="flex items-center">
+                    <input type="radio" name="tipe" value="SAKIT" checked={izinData.tipe === 'SAKIT'} onChange={(e) => setIzinData({...izinData, tipe: e.target.value})} className="mr-2" />
+                    Sakit
+                  </label>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                <input type="date" required value={izinData.tanggal} onChange={(e) => setIzinData({...izinData, tanggal: e.target.value})} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Alasan / Keterangan</label>
+                <textarea required rows="3" value={izinData.keterangan} onChange={(e) => setIzinData({...izinData, keterangan: e.target.value})} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Tuliskan alasan ketidakhadiran..." />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Unggah Bukti {izinData.tipe === 'SAKIT' && <span className="text-red-500">* (Wajib)</span>}
+                </label>
+                <input type="file" accept="image/*,.pdf" onChange={(e) => setIzinFile(e.target.files[0])} required={izinData.tipe === 'SAKIT'} className="w-full border border-gray-300 rounded-lg p-1.5 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-50 file:text-indigo-700" />
+                {izinData.tipe === 'SAKIT' && <p className="text-xs text-red-500 mt-1">Surat Keterangan Dokter wajib dilampirkan.</p>}
+                {izinData.tipe === 'IZIN' && <p className="text-xs text-gray-500 mt-1">Opsional untuk izin (misal: surat kampus).</p>}
+              </div>
+
+              <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
+                <button type="button" onClick={() => setShowIzinModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium">Batal</button>
+                <button type="submit" disabled={submittingIzin} className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50">
+                  {submittingIzin ? 'Mengirim...' : 'Kirim Pengajuan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
