@@ -31,15 +31,29 @@ export const getAdminStats = async (req, res) => {
     });
 
     // Recent activities (5 latest)
-    const recentAktivitas = await prisma.aktivitasHarian.findMany({
+    const recentAktivitasRaw = await prisma.aktivitasHarian.findMany({
       take: 5,
       orderBy: { created_at: 'desc' },
       include: {
         user: {
-          select: { nama: true, universitas: true }
+          select: { 
+            nama: true,
+            profilMagang: {
+              select: { universitas: true }
+            }
+          }
         }
       }
     });
+
+    // Sesuaikan struktur data dengan yang diharapkan frontend (memindahkan universitas ke objek user)
+    const recentAktivitas = recentAktivitasRaw.map(act => ({
+      ...act,
+      user: {
+        nama: act.user?.nama,
+        universitas: act.user?.profilMagang?.universitas || '-'
+      }
+    }));
 
     res.status(200).json({
       data: {
