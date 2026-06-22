@@ -26,7 +26,7 @@ router.delete('/:id', deleteAktivitas);
 // Endpoint khusus magang untuk kirim draft
 router.patch('/:id/kirim', kirimAktivitas);
 
-// Endpoint khusus pembimbing / admin untuk approve aktivitas
-router.patch('/:id/approve', authorizeRole(['ADMIN', 'PEMBIMBING']), approveAktivitas);
+// Endpoint khusus pembimbing / admin / mentor untuk approve aktivitas
+router.patch('/:id/approve', authorizeRole(['ADMIN', 'PEMBIMBING', 'MENTOR']), approveAktivitas);
 
 export default router;
