@@ -67,6 +67,30 @@ const Navbar = ({ toggleSidebar }) => {
     }
   };
 
+  const getNotificationLink = (n) => {
+    if (n.link) return n.link;
+    const j = n.judul.toLowerCase();
+    const userRole = user?.role?.toLowerCase() || '';
+
+    // Rute untuk Peserta Magang
+    if (j.includes('tugas') || j.includes('hasil review tugas')) return '/magang/tugas';
+    if (j.includes('logbook')) return '/magang/logbook';
+    if (j.includes('evaluasi')) return '/magang/evaluasi';
+    if (j.includes('sertifikat') || j.includes('laporan akhir')) return '/magang/penyelesaian';
+    if (j.includes('absensi')) return '/magang/absensi';
+
+    // Rute untuk Kandidat
+    if (j.includes('interview')) return '/kandidat/interview';
+    if (j.includes('onboarding') || j.includes('diterima')) return '/kandidat/onboarding';
+
+    // Rute untuk Mentor
+    if (userRole === 'mentor') {
+      if (j.includes('tugas') || j.includes('logbook') || j.includes('laporan')) return '/mentor/monitor';
+    }
+
+    return null;
+  };
+
   return (
     <header className="h-16 bg-white/40 backdrop-blur-xl border-b border-white/50 shadow-sm flex items-center justify-between px-4 lg:px-8 z-50 relative">
       <div className="flex items-center">
@@ -115,7 +139,7 @@ const Navbar = ({ toggleSidebar }) => {
                   notifications.map((n) => (
                     <div 
                       key={n.id} 
-                      onClick={() => handleRead(n.id, n.link)}
+                      onClick={() => handleRead(n.id, getNotificationLink(n))}
                       className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-indigo-50/50 transition-colors flex items-start gap-3 ${n.is_read ? 'opacity-70' : 'bg-blue-50/30'}`}
                     >
                       <div className={`w-2 h-2 mt-1.5 rounded-full flex-shrink-0 ${n.is_read ? 'bg-transparent' : 'bg-blue-500'}`}></div>
