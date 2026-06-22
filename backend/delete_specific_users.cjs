@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function deleteUsers() {
-  const namesToDelete = ['siti zahwa agustina', 'mupid'];
+  const namesToDelete = ['isna', 'siti zahwa', 'mupid', 'contoh', 'fadlika', 'example'];
 
   try {
     for (const name of namesToDelete) {
@@ -23,7 +23,6 @@ async function deleteUsers() {
 
       for (const user of users) {
         console.log(`Deleting user: ${user.nama} (ID: ${user.id})`);
-        // Prisma will cascade delete related records if schema is set up correctly
         await prisma.user.delete({
           where: { id: user.id },
         });
