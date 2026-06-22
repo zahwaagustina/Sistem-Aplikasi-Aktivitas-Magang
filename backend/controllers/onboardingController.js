@@ -39,7 +39,7 @@ export const getMyOnboarding = async (req, res) => {
 
     // Ambil dokumen user terkait onboarding
     const dokumen = await prisma.dokumen.findMany({
-      where: { user_id: userId, tipe: { in: ['KTP', 'NDA', 'PAKTA_INTEGRITAS', 'LOA'] } }
+      where: { user_id: userId, tipe: { in: ['KTP', 'NDA', 'PAKTA_INTEGRITAS', 'LOA', 'SURAT_PENGANTAR', 'SURAT_KERJASAMA'] } }
     });
 
     res.status(200).json({ data: { onboarding, pendaftaran, dokumen } });
