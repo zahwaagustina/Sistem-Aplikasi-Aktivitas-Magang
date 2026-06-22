@@ -42,7 +42,7 @@ router.put('/:id/confirm-orientation', confirmOrientation);
 // --- ADMIN ROUTES ---
 router.get('/all', authorizeRole(['SUPER_ADMIN']), getAllOnboarding);
 router.put('/:id/verify-docs', authorizeRole(['SUPER_ADMIN']), verifyDocuments);
-router.post('/:id/issue-loa', authorizeRole(['SUPER_ADMIN']), upload.single('loa'), issueLoa);
+router.post('/:id/issue-loa', authorizeRole(['SUPER_ADMIN']), issueLoa);
 router.put('/:id/assign-placement', authorizeRole(['SUPER_ADMIN']), assignPlacement);
 router.put('/:id/create-account', authorizeRole(['SUPER_ADMIN']), createAccount);
 router.put('/:id/schedule-orientation', authorizeRole(['SUPER_ADMIN']), scheduleOrientation);

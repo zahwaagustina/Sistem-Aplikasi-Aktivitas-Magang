@@ -150,18 +150,69 @@ export const verifyDocuments = async (req, res) => {
 export const issueLoa = async (req, res) => {
   try {
     const { id } = req.params;
-    const file = req.file;
-    if (!file) return res.status(400).json({ message: 'File LOA diperlukan' });
+    const { npm } = req.body;
+    
+    const onboarding = await prisma.onboarding.findUnique({ 
+      where: { id: parseInt(id) }, 
+      include: { 
+        pendaftaran: { 
+          include: { 
+            user: { include: { profilKandidat: true } },
+            lowongan: true 
+          } 
+        } 
+      } 
+    });
 
-    const onboarding = await prisma.onboarding.findUnique({ where: { id: parseInt(id) }, include: { pendaftaran: { include: { user: true } } } });
+    if (!onboarding) return res.status(404).json({ message: 'Onboarding tidak ditemukan' });
+
+    // Update NPM if provided
+    if (npm) {
+      await prisma.profilKandidat.update({
+        where: { user_id: onboarding.pendaftaran.user.id },
+        data: { npm }
+      });
+      // update local reference
+      if(onboarding.pendaftaran.user.profilKandidat) {
+         onboarding.pendaftaran.user.profilKandidat.npm = npm;
+      }
+    }
+
+    // Generate Penomoran
+    const monthRoman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const count = await prisma.dokumen.count({ where: { tipe: 'LOA' } });
+    const nomorUrut = (count + 1).toString().padStart(3, '0');
+    const nomorSurat = `${nomorUrut}/LOA-MAGANG/PCS/${monthRoman[currentMonth]}/${currentYear}`;
+
+    // Generate PDF
+    const { generateLoA } = await import('../utils/pdfGenerator.js');
+    const filename = `onb-loa-${Date.now()}.pdf`;
+    const filepath = `uploads/${filename}`;
+    
+    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+    const tanggalTerbit = `Tangerang, ${new Date().toLocaleDateString('id-ID', dateOptions)}`;
+
+    const pdfData = {
+      nomorSurat,
+      nama: onboarding.pendaftaran.user.nama,
+      npm: npm || onboarding.pendaftaran.user.profilKandidat?.npm || '-',
+      universitas: onboarding.pendaftaran.user.profilKandidat?.universitas || '-',
+      tanggalTerbit
+    };
+
+    const path = await import('path');
+    const fullPath = path.resolve(filepath);
+    await generateLoA(pdfData, fullPath);
 
     // Simpan dokumen LOA untuk user
     await prisma.dokumen.create({
       data: {
         user_id: onboarding.pendaftaran.user.id,
         tipe: 'LOA',
-        nama_file: file.originalname,
-        file_path: `/uploads/${file.filename}`
+        nama_file: `LoA_${onboarding.pendaftaran.user.nama.replace(/\s+/g, '_')}.pdf`,
+        file_path: `/${filepath}`
       }
     });
 
