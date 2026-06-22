@@ -70,21 +70,35 @@ const Navbar = ({ toggleSidebar }) => {
   const getNotificationLink = (n) => {
     if (n.link) return n.link;
     const j = n.judul.toLowerCase();
-    const userRole = user?.role?.toLowerCase() || '';
+    const userRole = user?.role?.toUpperCase() || '';
 
-    // Rute untuk Peserta Magang
-    if (j.includes('tugas') || j.includes('hasil review tugas')) return '/magang/tugas';
-    if (j.includes('logbook')) return '/magang/logbook';
-    if (j.includes('evaluasi') || j.includes('sertifikat') || j.includes('laporan akhir')) return '/magang/penyelesaian';
-    if (j.includes('absensi')) return '/magang/absensi';
-
-    // Rute untuk Kandidat
-    if (j.includes('interview')) return '/kandidat/interview';
-    if (j.includes('onboarding') || j.includes('diterima')) return '/kandidat/onboarding';
+    // Rute untuk Admin / HR
+    if (userRole === 'SUPER_ADMIN') {
+      if (j.includes('onboarding') || j.includes('dokumen')) return '/hr/onboarding';
+      if (j.includes('pelamar') || j.includes('kandidat')) return '/hr/kandidat';
+      return null;
+    }
 
     // Rute untuk Mentor
-    if (userRole === 'mentor') {
-      if (j.includes('tugas') || j.includes('logbook') || j.includes('laporan')) return '/mentor/monitor';
+    if (userRole === 'MENTOR') {
+      if (j.includes('tugas') || j.includes('logbook') || j.includes('laporan') || j.includes('evaluasi')) return '/mentor/monitor';
+      return null;
+    }
+
+    // Rute untuk Peserta Magang
+    if (userRole === 'MAGANG') {
+      if (j.includes('tugas') || j.includes('hasil review tugas')) return '/magang/tugas';
+      if (j.includes('logbook')) return '/magang/logbook';
+      if (j.includes('evaluasi') || j.includes('sertifikat') || j.includes('laporan akhir')) return '/magang/penyelesaian';
+      if (j.includes('absensi')) return '/magang/absensi';
+      return null;
+    }
+
+    // Rute untuk Kandidat
+    if (userRole === 'KANDIDAT') {
+      if (j.includes('interview')) return '/kandidat/interview';
+      if (j.includes('onboarding') || j.includes('diterima') || j.includes('revisi')) return '/kandidat/onboarding';
+      return null;
     }
 
     return null;

@@ -483,7 +483,8 @@ export const uploadOnboardingDocs = async (req, res) => {
       const notifs = admins.map(admin => ({
         user_id: admin.id,
         judul: 'Dokumen Onboarding Baru',
-        pesan: `Kandidat telah mengunggah dokumen onboarding (KTP). Silakan verifikasi.`
+        pesan: `Kandidat telah mengunggah dokumen onboarding (KTP). Silakan verifikasi.`,
+        link: '/hr/onboarding'
       }));
       for (const notif of notifs) {
         await prisma.notifikasi.create({ data: notif });
