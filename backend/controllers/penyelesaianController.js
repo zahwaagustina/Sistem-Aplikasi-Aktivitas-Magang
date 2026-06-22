@@ -152,14 +152,6 @@ export const generateSertifikat = async (req, res) => {
       doc.fontSize(40).fillColor('#1e1b4b').text('SERTIFIKAT KELULUSAN', 0, 80, { align: 'center' });
     }
 
-    // Register Custom Font for Signature/Name
-    const fontPath = path.join(__dirname, '..', 'uploads', 'fonts', 'DancingScript.ttf');
-    let hasCustomFont = false;
-    if (fs.existsSync(fontPath)) {
-      doc.registerFont('Cursive', fontPath);
-      hasCustomFont = true;
-    }
-
     // Coordinates mapping
     const nameY = 265; // Posisi vertikal tepat di atas garis panjang
     
@@ -168,12 +160,8 @@ export const generateSertifikat = async (req, res) => {
       doc.fontSize(14).fillColor('#111827').text('Dengan bangga diberikan kepada :', 0, 220, { align: 'center', width: doc.page.width });
     }
     
-    // Cetak Nama Peserta secara rata tengah (Center)
-    if (hasCustomFont) {
-      doc.font('Cursive').fontSize(50).fillColor('#1e1b4b').text(profilMagang.user.nama, 0, nameY - 10, { align: 'center', width: doc.page.width });
-    } else {
-      doc.font('Helvetica-Bold').fontSize(35).fillColor('#1e1b4b').text(profilMagang.user.nama, 0, nameY, { align: 'center', width: doc.page.width });
-    }
+    // Cetak Nama Peserta secara rata tengah (Center) dengan font formal yang elegan
+    doc.font('Times-Bold').fontSize(38).fillColor('#1e1b4b').text(profilMagang.user.nama.toUpperCase(), 0, nameY, { align: 'center', width: doc.page.width });
     
     // Reset font back to default (Helvetica)
     doc.font('Helvetica');
