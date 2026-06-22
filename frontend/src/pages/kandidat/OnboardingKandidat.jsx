@@ -113,8 +113,18 @@ const OnboardingKandidat = () => {
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Onboarding: {pendaftaran.lowongan.posisi}</h1>
-        <p className="text-gray-500 mt-1">Selesaikan tahapan berikut untuk memulai magang Anda.</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Onboarding: {pendaftaran.lowongan.posisi}</h1>
+            <p className="text-gray-500 mt-1">Selesaikan tahapan berikut untuk memulai magang Anda.</p>
+          </div>
+          {dokumen.find(d => d.tipe === 'LOA') && (
+            <a href={`http://localhost:5000${dokumen.find(d => d.tipe === 'LOA').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-sm font-semibold flex items-center transition-colors shadow-sm whitespace-nowrap">
+              <FileText size={16} className="mr-2" />
+              Unduh LoA
+            </a>
+          )}
+        </div>
         
         {/* Progress Stepper */}
         <div className="mt-8 relative">
