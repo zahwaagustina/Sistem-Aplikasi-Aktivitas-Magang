@@ -16,7 +16,8 @@ const OnboardingKandidat = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ktpFile, setKtpFile] = useState(null);
-  const [ndaFile, setNdaFile] = useState(null);
+  const [suratPengantarFile, setSuratPengantarFile] = useState(null);
+  const [suratKerjasamaFile, setSuratKerjasamaFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -69,17 +70,21 @@ const OnboardingKandidat = () => {
   };
 
   const handleUploadDocs = async () => {
-    if (!ktpFile) return alert('Pilih dokumen KTP untuk diunggah');
+    if (!ktpFile || !suratPengantarFile) return alert('Pilih dokumen KTM/KTP dan Surat Pengantar untuk diunggah');
     setUploading(true);
     const formData = new FormData();
     formData.append('ktp', ktpFile);
+    formData.append('surat_pengantar', suratPengantarFile);
+    if (suratKerjasamaFile) formData.append('surat_kerjasama', suratKerjasamaFile);
 
     try {
       await api.post(`/onboarding/${data.onboarding.id}/upload-docs`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      alert('Dokumen KTP berhasil diunggah!');
+      alert('Dokumen berhasil diunggah!');
       setKtpFile(null);
+      setSuratPengantarFile(null);
+      setSuratKerjasamaFile(null);
       fetchOnboarding();
     } catch (err) {
       console.error(err);
@@ -167,7 +172,7 @@ const OnboardingKandidat = () => {
             </div>
             <p className="text-gray-500 mb-8 ml-11">
               {onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'KTP') 
-                ? 'Tim kami sedang memeriksa dokumen KTP Anda sebelum menerbitkan Letter of Acceptance (LoA).'
+                ? 'Tim kami sedang memeriksa dokumen Anda sebelum menerbitkan Letter of Acceptance (LoA).'
                 : 'Tim kami akan memeriksa dokumen Anda sebelum menerbitkan Letter of Acceptance (LoA).'}
             </p>
             
@@ -191,7 +196,7 @@ const OnboardingKandidat = () => {
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
                       <CheckCircle size={20} />
                     </div>
-                    <h4 className="font-bold text-gray-800 text-sm mb-1">Kartu Tanda Penduduk (KTP)</h4>
+                    <h4 className="font-bold text-gray-800 text-sm mb-1">KTM / KTP</h4>
                     <p className="text-xs text-emerald-700 font-medium mb-3">Berhasil Diunggah</p>
                     <a href={`http://localhost:5000${dokumen.find(d => d.tipe === 'KTP').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
                       Lihat Dokumen
@@ -203,11 +208,75 @@ const OnboardingKandidat = () => {
                     <div className={`w-10 h-10 rounded-full shadow-sm flex items-center justify-center mb-3 transition-transform ${ktpFile ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-500 group-hover:scale-110'}`}>
                       {ktpFile ? <CheckCircle size={16} /> : <UploadCloud size={16} />}
                     </div>
-                    <h4 className="font-bold text-gray-800 text-sm mb-1">Upload KTP</h4>
+                    <h4 className="font-bold text-gray-800 text-sm mb-1">Upload KTM/KTP *</h4>
                     <p className="text-xs text-gray-500 mb-4">PDF/JPG (Max 2MB)</p>
                     {ktpFile ? (
                       <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-semibold w-full truncate border border-emerald-100">
                         {ktpFile.name}
+                      </div>
+                    ) : (
+                      <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold w-full">
+                        Pilih File
+                      </div>
+                    )}
+                  </label>
+                )}
+
+                {/* 2. Surat Pengantar */}
+                {(onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'SURAT_PENGANTAR')) ? (
+                  <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-5 flex flex-col items-center text-center">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
+                      <CheckCircle size={20} />
+                    </div>
+                    <h4 className="font-bold text-gray-800 text-sm mb-1">Surat Pengantar Kampus</h4>
+                    <p className="text-xs text-emerald-700 font-medium mb-3">Berhasil Diunggah</p>
+                    <a href={`http://localhost:5000${dokumen.find(d => d.tipe === 'SURAT_PENGANTAR').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                      Lihat Dokumen
+                    </a>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer border-2 border-dashed border-indigo-200 hover:border-indigo-500 rounded-xl p-5 bg-gray-50/50 hover:bg-gray-50 transition-colors group relative overflow-hidden flex flex-col items-center text-center">
+                    <input type="file" className="hidden" accept=".pdf" onChange={(e) => setSuratPengantarFile(e.target.files[0])} />
+                    <div className={`w-10 h-10 rounded-full shadow-sm flex items-center justify-center mb-3 transition-transform ${suratPengantarFile ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-500 group-hover:scale-110'}`}>
+                      {suratPengantarFile ? <CheckCircle size={16} /> : <UploadCloud size={16} />}
+                    </div>
+                    <h4 className="font-bold text-gray-800 text-sm mb-1">Surat Pengantar Kampus *</h4>
+                    <p className="text-xs text-gray-500 mb-4">PDF (Max 5MB)</p>
+                    {suratPengantarFile ? (
+                      <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-semibold w-full truncate border border-emerald-100">
+                        {suratPengantarFile.name}
+                      </div>
+                    ) : (
+                      <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold w-full">
+                        Pilih File
+                      </div>
+                    )}
+                  </label>
+                )}
+
+                {/* 3. Surat Kerja Sama (Opsional) */}
+                {(onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'SURAT_KERJASAMA')) ? (
+                  <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-5 flex flex-col items-center text-center">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
+                      <CheckCircle size={20} />
+                    </div>
+                    <h4 className="font-bold text-gray-800 text-sm mb-1">Surat Kerja Sama Kampus</h4>
+                    <p className="text-xs text-emerald-700 font-medium mb-3">Berhasil Diunggah</p>
+                    <a href={`http://localhost:5000${dokumen.find(d => d.tipe === 'SURAT_KERJASAMA').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                      Lihat Dokumen
+                    </a>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer border-2 border-dashed border-indigo-200 hover:border-indigo-500 rounded-xl p-5 bg-gray-50/50 hover:bg-gray-50 transition-colors group relative overflow-hidden flex flex-col items-center text-center">
+                    <input type="file" className="hidden" accept=".pdf" onChange={(e) => setSuratKerjasamaFile(e.target.files[0])} />
+                    <div className={`w-10 h-10 rounded-full shadow-sm flex items-center justify-center mb-3 transition-transform ${suratKerjasamaFile ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-500 group-hover:scale-110'}`}>
+                      {suratKerjasamaFile ? <CheckCircle size={16} /> : <UploadCloud size={16} />}
+                    </div>
+                    <h4 className="font-bold text-gray-800 text-sm mb-1">Surat Kerja Sama (Opsional)</h4>
+                    <p className="text-xs text-gray-500 mb-4">Bila Ada | PDF (Max 5MB)</p>
+                    {suratKerjasamaFile ? (
+                      <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-semibold w-full truncate border border-emerald-100">
+                        {suratKerjasamaFile.name}
                       </div>
                     ) : (
                       <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold w-full">
@@ -275,11 +344,11 @@ const OnboardingKandidat = () => {
               </div>
             </div>
 
-            {!((onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'KTP'))) && ktpFile && (
+            {!((onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'KTP'))) && (ktpFile || suratPengantarFile || suratKerjasamaFile) && (
               <div className="mt-8 flex justify-end pr-4">
                 <button
                   onClick={handleUploadDocs}
-                  disabled={uploading}
+                  disabled={uploading || !ktpFile || !suratPengantarFile}
                   className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-md shadow-indigo-200 transition-colors disabled:opacity-50"
                 >
                   <UploadCloud size={20} className="mr-2" />
