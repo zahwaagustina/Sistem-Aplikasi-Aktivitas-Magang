@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function deleteUsers() {
-  const namesToDelete = ['fadlika', 'example', 'contoh', 'isna'];
+  const namesToDelete = ['siti zahwa agustina', 'mupid'];
 
   try {
     for (const name of namesToDelete) {
