@@ -270,8 +270,13 @@ export const updateUser = async (req, res) => {
     const username = email;
 
     // Check if new username exists for someone else
-    if (username && username !== existingUser.username) {
-      const usernameExists = await prisma.user.findFirst({ where: { OR: [{ username }, { email }] } });
+    if (username) {
+      const usernameExists = await prisma.user.findFirst({ 
+        where: { 
+          id: { not: parseInt(id) },
+          OR: [{ username }, { email }] 
+        } 
+      });
       if (usernameExists) {
         return res.status(400).json({ message: 'Email sudah digunakan oleh pengguna lain' });
       }
