@@ -143,7 +143,7 @@ const PenyelesaianProgram = () => {
 
         {/* Nilai Evaluasi Card */}
         {evaluasi && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden md:col-span-2 mt-2">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
             <div className="bg-gradient-to-r from-indigo-50 to-white p-6 border-b border-gray-100 flex items-center">
               <Award className="w-8 h-8 text-indigo-600 mr-4" />
               <div>
@@ -153,43 +153,42 @@ const PenyelesaianProgram = () => {
             </div>
             
             <div className="p-6">
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
-                <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                  <p className="text-xs text-gray-500 mb-1 font-medium uppercase">Teknis</p>
-                  <p className="font-black text-2xl text-gray-800">{evaluasi.skor_teknis}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Teknis</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_teknis}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                  <p className="text-xs text-gray-500 mb-1 font-medium uppercase">Komunikasi</p>
-                  <p className="font-black text-2xl text-gray-800">{evaluasi.skor_komunikasi}</p>
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Komunikasi</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_komunikasi}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                  <p className="text-xs text-gray-500 mb-1 font-medium uppercase">Disiplin</p>
-                  <p className="font-black text-2xl text-gray-800">{evaluasi.skor_disiplin}</p>
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Disiplin</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_disiplin}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                  <p className="text-xs text-gray-500 mb-1 font-medium uppercase">Inisiatif</p>
-                  <p className="font-black text-2xl text-gray-800">{evaluasi.skor_inisiatif}</p>
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Inisiatif</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_inisiatif}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                  <p className="text-xs text-gray-500 mb-1 font-medium uppercase">Teamwork</p>
-                  <p className="font-black text-2xl text-gray-800">{evaluasi.skor_teamwork}</p>
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Teamwork</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_teamwork}</p>
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-6 items-center md:items-start bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
-                <div className="text-center md:text-left flex-shrink-0">
-                  <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Skor Akhir</p>
-                  <p className="text-5xl font-black text-indigo-600">
+              <div className="flex flex-col gap-4 items-center bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100">
+                <div className="text-center w-full pb-4 border-b border-indigo-200/60">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Skor Akhir</p>
+                  <p className="text-4xl font-black text-indigo-600">
                     {((evaluasi.skor_teknis + evaluasi.skor_komunikasi + evaluasi.skor_disiplin + evaluasi.skor_inisiatif + evaluasi.skor_teamwork) / 5).toFixed(1)}
                   </p>
                 </div>
-                <div className="h-full w-px bg-indigo-200 hidden md:block mx-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Catatan & Pesan Mentor
+                <div className="w-full">
+                  <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center justify-center">
+                    <FileText className="w-3 h-3 mr-1" />
+                    Catatan Mentor
                   </p>
-                  <p className="text-gray-700 italic leading-relaxed text-sm bg-white p-4 rounded-xl border border-indigo-50 shadow-sm">
+                  <p className="text-gray-700 italic leading-relaxed text-sm bg-white p-3 rounded-xl border border-indigo-50 shadow-sm text-center">
                     "{evaluasi.feedback}"
                   </p>
                 </div>
@@ -199,7 +198,7 @@ const PenyelesaianProgram = () => {
         )}
 
         {/* Sertifikat Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col md:col-span-2 mt-2">
+        <div className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col ${evaluasi ? 'md:col-span-2' : ''}`}>
           <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-8 text-center text-white flex-1 flex flex-col justify-center items-center">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
               <Award className="w-10 h-10 text-white" />

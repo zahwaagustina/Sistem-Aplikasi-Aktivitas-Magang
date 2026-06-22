@@ -160,41 +160,24 @@ export const generateSertifikat = async (req, res) => {
       hasCustomFont = true;
     }
 
-    // Coordinates mapping based on the visual layout provided
-    const textX = 80;
+    // Coordinates mapping
+    const nameY = 265; // Posisi vertikal tepat di atas garis panjang
     
-    doc.fontSize(14).fillColor('#111827').text('Dengan bangga diberikan kepada :', textX, 220);
+    // Hanya cetak "Dengan bangga diberikan kepada" jika tidak ada template
+    if (!fs.existsSync(templatePath)) {
+      doc.fontSize(14).fillColor('#111827').text('Dengan bangga diberikan kepada :', 0, 220, { align: 'center', width: doc.page.width });
+    }
     
+    // Cetak Nama Peserta secara rata tengah (Center)
     if (hasCustomFont) {
-      doc.font('Cursive').fontSize(50).fillColor('#1e1b4b').text(profilMagang.user.nama, textX, 250);
+      doc.font('Cursive').fontSize(50).fillColor('#1e1b4b').text(profilMagang.user.nama, 0, nameY - 10, { align: 'center', width: doc.page.width });
     } else {
-      doc.font('Helvetica-Bold').fontSize(35).fillColor('#1e1b4b').text(profilMagang.user.nama, textX, 260);
+      doc.font('Helvetica-Bold').fontSize(35).fillColor('#1e1b4b').text(profilMagang.user.nama, 0, nameY, { align: 'center', width: doc.page.width });
     }
     
     // Reset font back to default (Helvetica)
     doc.font('Helvetica');
     
-    // Text Mahasiswa
-    const jurusanText = profilMagang.user.jurusan || 'Teknologi Informasi';
-    const univText = profilMagang.user.universitas || 'Universitas';
-    doc.fontSize(12).fillColor('#4b5563').font('Helvetica-Oblique')
-       .text(`Mahasiswa/i ${jurusanText} ${univText}`, textX, 330);
-       
-    doc.font('Helvetica');
-    
-    const tglMulai = profilMagang.tanggal_mulai ? new Date(profilMagang.tanggal_mulai).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}) : '-';
-    const tglSelesai = profilMagang.tanggal_selesai ? new Date(profilMagang.tanggal_selesai).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}) : '-';
-    
-    doc.fontSize(12).fillColor('#1f2937').text(
-      `Telah menyelesaikan program magang di perusahaan pada divisi ${profilMagang.divisi || '-'} ` +
-      `dimulai pada ${tglMulai} hingga ${tglSelesai}`,
-      textX, 360, { width: 500, align: 'left', lineGap: 4 }
-    );
-
-    // KETUA PANITIA / MENTOR section
-    // In template it is around x=580, y=450
-    // Signature placeholder
-    // We don't draw the signature line if using template, as template has it.
     if (!fs.existsSync(templatePath)) {
       doc.fontSize(12).fillColor('#1f2937').text('Ketua Panitia / Mentor', doc.page.width - 250, 480);
     }
