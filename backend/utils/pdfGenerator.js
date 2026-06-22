@@ -1,6 +1,6 @@
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
-const path = require('path');
+import PDFDocument from 'pdfkit';
+import fs from 'fs';
+import path from 'path';
 
 const drawRow = (doc, label, value, labelWidth = 100) => {
   const startY = doc.y;
@@ -74,4 +74,4 @@ const generateLoA = (data, outputPath) => {
   });
 };
 
-module.exports = { generateLoA };
+export { generateLoA };
