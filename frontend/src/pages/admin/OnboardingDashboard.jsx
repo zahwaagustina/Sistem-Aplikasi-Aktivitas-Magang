@@ -58,6 +58,8 @@ const OnboardingDashboard = () => {
     setFormData({});
     if (type === 'PLACEMENT') {
       setFormData({ divisi: item.pendaftaran.lowongan.divisi, mentor_id: '' });
+    } else if (type === 'ORIENTATION') {
+      setFormData({ lokasi_orientasi: 'https://maps.app.goo.gl/jytpY2D48Qra8kWS7' }); // Tautan otomatis asli PCS
     }
   };
 
