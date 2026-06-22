@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { Users, BookOpen, Clock, ChevronRight, Activity, Search } from 'lucide-react';
 
@@ -8,19 +8,22 @@ const MonitorMagang = () => {
   const [anakMagang, setAnakMagang] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [errorMsg, setErrorMsg] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAnakMagang = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/mentor/anak-magang', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setAnakMagang(res.data.data);
+        const res = await api.get('/mentor/anak-magang');
+        console.log('Response dari API mentor:', res.data);
+        setAnakMagang(res.data.data || res.data);
       } catch (error) {
         console.error('Error fetching data:', error);
+        setErrorMsg(error.response?.data?.message || error.message);
+        if (error.response) {
+          console.error('Response error data:', error.response.data);
+        }
       } finally {
         setLoading(false);
       }
@@ -28,10 +31,12 @@ const MonitorMagang = () => {
     fetchAnakMagang();
   }, []);
 
-  const filteredData = anakMagang.filter(m => 
-    m.user?.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    m.universitas?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = (anakMagang || []).filter(m => {
+    const search = searchTerm.toLowerCase();
+    const nama = m?.user?.nama || '';
+    const univ = m?.universitas || '';
+    return nama.toLowerCase().includes(search) || univ.toLowerCase().includes(search);
+  });
 
   return (
     <div className="space-y-6">
@@ -62,6 +67,14 @@ const MonitorMagang = () => {
           <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-gray-700">Tidak ada data</h2>
           <p className="text-gray-500 mt-2">Belum ada anak magang yang ditugaskan kepada Anda atau cocok dengan pencarian.</p>
+          {errorMsg && (
+            <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-left font-mono">
+              <strong>Error Debug:</strong> {errorMsg}
+            </div>
+          )}
+          <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-lg text-xs text-left font-mono overflow-auto max-h-40">
+            <strong>Data Debug:</strong> {JSON.stringify(anakMagang)}
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

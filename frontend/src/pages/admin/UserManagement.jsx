@@ -21,7 +21,6 @@ const UserManagement = () => {
   // Form State
   const [formData, setFormData] = useState({
     nama: '',
-    username: '',
     password: '',
     role: 'MAGANG',
     email: '',
@@ -84,7 +83,6 @@ const UserManagement = () => {
   const handleEdit = (user) => {
     setFormData({
       nama: user.nama || '',
-      username: user.username || '',
       password: '', // Leave blank, only fill if changing
       role: user.role || 'MAGANG',
       email: user.email || '',
@@ -112,7 +110,6 @@ const UserManagement = () => {
   const openAddModal = () => {
     setFormData({
       nama: '',
-      username: '',
       password: '',
       role: 'MAGANG',
       email: '',
@@ -128,7 +125,7 @@ const UserManagement = () => {
   // Filter users based on search
   const filteredUsers = users.filter(user => 
     user.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (user.universitas && user.universitas.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -200,7 +197,7 @@ const UserManagement = () => {
                         </div>
                         <div>
                           <p className="font-semibold text-gray-800">{u.nama}</p>
-                          <p className="text-xs text-gray-500 font-mono">@{u.username}</p>
+                          <p className="text-xs text-gray-500">{u.email}</p>
                         </div>
                       </div>
                     </td>
@@ -299,14 +296,7 @@ const UserManagement = () => {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
-                      <input 
-                        type="text" required name="username" value={formData.username} onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                        placeholder="Untuk login"
-                      />
-                    </div>
+
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">

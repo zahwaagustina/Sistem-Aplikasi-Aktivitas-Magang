@@ -10,7 +10,6 @@ const RegisterKandidat = () => {
   const [formData, setFormData] = useState({
     nama: '',
     email: '',
-    username: '',
     password: '',
     no_telepon: ''
   });
@@ -104,15 +103,6 @@ const RegisterKandidat = () => {
                   <input type="text" name="no_telepon" required value={formData.no_telepon} onChange={handleChange} 
                     className="block w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm" 
                     placeholder="08xx-xxxx-xxxx" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-900 mb-2">Username*</label>
-                <div className="relative">
-                  <input type="text" name="username" required value={formData.username} onChange={handleChange} 
-                    className="block w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm" 
-                    placeholder="Pilih username" />
                 </div>
               </div>
 

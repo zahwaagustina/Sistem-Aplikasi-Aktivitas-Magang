@@ -469,8 +469,8 @@ export const uploadOnboardingDocs = async (req, res) => {
       data: { status: 'DOCUMENT_VERIFICATION' }
     });
 
-    // Notify Admin (we'll notify all admins or just general HR)
-    const admins = await prisma.user.findMany({ where: { role: { in: ['ADMIN', 'HR_ADMIN', 'SUPER_ADMIN'] } } });
+    // Notify Admin (we'll notify all SUPER_ADMIN)
+    const admins = await prisma.user.findMany({ where: { role: { in: ['SUPER_ADMIN'] } } });
     if (admins.length > 0) {
       const notifs = admins.map(admin => ({
         user_id: admin.id,

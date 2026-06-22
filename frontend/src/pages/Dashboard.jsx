@@ -62,7 +62,7 @@ const Dashboard = () => {
         }
       };
       fetchData();
-    } else if (user?.role === 'ADMIN') {
+    } else if (user?.role === 'SUPER_ADMIN') {
       const fetchAdminData = async () => {
         try {
           const resStats = await api.get('/admin/stats');
@@ -83,7 +83,7 @@ const Dashboard = () => {
     return <Navigate to="/kandidat/dashboard" replace />;
   }
 
-  if (user?.role === 'ADMIN') {
+  if (user?.role === 'SUPER_ADMIN') {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">

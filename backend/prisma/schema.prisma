@@ -9,7 +9,6 @@ datasource db {
 
 enum Role {
   SUPER_ADMIN
-  HR_ADMIN
   MENTOR
   UNIT
   KANDIDAT

@@ -40,11 +40,11 @@ router.put('/checklist/:taskId', updateChecklist);
 router.put('/:id/confirm-orientation', confirmOrientation);
 
 // --- ADMIN ROUTES ---
-router.get('/all', authorizeRole(['ADMIN', 'SUPER_ADMIN', 'HR_ADMIN']), getAllOnboarding);
-router.put('/:id/verify-docs', authorizeRole(['ADMIN', 'SUPER_ADMIN', 'HR_ADMIN']), verifyDocuments);
-router.post('/:id/issue-loa', authorizeRole(['ADMIN', 'SUPER_ADMIN', 'HR_ADMIN']), upload.single('loa'), issueLoa);
-router.put('/:id/assign-placement', authorizeRole(['ADMIN', 'SUPER_ADMIN', 'HR_ADMIN']), assignPlacement);
-router.put('/:id/create-account', authorizeRole(['ADMIN', 'SUPER_ADMIN', 'HR_ADMIN']), createAccount);
-router.put('/:id/schedule-orientation', authorizeRole(['ADMIN', 'SUPER_ADMIN', 'HR_ADMIN']), scheduleOrientation);
+router.get('/all', authorizeRole(['SUPER_ADMIN']), getAllOnboarding);
+router.put('/:id/verify-docs', authorizeRole(['SUPER_ADMIN']), verifyDocuments);
+router.post('/:id/issue-loa', authorizeRole(['SUPER_ADMIN']), upload.single('loa'), issueLoa);
+router.put('/:id/assign-placement', authorizeRole(['SUPER_ADMIN']), assignPlacement);
+router.put('/:id/create-account', authorizeRole(['SUPER_ADMIN']), createAccount);
+router.put('/:id/schedule-orientation', authorizeRole(['SUPER_ADMIN']), scheduleOrientation);
 
 export default router;

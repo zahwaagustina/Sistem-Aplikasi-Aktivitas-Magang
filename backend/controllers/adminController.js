@@ -163,7 +163,6 @@ export const createUser = async (req, res) => {
   try {
     const { 
       nama, 
-      username, 
       password, 
       role, 
       email, 
@@ -172,10 +171,12 @@ export const createUser = async (req, res) => {
       tanggal_selesai
     } = req.body;
 
-    // Check if username exists
-    const existingUser = await prisma.user.findUnique({ where: { username } });
+    const username = email;
+
+    // Check if username (email) exists
+    const existingUser = await prisma.user.findFirst({ where: { OR: [{ username }, { email }] } });
     if (existingUser) {
-      return res.status(400).json({ message: 'Username sudah digunakan' });
+      return res.status(400).json({ message: 'Email sudah terdaftar' });
     }
 
     // Hash password
@@ -239,7 +240,6 @@ export const updateUser = async (req, res) => {
     const { id } = req.params;
     const { 
       nama, 
-      username, 
       password, 
       role, 
       email, 
@@ -253,17 +253,19 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
     }
 
+    const username = email;
+
     // Check if new username exists for someone else
-    if (username !== existingUser.username) {
-      const usernameExists = await prisma.user.findUnique({ where: { username } });
+    if (username && username !== existingUser.username) {
+      const usernameExists = await prisma.user.findFirst({ where: { OR: [{ username }, { email }] } });
       if (usernameExists) {
-        return res.status(400).json({ message: 'Username sudah digunakan oleh pengguna lain' });
+        return res.status(400).json({ message: 'Email sudah digunakan oleh pengguna lain' });
       }
     }
 
     const updateData = {
       nama,
-      username,
+      ...(username ? { username } : {}),
       role,
       email: email || null,
     };

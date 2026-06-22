@@ -45,13 +45,14 @@ export const getLowonganById = async (req, res) => {
 
 // Register Kandidat
 export const registerKandidat = async (req, res) => {
-  const { nama, email, username, password, no_telepon } = req.body;
+  const { nama, email, password, no_telepon } = req.body;
+  const username = email; // Set username sama dengan email karena field username dihapus
   try {
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ email }, { username }] }
     });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email atau username sudah terdaftar' });
+      return res.status(400).json({ message: 'Email sudah terdaftar' });
     }
 
     const salt = await bcrypt.genSalt(10);
