@@ -100,9 +100,9 @@ export const applyLowongan = async (req, res) => {
       }
     });
 
-    // Create notification untuk HR_ADMIN dan SUPER_ADMIN
+    // Create notification untuk SUPER_ADMIN (karena HR_ADMIN tidak ada di enum)
     const hrAdmins = await prisma.user.findMany({
-      where: { role: { in: ['HR_ADMIN', 'SUPER_ADMIN'] } }
+      where: { role: { in: ['SUPER_ADMIN'] } }
     });
 
     if (hrAdmins.length > 0) {
