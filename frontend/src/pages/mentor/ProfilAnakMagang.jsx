@@ -67,7 +67,7 @@ const ProfilAnakMagang = () => {
   const handleSelesaikan = () => {
     const hasFinalEval = data?.evaluasi?.some(ev => ev.tipe === 'FINAL');
     if (!hasFinalEval) {
-      alert('Tindakan ditolak: Mohon berikan Evaluasi Akhir (Final) terlebih dahulu sebelum meluluskan anak magang ini.');
+      alert('Silahkan beri nilai evaluasi terlebih dahulu');
       return;
     }
     setIsConfirmSelesaiOpen(true);
