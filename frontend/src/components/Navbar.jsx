@@ -159,8 +159,8 @@ const Navbar = ({ toggleSidebar }) => {
         
         <div className="flex items-center space-x-2 border-l pl-4 border-gray-200">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-bold text-slate-700">{user?.username?.replace(/\.(magang|pembimbing|admin)$/i, '') || 'User'}</p>
-            <p className="text-xs text-slate-500 capitalize">{user?.role}</p>
+            <p className="text-sm font-bold text-slate-700">{user?.role === 'SUPER_ADMIN' ? 'Admin' : (user?.nama || user?.username?.replace(/\.(magang|pembimbing|admin)$/i, '') || 'User')}</p>
+            <p className="text-xs text-slate-500 capitalize">{user?.role === 'SUPER_ADMIN' ? 'Administrator' : user?.role?.replace('_', ' ')}</p>
           </div>
           <UserCircle size={32} className="text-indigo-600" />
         </div>
