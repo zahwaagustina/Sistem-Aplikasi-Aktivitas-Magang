@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    tipe: 'MID', // 'MID' or 'FINAL'
+    tipe: 'FINAL', // Set to FINAL directly
     skor_teknis: 80,
     skor_komunikasi: 80,
     skor_disiplin: 80,
@@ -61,29 +61,7 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
         <div className="p-6 overflow-y-auto">
           <form id="eval-form" onSubmit={handleSubmit} className="space-y-6">
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tipe Evaluasi</label>
-              <div className="flex gap-4">
-                <label className={`flex-1 border rounded-xl p-3 flex items-center justify-center cursor-pointer transition-all ${formData.tipe === 'MID' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
-                  <input 
-                    type="radio" name="tipe" value="MID" 
-                    checked={formData.tipe === 'MID'} 
-                    onChange={(e) => setFormData({...formData, tipe: e.target.value})}
-                    className="hidden"
-                  />
-                  <span className="font-semibold">Evaluasi Tengah Program (Mid)</span>
-                </label>
-                <label className={`flex-1 border rounded-xl p-3 flex items-center justify-center cursor-pointer transition-all ${formData.tipe === 'FINAL' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
-                  <input 
-                    type="radio" name="tipe" value="FINAL" 
-                    checked={formData.tipe === 'FINAL'} 
-                    onChange={(e) => setFormData({...formData, tipe: e.target.value})}
-                    className="hidden"
-                  />
-                  <span className="font-semibold">Evaluasi Akhir (Final)</span>
-                </label>
-              </div>
-            </div>
+            {/* Tipe Evaluasi Selection Removed - Defaults to FINAL */}
 
             <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
               <h3 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wider">Penilaian Kuantitatif (0 - 100)</h3>
