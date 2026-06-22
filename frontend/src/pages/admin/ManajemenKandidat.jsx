@@ -73,11 +73,6 @@ const ManajemenKandidat = () => {
     setActiveModal('NILAI');
   };
 
-  const openDokumenModal = (kandidat) => {
-    setSelectedKandidat(kandidat);
-    setActiveModal('DOKUMEN');
-  };
-
   const closeModal = () => {
     setActiveModal(null);
     setSelectedKandidat(null);
@@ -234,10 +229,10 @@ const ManajemenKandidat = () => {
                     )}
                   </td>
                   <td className="p-4 flex flex-wrap justify-center gap-2">
-                    {(kandidat.user.profilKandidat?.cv_path || kandidat.user.profilKandidat?.portofolio_url || (kandidat.user.dokumen && kandidat.user.dokumen.length > 0)) && (
-                      <button onClick={() => openDokumenModal(kandidat)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100" title="Lihat Dokumen">
+                    {kandidat.user.profilKandidat?.cv_path && (
+                      <a href={`http://localhost:5000${kandidat.user.profilKandidat.cv_path}`} target="_blank" rel="noreferrer" className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 flex items-center justify-center" title="Lihat CV">
                         <FileText className="w-4 h-4" />
-                      </button>
+                      </a>
                     )}
                     {(kandidat.status === 'SHORTLISTED' || kandidat.status === 'INTERVIEW') && (
                       <button onClick={() => openInterviewModal(kandidat)} className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100" title="Jadwalkan Interview">
@@ -373,102 +368,6 @@ const ManajemenKandidat = () => {
         </div>
       )}
 
-      {/* MODAL DOKUMEN */}
-      {activeModal === 'DOKUMEN' && selectedKandidat && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden shadow-2xl flex flex-col">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h3 className="text-xl font-bold text-gray-800">Dokumen Pelamar</h3>
-              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <XCircle className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto space-y-6 flex-1">
-              {/* Dokumen Utama (CV & Portofolio) */}
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-3 border-b pb-2">Dokumen Utama</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {selectedKandidat.user?.profilKandidat?.cv_path ? (
-                    <a href={`http://localhost:5000${selectedKandidat.user.profilKandidat.cv_path}`} target="_blank" rel="noreferrer" className="flex items-center p-4 rounded-xl border border-blue-100 bg-blue-50/50 hover:bg-blue-50 transition-colors group">
-                      <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mr-3 group-hover:scale-105 transition-transform">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800 text-sm">Curriculum Vitae (CV)</p>
-                        <p className="text-xs text-blue-600 mt-0.5">Klik untuk melihat</p>
-                      </div>
-                    </a>
-                  ) : (
-                    <div className="flex items-center p-4 rounded-xl border border-gray-100 bg-gray-50 opacity-60">
-                      <div className="w-10 h-10 rounded-lg bg-gray-200 text-gray-400 flex items-center justify-center mr-3">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-600 text-sm">Curriculum Vitae (CV)</p>
-                        <p className="text-xs text-gray-400 mt-0.5">Tidak tersedia</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedKandidat.user?.profilKandidat?.portofolio_url ? (
-                    <a href={selectedKandidat.user.profilKandidat.portofolio_url.startsWith('http') ? selectedKandidat.user.profilKandidat.portofolio_url : `https://${selectedKandidat.user.profilKandidat.portofolio_url}`} target="_blank" rel="noreferrer" className="flex items-center p-4 rounded-xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 transition-colors group">
-                      <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mr-3 group-hover:scale-105 transition-transform">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800 text-sm">Link Portofolio</p>
-                        <p className="text-xs text-purple-600 mt-0.5">Klik untuk membuka link</p>
-                      </div>
-                    </a>
-                  ) : (
-                    <div className="flex items-center p-4 rounded-xl border border-gray-100 bg-gray-50 opacity-60">
-                      <div className="w-10 h-10 rounded-lg bg-gray-200 text-gray-400 flex items-center justify-center mr-3">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-600 text-sm">Link Portofolio</p>
-                        <p className="text-xs text-gray-400 mt-0.5">Tidak tersedia</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Dokumen Tambahan */}
-              {selectedKandidat.user?.dokumen && selectedKandidat.user.dokumen.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-3 border-b pb-2">Dokumen Pendukung Lainnya</h4>
-                  <div className="space-y-3">
-                    {selectedKandidat.user.dokumen.map((doc) => (
-                      <div key={doc.id} className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white hover:border-indigo-300 transition-colors">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mr-3">
-                            <FileText className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800 text-sm">{doc.tipe.replace(/_/g, ' ')}</p>
-                            <p className="text-xs text-gray-500 mt-0.5">{doc.nama_file}</p>
-                          </div>
-                        </div>
-                        <a href={`http://localhost:5000${doc.file_path}`} target="_blank" rel="noreferrer" className="px-4 py-2 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-lg hover:bg-indigo-100 transition-colors">
-                          Lihat File
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex justify-end">
-              <button onClick={closeModal} className="px-5 py-2.5 bg-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-300 transition-colors">
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
