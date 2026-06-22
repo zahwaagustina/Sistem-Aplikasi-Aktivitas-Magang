@@ -502,7 +502,7 @@ const ProfilAnakMagang = () => {
       {isEvaluasiModalOpen && (
         <FormEvaluasi 
           profilId={profil.id} 
-          userId={state.userId}
+          pesertaId={state.userId}
           onClose={() => setIsEvaluasiModalOpen(false)}
           onSuccess={() => {
             setIsEvaluasiModalOpen(false);
