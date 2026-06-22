@@ -12,7 +12,7 @@ export const getDaftarKandidat = async (req, res) => {
     const pendaftaran = await prisma.pendaftaran.findMany({
       include: {
         user: {
-          select: { id: true, nama: true, email: true, no_telepon: true, profilKandidat: true }
+          select: { id: true, nama: true, email: true, no_telepon: true, profilKandidat: true, dokumen: true }
         },
         lowongan: {
           select: { posisi: true, program: { select: { nama: true } } }
