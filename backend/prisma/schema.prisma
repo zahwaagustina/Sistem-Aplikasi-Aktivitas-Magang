@@ -250,9 +250,9 @@ model Absensi {
 model Tugas {
   id         Int            @id @default(autoincrement())
   mentor_id  Int
-  mentor     User           @relation("TugasMentor", fields: [mentor_id], references: [id])
+  mentor     User           @relation("TugasMentor", fields: [mentor_id], references: [id], onDelete: Cascade)
   peserta_id Int
-  peserta    User           @relation("TugasPeserta", fields: [peserta_id], references: [id])
+  peserta    User           @relation("TugasPeserta", fields: [peserta_id], references: [id], onDelete: Cascade)
   judul      String
   deskripsi  String         @db.Text
   deadline   DateTime       @db.Date
@@ -267,9 +267,9 @@ model Tugas {
 model Evaluasi {
   id              Int          @id @default(autoincrement())
   peserta_id      Int
-  peserta         User         @relation("EvaluasiPeserta", fields: [peserta_id], references: [id])
+  peserta         User         @relation("EvaluasiPeserta", fields: [peserta_id], references: [id], onDelete: Cascade)
   mentor_id       Int
-  mentor          User         @relation("EvaluasiMentor", fields: [mentor_id], references: [id])
+  mentor          User         @relation("EvaluasiMentor", fields: [mentor_id], references: [id], onDelete: Cascade)
   tipe            TipeEvaluasi
   skor_teknis     Float
   skor_komunikasi Float
