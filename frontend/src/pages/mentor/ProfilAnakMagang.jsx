@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft, User, BookOpen, Clock, Activity, FileText, CheckCircle, XCircle, Award } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import FormEvaluasi from './FormEvaluasi';
 
 const ProfilAnakMagang = () => {
@@ -67,7 +68,7 @@ const ProfilAnakMagang = () => {
   const handleSelesaikan = () => {
     const hasFinalEval = data?.evaluasi?.some(ev => ev.tipe === 'FINAL');
     if (!hasFinalEval) {
-      alert('Silahkan beri nilai evaluasi terlebih dahulu');
+      toast.error('Silahkan beri nilai evaluasi terlebih dahulu');
       return;
     }
     setIsConfirmSelesaiOpen(true);
