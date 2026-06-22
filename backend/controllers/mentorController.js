@@ -82,13 +82,18 @@ export const getDetailAnakMagang = async (req, res) => {
       orderBy: { tanggal: 'desc' }
     });
 
+    const laporan_akhir = await prisma.dokumen.findFirst({
+      where: { user_id: parseInt(id), tipe: 'LAPORAN_AKHIR' }
+    });
+
     res.json({
       data: {
         profil: profilMagang,
         logbooks,
         tugas,
         evaluasi,
-        absensi
+        absensi,
+        laporan_akhir
       }
     });
   } catch (error) {
@@ -110,6 +115,15 @@ export const submitEvaluasi = async (req, res) => {
 
     if (!profilMagang || profilMagang.mentor_id !== mentorId) {
       return res.status(403).json({ message: 'Akses ditolak' });
+    }
+
+    // Pastikan anak magang sudah mengunggah laporan akhir
+    const laporanAkhir = await prisma.dokumen.findFirst({
+      where: { user_id: parseInt(id), tipe: 'LAPORAN_AKHIR' }
+    });
+
+    if (!laporanAkhir) {
+      return res.status(400).json({ message: 'Peserta belum mengunggah Laporan Akhir. Evaluasi tidak dapat diberikan.' });
     }
 
     const evaluasi = await prisma.evaluasi.create({

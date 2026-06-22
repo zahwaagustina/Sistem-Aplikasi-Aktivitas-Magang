@@ -154,8 +154,9 @@ const ProfilAnakMagang = () => {
 
   if (!data) return null;
 
-  const { profil, logbooks, tugas, evaluasi, absensi } = data;
+  const { profil, logbooks, tugas, evaluasi, absensi, laporan_akhir } = data;
   const hasFinalEval = evaluasi?.some(ev => ev.tipe === 'FINAL');
+  const hasLaporan = !!laporan_akhir;
 
   return (
     <div className="space-y-6 pb-20">
@@ -195,13 +196,25 @@ const ProfilAnakMagang = () => {
 
           {/* Action Buttons (Right Aligned) */}
           <div className="flex justify-end pt-4 space-x-3 mb-6">
+            {hasLaporan && (
+              <a 
+                href={`http://localhost:5000${laporan_akhir.file_path}`}
+                target="_blank"
+                rel="noreferrer"
+                className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2"
+              >
+                <FileText className="w-4 h-4 text-indigo-600" />
+                Lihat Laporan
+              </a>
+            )}
             <button 
-              onClick={() => !hasFinalEval && setIsEvaluasiModalOpen(true)}
-              disabled={hasFinalEval}
-              className={`${hasFinalEval ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-600 text-white'} px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2`}
+              onClick={() => hasLaporan && !hasFinalEval && setIsEvaluasiModalOpen(true)}
+              disabled={hasFinalEval || !hasLaporan}
+              className={`${hasFinalEval ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : !hasLaporan ? 'bg-amber-100 text-amber-600 cursor-not-allowed border border-amber-200' : 'bg-emerald-500 hover:bg-emerald-600 text-white'} px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2`}
+              title={!hasLaporan ? 'Peserta belum mengunggah laporan akhir' : ''}
             >
               <Award className="w-4 h-4" />
-              {hasFinalEval ? 'Evaluasi Telah Dikirim' : 'Beri Evaluasi'}
+              {hasFinalEval ? 'Evaluasi Telah Dikirim' : !hasLaporan ? 'Menunggu Laporan' : 'Beri Evaluasi'}
             </button>
             {profil.status !== 'SELESAI' && (
               <button 
