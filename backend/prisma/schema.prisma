@@ -200,6 +200,9 @@ model Interview {
   tanggal_waktu  DateTime
   link_meeting   String?
   hasil_score    Float?
+  skor_wawancara Float?
+  skor_psikotes  Float?
+  skor_teknikal  Float?
   catatan        String?     @db.Text
 }
 
