@@ -410,8 +410,8 @@ const OnboardingKandidat = () => {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Share Location (Maps)</p>
                   {onboarding.lokasi_orientasi ? (
-                    <a href={onboarding.lokasi_orientasi} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-semibold hover:underline flex items-center">
-                      <MapPin size={16} className="mr-1" /> Buka Peta
+                    <a href={onboarding.lokasi_orientasi} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-3 py-1.5 bg-white text-blue-600 font-semibold rounded-lg shadow-sm hover:shadow border border-gray-100/50 transition-all hover:-translate-y-0.5">
+                      <MapPin size={16} className="mr-1.5" /> Buka Peta
                     </a>
                   ) : (
                     <p className="font-semibold text-gray-400">-</p>
