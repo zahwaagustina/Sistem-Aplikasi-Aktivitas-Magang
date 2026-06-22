@@ -155,6 +155,7 @@ const ProfilAnakMagang = () => {
   if (!data) return null;
 
   const { profil, logbooks, tugas, evaluasi, absensi } = data;
+  const hasFinalEval = evaluasi?.some(ev => ev.tipe === 'FINAL');
 
   return (
     <div className="space-y-6 pb-20">
@@ -195,11 +196,12 @@ const ProfilAnakMagang = () => {
           {/* Action Buttons (Right Aligned) */}
           <div className="flex justify-end pt-4 space-x-3 mb-6">
             <button 
-              onClick={() => setIsEvaluasiModalOpen(true)}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2"
+              onClick={() => !hasFinalEval && setIsEvaluasiModalOpen(true)}
+              disabled={hasFinalEval}
+              className={`${hasFinalEval ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-600 text-white'} px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2`}
             >
               <Award className="w-4 h-4" />
-              Beri Evaluasi
+              {hasFinalEval ? 'Evaluasi Telah Dikirim' : 'Beri Evaluasi'}
             </button>
             {profil.status !== 'SELESAI' && (
               <button 
