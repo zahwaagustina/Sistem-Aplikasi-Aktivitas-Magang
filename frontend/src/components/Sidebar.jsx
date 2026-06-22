@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, BookOpen, Settings, User, UserPlus, Briefcase, CheckCircle, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../api';
 
 const Sidebar = ({ isOpen }) => {
   const { user } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === 'KANDIDAT') {
+      api.get('/kandidat/applications')
+        .then(res => {
+          const apps = res.data?.data || [];
+          const hasAccepted = apps.some(app => app.status === 'ACCEPTED');
+          setShowOnboarding(hasAccepted);
+        })
+        .catch(() => {});
+    }
+  }, [user]);
 
   const getNavItems = () => {
     const baseItems = [
@@ -46,11 +60,14 @@ const Sidebar = ({ isOpen }) => {
     }
     
     if (userRole === 'KANDIDAT') {
-      return [
+      const items = [
         ...baseItems,
         { name: 'Status Lamaran', path: '/kandidat/dashboard', icon: <User size={20} /> },
-        { name: 'Onboarding', path: '/kandidat/onboarding', icon: <CheckCircle size={20} /> },
       ];
+      if (showOnboarding) {
+        items.push({ name: 'Onboarding', path: '/kandidat/onboarding', icon: <CheckCircle size={20} /> });
+      }
+      return items;
     }
 
     return baseItems;
