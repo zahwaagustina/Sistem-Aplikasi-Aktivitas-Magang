@@ -11,7 +11,13 @@ const Navbar = ({ toggleSidebar }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchNotif = async () => {
@@ -113,6 +119,11 @@ const Navbar = ({ toggleSidebar }) => {
         >
           <Menu size={24} />
         </button>
+        <div className="hidden md:flex items-center text-sm font-medium text-gray-600 bg-gray-50/80 px-4 py-1.5 rounded-full border border-gray-100 shadow-sm">
+          {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
+          <span className="mx-2 text-gray-300">|</span>
+          <span className="text-indigo-600 font-bold font-mono">{currentTime.toLocaleTimeString('id-ID')}</span>
+        </div>
       </div>
 
       <div className="flex items-center space-x-4">
