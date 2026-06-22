@@ -73,12 +73,9 @@ const OnboardingDashboard = () => {
   const handleIssueLoa = async (e) => {
     e.preventDefault();
     try {
-      const fd = new FormData();
-      fd.append('loa', e.target.loaFile.files[0]);
-      await api.post(`/onboarding/${selectedItem.id}/issue-loa`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      alert('LoA berhasil diterbitkan');
+      const npm = e.target.npm.value;
+      await api.post(`/onboarding/${selectedItem.id}/issue-loa`, { npm });
+      alert('LoA berhasil diterbitkan secara otomatis');
       setModalType('');
       fetchData();
     } catch (e) { alert('Error: ' + e.message); }
@@ -293,11 +290,13 @@ const OnboardingDashboard = () => {
 
               {modalType === 'ISSUE_LOA' && (
                 <form onSubmit={handleIssueLoa}>
+                  <p className="text-gray-600 mb-4 text-sm">Sistem akan secara otomatis men-generate file PDF LoA menggunakan template standar perusahaan.</p>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Unggah Dokumen LoA</label>
-                    <input type="file" name="loaFile" required accept=".pdf,.doc,.docx" className="w-full border border-gray-300 rounded-lg p-2" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">NPM / NIM Mahasiswa (Opsional)</label>
+                    <input type="text" name="npm" placeholder="Contoh: 12345678" defaultValue={selectedItem.pendaftaran.user.profilKandidat?.npm || ''} className="w-full border border-gray-300 rounded-lg p-2" />
+                    <p className="text-xs text-gray-500 mt-1">NPM akan dicetak di dalam surat LoA. Anda bisa mengisi ini jika kandidat belum melengkapinya.</p>
                   </div>
-                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Unggah & Terbitkan LoA</button>
+                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Terbitkan LoA Otomatis</button>
                 </form>
               )}
 
