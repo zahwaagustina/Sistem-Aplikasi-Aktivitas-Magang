@@ -72,11 +72,16 @@ export const getPenyelesaianStatus = async (req, res) => {
       where: { user_id: userId, tipe: 'SERTIFIKAT' }
     });
 
+    const evaluasi = await prisma.evaluasi.findFirst({
+      where: { peserta_id: userId, tipe: 'FINAL' }
+    });
+
     res.json({
       data: {
         status_magang: profilMagang.status,
         laporan_akhir: dokumenLaporan || null,
         sertifikat: dokumenSertifikat || null,
+        evaluasi: evaluasi || null,
       }
     });
   } catch (error) {

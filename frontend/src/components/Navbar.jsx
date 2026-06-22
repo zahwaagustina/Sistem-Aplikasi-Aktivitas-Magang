@@ -75,8 +75,7 @@ const Navbar = ({ toggleSidebar }) => {
     // Rute untuk Peserta Magang
     if (j.includes('tugas') || j.includes('hasil review tugas')) return '/magang/tugas';
     if (j.includes('logbook')) return '/magang/logbook';
-    if (j.includes('evaluasi')) return '/magang/evaluasi';
-    if (j.includes('sertifikat') || j.includes('laporan akhir')) return '/magang/penyelesaian';
+    if (j.includes('evaluasi') || j.includes('sertifikat') || j.includes('laporan akhir')) return '/magang/penyelesaian';
     if (j.includes('absensi')) return '/magang/absensi';
 
     // Rute untuk Kandidat
