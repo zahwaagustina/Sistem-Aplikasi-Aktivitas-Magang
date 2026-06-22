@@ -251,13 +251,33 @@ const OnboardingDashboard = () => {
                       </div>
                     )}
                     
-                    {selectedItem.pendaftaran.surat_pengantar && (
+                    {selectedItem.pendaftaran.user.dokumen?.find(d => d.tipe === 'SURAT_PENGANTAR') ? (
                       <div className="flex items-center justify-between pt-3 border-t border-gray-200 mt-3">
                         <div className="flex items-center text-sm font-medium text-gray-700">
                           <FileText size={16} className="text-emerald-500 mr-2" />
                           Surat Pengantar Kampus
                         </div>
-                        <a href={`http://localhost:5000${selectedItem.pendaftaran.surat_pengantar}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'SURAT_PENGANTAR').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                          Buka PDF
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 mt-3">
+                        <div className="flex items-center text-sm font-medium text-gray-700">
+                          <FileText size={16} className="text-emerald-500 mr-2" />
+                          Surat Pengantar Kampus
+                        </div>
+                        <span className="text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded">Belum Diunggah</span>
+                      </div>
+                    )}
+
+                    {selectedItem.pendaftaran.user.dokumen?.find(d => d.tipe === 'SURAT_KERJASAMA') && (
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 mt-3">
+                        <div className="flex items-center text-sm font-medium text-gray-700">
+                          <FileText size={16} className="text-emerald-500 mr-2" />
+                          Surat Kerja Sama Kampus
+                        </div>
+                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'SURAT_KERJASAMA').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
                           Buka PDF
                         </a>
                       </div>
