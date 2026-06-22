@@ -12,7 +12,8 @@ const ApplyLowongan = () => {
     universitas: '',
     jurusan: '',
     angkatan: '',
-    semester: ''
+    semester: '',
+    npm: ''
   });
 
   const [files, setFiles] = useState({
@@ -47,11 +48,11 @@ const ApplyLowongan = () => {
     setLoading(true);
     const submitData = new FormData();
     submitData.append('lowongan_id', lowonganId);
-    
-    // Append academic data
-    Object.keys(formData).forEach(key => {
-      submitData.append(key, formData[key]);
-    });
+    submitData.append('universitas', formData.universitas);
+    submitData.append('jurusan', formData.jurusan);
+    submitData.append('angkatan', formData.angkatan);
+    submitData.append('semester', formData.semester);
+    submitData.append('npm', formData.npm);
 
     if (files.cv) submitData.append('cv', files.cv);
 
@@ -108,6 +109,11 @@ const ApplyLowongan = () => {
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">Institusi / Kampus</label>
                 <input type="text" name="universitas" required value={formData.universitas} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 placeholder-slate-400 bg-white/80 transition-all outline-none" placeholder="Universitas / Sekolah" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">NPM / NIM</label>
+                <input type="text" name="npm" required value={formData.npm} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 placeholder-slate-400 bg-white/80 transition-all outline-none" placeholder="Nomor Induk Mahasiswa" />
               </div>
 
               <div>

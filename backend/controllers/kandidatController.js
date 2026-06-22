@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export const applyLowongan = async (req, res) => {
   try {
     const user_id = req.user.id;
-    const { lowongan_id, universitas, jurusan, angkatan, semester } = req.body;
+    const { lowongan_id, universitas, jurusan, angkatan, semester, npm } = req.body;
     
     // Pastikan user memiliki profilKandidat
     const profil = await prisma.profilKandidat.findUnique({ where: { user_id } });
@@ -21,7 +21,8 @@ export const applyLowongan = async (req, res) => {
         universitas: universitas || profil.universitas,
         jurusan: jurusan || profil.jurusan,
         angkatan: angkatan || profil.angkatan,
-        semester: semester || profil.semester
+        semester: semester || profil.semester,
+        npm: npm || profil.npm
       }
     });
 
