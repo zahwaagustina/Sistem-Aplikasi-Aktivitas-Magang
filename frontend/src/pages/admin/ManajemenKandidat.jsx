@@ -20,7 +20,7 @@ const ManajemenKandidat = () => {
   // Form states
   const [statusForm, setStatusForm] = useState('');
   const [interviewForm, setInterviewForm] = useState({ tanggal_waktu: '', link_meeting: '' });
-  const [nilaiForm, setNilaiForm] = useState({ hasil_score: '', catatan: '', keputusan: 'ACCEPTED' });
+  const [nilaiForm, setNilaiForm] = useState({ skor_wawancara: '', skor_psikotes: '', skor_teknikal: '', catatan: '', keputusan: 'ACCEPTED' });
 
   const fetchKandidat = async () => {
     try {
@@ -66,9 +66,11 @@ const ManajemenKandidat = () => {
   const openNilaiModal = (kandidat) => {
     setSelectedKandidat(kandidat);
     setNilaiForm({ 
-      hasil_score: kandidat.interview?.hasil_score || '', 
+      skor_wawancara: kandidat.interview?.skor_wawancara || '',
+      skor_psikotes: kandidat.interview?.skor_psikotes || '',
+      skor_teknikal: kandidat.interview?.skor_teknikal || '',
       catatan: kandidat.interview?.catatan || '', 
-      keputusan: 'ACCEPTED' 
+      keputusan: kandidat.status === 'REJECTED' ? 'REJECTED' : 'ACCEPTED'
     });
     setActiveModal('NILAI');
   };
@@ -344,9 +346,19 @@ const ManajemenKandidat = () => {
           <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <h2 className="text-xl font-bold mb-4">Penilaian Interview & Keputusan</h2>
             <form onSubmit={handleSubmitNilai}>
-              <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">Skor Interview (0-100)</label>
-                <input type="number" min="0" max="100" required value={nilaiForm.hasil_score} onChange={(e) => setNilaiForm({...nilaiForm, hasil_score: e.target.value})} className="w-full border p-2 rounded-lg" placeholder="Misal: 85" />
+              <div className="mb-4 grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold mb-2">Wawancara (0-100)</label>
+                  <input type="number" min="0" max="100" required value={nilaiForm.skor_wawancara} onChange={(e) => setNilaiForm({...nilaiForm, skor_wawancara: e.target.value})} className="w-full border p-2 rounded-lg text-sm" placeholder="Misal: 85" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-2">Psikotes (0-100)</label>
+                  <input type="number" min="0" max="100" required value={nilaiForm.skor_psikotes} onChange={(e) => setNilaiForm({...nilaiForm, skor_psikotes: e.target.value})} className="w-full border p-2 rounded-lg text-sm" placeholder="Misal: 80" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-2">Teknikal (0-100)</label>
+                  <input type="number" min="0" max="100" required value={nilaiForm.skor_teknikal} onChange={(e) => setNilaiForm({...nilaiForm, skor_teknikal: e.target.value})} className="w-full border p-2 rounded-lg text-sm" placeholder="Misal: 90" />
+                </div>
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-semibold mb-2">Catatan Interviewer</label>

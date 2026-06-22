@@ -430,8 +430,8 @@ export const uploadOnboardingDocs = async (req, res) => {
     const userId = req.user.id;
     const files = req.files;
 
-    if (!files || !files['ktp']) {
-      return res.status(400).json({ message: 'Pilih dokumen (KTP) untuk diunggah.' });
+    if (!files || !files['ktp'] || !files['surat_pengantar']) {
+      return res.status(400).json({ message: 'Pilih dokumen KTM/KTP dan Surat Pengantar untuk diunggah.' });
     }
 
     const onboarding = await prisma.onboarding.findUnique({
@@ -443,25 +443,33 @@ export const uploadOnboardingDocs = async (req, res) => {
       return res.status(403).json({ message: 'Akses ditolak.' });
     }
 
-    // Save KTP
-    if (files['ktp'] && files['ktp'].length > 0) {
-      const existingKtp = await prisma.dokumen.findFirst({ where: { user_id: userId, tipe: 'KTP' } });
-      if (existingKtp) {
-        await prisma.dokumen.update({
-          where: { id: existingKtp.id },
-          data: { nama_file: files['ktp'][0].originalname, file_path: `/uploads/${files['ktp'][0].filename}` }
-        });
-      } else {
-        await prisma.dokumen.create({
-          data: {
-            user_id: userId,
-            tipe: 'KTP',
-            nama_file: files['ktp'][0].originalname,
-            file_path: `/uploads/${files['ktp'][0].filename}`
-          }
-        });
+    // Fungsi bantu untuk simpan/update dokumen
+    const saveDokumen = async (fileArray, tipeDokumen) => {
+      if (fileArray && fileArray.length > 0) {
+        const fileInfo = fileArray[0];
+        const existingDoc = await prisma.dokumen.findFirst({ where: { user_id: userId, tipe: tipeDokumen } });
+        if (existingDoc) {
+          await prisma.dokumen.update({
+            where: { id: existingDoc.id },
+            data: { nama_file: fileInfo.originalname, file_path: `/uploads/${fileInfo.filename}` }
+          });
+        } else {
+          await prisma.dokumen.create({
+            data: {
+              user_id: userId,
+              tipe: tipeDokumen,
+              nama_file: fileInfo.originalname,
+              file_path: `/uploads/${fileInfo.filename}`
+            }
+          });
+        }
       }
-    }
+    };
+
+    // Save Documents
+    await saveDokumen(files['ktp'], 'KTP');
+    await saveDokumen(files['surat_pengantar'], 'SURAT_PENGANTAR');
+    await saveDokumen(files['surat_kerjasama'], 'SURAT_KERJASAMA');
 
     // Update status to DOCUMENT_VERIFICATION so Admin knows it's ready for review
     const updated = await prisma.onboarding.update({

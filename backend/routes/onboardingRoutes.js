@@ -35,7 +35,7 @@ router.use(authenticateToken);
 // --- KANDIDAT ROUTES ---
 router.get('/my', getMyOnboarding);
 router.put('/:id/respond', respondOffer);
-router.post('/:id/upload-docs', uploadDocs.fields([{ name: 'ktp', maxCount: 1 }]), uploadOnboardingDocs);
+router.post('/:id/upload-docs', uploadDocs.fields([{ name: 'ktp', maxCount: 1 }, { name: 'surat_pengantar', maxCount: 1 }, { name: 'surat_kerjasama', maxCount: 1 }]), uploadOnboardingDocs);
 router.put('/checklist/:taskId', updateChecklist);
 router.put('/:id/confirm-orientation', confirmOrientation);
 
