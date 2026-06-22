@@ -248,6 +248,7 @@ model Absensi {
   lokasi_keluar String?
   status        StatusAbsensi @default(HADIR)
   keterangan    String?       @db.Text
+  bukti_path    String?
   created_at    DateTime      @default(now())
 }
 
