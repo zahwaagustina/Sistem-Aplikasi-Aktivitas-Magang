@@ -9,7 +9,7 @@ import {
   reviewTugas
 } from '../controllers/mentorController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
-import upload from '../middleware/upload.js';
+import { upload } from '../middleware/upload.js';
 
 const router = express.Router();
 
