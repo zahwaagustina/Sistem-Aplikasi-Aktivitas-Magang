@@ -103,7 +103,7 @@ const ProfilAnakMagang = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post('http://localhost:5000/api/mentor/tugas', {
-        peserta_id: state.userId,
+        peserta_id: userId,
         ...formTugas
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -149,6 +149,26 @@ const ProfilAnakMagang = () => {
       console.error('Error review tugas:', error);
       alert('Gagal mengirim review tugas');
       setLoading(false);
+    }
+  };
+
+  const handleDownloadFile = async (fileUrl, e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      const fileName = fileUrl.split('/').pop() || 'hasil_tugas';
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast.error('Gagal mengunduh file. Coba gunakan tombol Lihat Hasil lalu simpan secara manual.');
     }
   };
 
@@ -687,13 +707,12 @@ const ProfilAnakMagang = () => {
                     >
                       Lihat Hasil
                     </a>
-                    <a 
-                      href={`http://localhost:5000${selectedTugasForReview.file_hasil}`} 
-                      download
+                    <button 
+                      onClick={(e) => handleDownloadFile(`http://localhost:5000${selectedTugasForReview.file_hasil}`, e)}
                       className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition shadow-sm"
                     >
                       Unduh File
-                    </a>
+                    </button>
                   </div>
                 </div>
               ) : (
