@@ -57,7 +57,8 @@ export const uploadLaporan = async (req, res) => {
         data: {
           user_id: profilMagang.mentor_id,
           judul: 'Laporan Akhir Peserta',
-          pesan: `Peserta ${profilMagang.user?.nama || 'magang Anda'} telah mengunggah Laporan Akhir dan menunggu evaluasi / penerbitan Sertifikat Kelulusan.`
+          pesan: `Peserta ${profilMagang.user?.nama || 'magang Anda'} telah mengunggah Laporan Akhir dan menunggu evaluasi / penerbitan Sertifikat Kelulusan.`,
+          link: `/mentor/profil-magang?userId=${userId}&tab=evaluasi`
         }
       });
     }
