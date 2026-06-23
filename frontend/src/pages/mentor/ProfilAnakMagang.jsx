@@ -26,6 +26,7 @@ const ProfilAnakMagang = () => {
   });
 
   const [isReviewTugasOpen, setIsReviewTugasOpen] = useState(false);
+  const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [selectedTugasForReview, setSelectedTugasForReview] = useState(null);
   const [reviewFeedback, setReviewFeedback] = useState('');
 
@@ -132,15 +133,9 @@ const ProfilAnakMagang = () => {
   };
 
   const executeReviewTugas = async (status) => {
-    let finalFeedback = '';
-    
-    if (status === 'IN_PROGRESS') {
-      const reason = window.prompt('Masukkan instruksi detail bagian mana yang harus direvisi:');
-      if (!reason || !reason.trim()) {
-        toast.error('Revisi dibatalkan. Keterangan revisi wajib diisi!');
-        return;
-      }
-      finalFeedback = reason;
+    if (status === 'IN_PROGRESS' && !reviewFeedback.trim()) {
+      toast.error('Keterangan revisi wajib diisi!');
+      return;
     }
     
     try {
@@ -148,11 +143,12 @@ const ProfilAnakMagang = () => {
       const token = localStorage.getItem('token');
       await axios.put(`http://localhost:5000/api/mentor/tugas/${selectedTugasForReview.id}/review`, {
         status,
-        feedback: finalFeedback
+        feedback: reviewFeedback
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsReviewTugasOpen(false);
+      setIsRevisionModalOpen(false);
       setSelectedTugasForReview(null);
       setReviewFeedback('');
       fetchDetail();
@@ -737,7 +733,7 @@ const ProfilAnakMagang = () => {
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
               <button 
-                onClick={() => executeReviewTugas('IN_PROGRESS')}
+                onClick={() => setIsRevisionModalOpen(true)}
                 className="px-4 py-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-lg text-sm font-bold transition-colors"
               >
                 Minta Revisi
@@ -747,6 +743,45 @@ const ProfilAnakMagang = () => {
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold transition-colors shadow-sm"
               >
                 Terima & Selesai
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Form Revisi Custom */}
+      {isRevisionModalOpen && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-gray-800">Keterangan Revisi</h3>
+              <button onClick={() => setIsRevisionModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Instruksi Revisi <span className="text-red-500">*</span></label>
+              <textarea 
+                rows="4"
+                value={reviewFeedback}
+                onChange={(e) => setReviewFeedback(e.target.value)}
+                className={`w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 ${!reviewFeedback.trim() ? 'focus:border-red-500' : 'focus:border-red-500'}`}
+                placeholder="Jelaskan secara detail bagian mana yang harus diperbaiki oleh peserta..."
+                autoFocus
+              ></textarea>
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+              <button 
+                onClick={() => setIsRevisionModalOpen(false)}
+                className="px-4 py-2 bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={() => executeReviewTugas('IN_PROGRESS')}
+                className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg text-sm font-bold transition-colors shadow-sm"
+              >
+                Kirim Revisi
               </button>
             </div>
           </div>
