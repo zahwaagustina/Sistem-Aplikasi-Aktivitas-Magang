@@ -269,6 +269,7 @@ export const submitTugas = async (req, res) => {
         user_id: tugas.mentor_id,
         judul: 'Tugas Dikumpulkan',
         pesan: `Tugas "${tugas.judul}" telah dikumpulkan dan menunggu review Anda.`,
+        link: `/mentor/profil-magang?userId=${user_id}&tab=tugas`
       }
     });
 

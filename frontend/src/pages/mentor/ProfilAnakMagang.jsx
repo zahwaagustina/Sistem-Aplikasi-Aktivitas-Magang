@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft, User, BookOpen, Clock, Activity, FileText, CheckCircle, XCircle, Award } from 'lucide-react';
@@ -9,8 +9,12 @@ import FormEvaluasi from './FormEvaluasi';
 const ProfilAnakMagang = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   
+  const userId = state?.userId || searchParams.get('userId');
+  const initialTab = searchParams.get('tab') || 'logbook';
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEvaluasiModalOpen, setIsEvaluasiModalOpen] = useState(false);
@@ -25,20 +29,20 @@ const ProfilAnakMagang = () => {
   const [selectedTugasForReview, setSelectedTugasForReview] = useState(null);
   const [reviewFeedback, setReviewFeedback] = useState('');
 
-  const [activeTab, setActiveTab] = useState('logbook'); // 'logbook', 'tugas', 'evaluasi'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'logbook', 'tugas', 'evaluasi'
 
   useEffect(() => {
-    if (!state?.userId) {
+    if (!userId) {
       navigate('/mentor/monitor');
       return;
     }
     fetchDetail();
-  }, [state?.userId]);
+  }, [userId]);
 
   const fetchDetail = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`http://localhost:5000/api/mentor/anak-magang/${state.userId}`, {
+      const res = await axios.get(`http://localhost:5000/api/mentor/anak-magang/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setData(res.data.data);
@@ -80,7 +84,7 @@ const ProfilAnakMagang = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      await axios.post(`http://localhost:5000/api/mentor/generate-sertifikat/${state.userId}`, {}, {
+      await axios.post(`http://localhost:5000/api/mentor/generate-sertifikat/${userId}`, {}, {
         headers: { 
           Authorization: `Bearer ${token}`
         }
@@ -337,21 +341,12 @@ const ProfilAnakMagang = () => {
 
                   {/* Actions */}
                   {log.status === 'TERKIRIM' && (
-                    <div className="mt-6 pt-4 border-t border-gray-100 flex gap-3">
+                    <div className="mt-6 pt-4 border-t border-gray-100">
                       <button 
                         onClick={() => handleApproveLogbook(log.id, 'DISETUJUI')}
-                        className="flex-1 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
+                        className="w-full bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
                       >
                         <CheckCircle className="w-4 h-4 mr-2" /> Setujui
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const catatan = prompt('Masukkan alasan revisi / ditolak:');
-                          if(catatan) handleApproveLogbook(log.id, 'REVISI', catatan);
-                        }}
-                        className="flex-1 bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
-                      >
-                        <XCircle className="w-4 h-4 mr-2" /> Minta Revisi
                       </button>
                     </div>
                   )}
@@ -580,7 +575,7 @@ const ProfilAnakMagang = () => {
       {isEvaluasiModalOpen && (
         <FormEvaluasi 
           profilId={profil.id} 
-          pesertaId={state.userId}
+          pesertaId={userId}
           onClose={() => setIsEvaluasiModalOpen(false)}
           onSuccess={() => {
             setIsEvaluasiModalOpen(false);

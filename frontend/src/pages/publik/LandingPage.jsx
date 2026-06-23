@@ -109,8 +109,8 @@ const LandingPage = () => {
                   className="flex items-center gap-3 cursor-pointer hover:bg-slate-100 px-4 py-2 rounded-full transition-colors"
                 >
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-bold text-slate-900 leading-tight">{user.nama || user.username}</p>
-                    <p className="text-xs text-slate-500">{user.role}</p>
+                    <p className="text-sm font-bold text-slate-900 leading-tight">{user?.role === 'SUPER_ADMIN' ? 'Admin' : (user?.nama || user?.username?.replace(/\.(magang|pembimbing|admin)$/i, '') || 'User')}</p>
+                    <p className="text-xs text-slate-500 capitalize">{user?.role === 'SUPER_ADMIN' ? 'Administrator' : user?.role?.replace('_', ' ')}</p>
                   </div>
                   <UserCircle className="w-8 h-8 text-blue-600" />
                 </div>
