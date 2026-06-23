@@ -277,11 +277,12 @@ model Evaluasi {
   mentor_id       Int
   mentor          User         @relation("EvaluasiMentor", fields: [mentor_id], references: [id], onDelete: Cascade)
   tipe            TipeEvaluasi
-  skor_teknis     Float
-  skor_komunikasi Float
-  skor_disiplin   Float
-  skor_inisiatif  Float
-  skor_teamwork   Float
+  skor_sikap        Float
+  skor_kinerja      Float
+  skor_keterampilan Float
+  skor_administrasi Float
+  skor_akhir        Float
+  detail_penilaian  Json?
   feedback        String       @db.Text
   created_at      DateTime     @default(now())
 }
