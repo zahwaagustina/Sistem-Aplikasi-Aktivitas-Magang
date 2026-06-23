@@ -249,7 +249,8 @@ export const submitTugas = async (req, res) => {
     }
 
     const tugas = await prisma.tugas.findFirst({
-      where: { id: parseInt(id), peserta_id: user_id }
+      where: { id: parseInt(id), peserta_id: user_id },
+      include: { peserta: { select: { nama: true } } }
     });
 
     if (!tugas) {
@@ -268,7 +269,7 @@ export const submitTugas = async (req, res) => {
       data: {
         user_id: tugas.mentor_id,
         judul: 'Tugas Dikumpulkan',
-        pesan: `Tugas "${tugas.judul}" telah dikumpulkan dan menunggu review Anda.`,
+        pesan: `Peserta ${tugas.peserta?.nama || 'Magang'} telah mengumpulkan tugas "${tugas.judul}" dan menunggu review Anda.`,
         link: `/mentor/profil-magang?userId=${user_id}&tab=tugas`
       }
     });
