@@ -240,8 +240,8 @@ export const kirimAktivitas = async (req, res) => {
         data: {
           user_id: updated.user.profilMagang.mentor_id,
           judul: 'Logbook Baru Terkirim',
-          pesan: `${updated.user.nama} telah mengirimkan logbook untuk direview.`,
-          link: '/mentor/profil-anak-magang' // Assuming mentor reviews there
+          pesan: `Peserta ${updated.user.nama} telah mengirimkan logbook untuk direview.`,
+          link: `/mentor/profil-magang?userId=${aktivitas.user_id}&tab=logbook`
         }
       });
     }
