@@ -265,6 +265,12 @@ export const reviewTugas = async (req, res) => {
     const { id } = req.params;
     const { status, feedback } = req.body;
     const mentorId = req.user.id;
+    const files = req.files;
+
+    let file_feedback = null;
+    if (files && files.file_feedback && files.file_feedback.length > 0) {
+      file_feedback = '/uploads/' + files.file_feedback[0].filename;
+    }
 
     if (!['DONE', 'IN_PROGRESS'].includes(status)) {
       return res.status(400).json({ message: 'Status tidak valid' });
@@ -284,7 +290,8 @@ export const reviewTugas = async (req, res) => {
       where: { id: parseInt(id) },
       data: {
         status,
-        feedback: feedback || null
+        feedback: feedback || null,
+        ...(file_feedback !== null && { file_feedback })
       }
     });
 

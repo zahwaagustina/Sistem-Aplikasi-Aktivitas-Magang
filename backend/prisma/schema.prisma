@@ -265,6 +265,7 @@ model Tugas {
   status     StatusTugas    @default(TODO)
   file_hasil String?
   feedback   String?        @db.Text
+  file_feedback String?
   created_at DateTime       @default(now())
   updated_at DateTime       @updatedAt
 }

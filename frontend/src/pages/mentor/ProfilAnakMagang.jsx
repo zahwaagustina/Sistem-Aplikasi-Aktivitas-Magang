@@ -29,6 +29,7 @@ const ProfilAnakMagang = () => {
   const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [selectedTugasForReview, setSelectedTugasForReview] = useState(null);
   const [reviewFeedback, setReviewFeedback] = useState('');
+  const [fileFeedback, setFileFeedback] = useState(null);
 
   const [activeTab, setActiveTab] = useState(initialTab); // 'logbook', 'tugas', 'evaluasi'
 
@@ -141,16 +142,22 @@ const ProfilAnakMagang = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/mentor/tugas/${selectedTugasForReview.id}/review`, {
-        status,
-        feedback: reviewFeedback
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+      const formData = new FormData();
+      formData.append('status', status);
+      formData.append('feedback', reviewFeedback);
+      if (fileFeedback) formData.append('file_feedback', fileFeedback);
+
+      await axios.put(`http://localhost:5000/api/mentor/tugas/${selectedTugasForReview.id}/review`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
       setIsReviewTugasOpen(false);
       setIsRevisionModalOpen(false);
       setSelectedTugasForReview(null);
       setReviewFeedback('');
+      setFileFeedback(null);
       fetchDetail();
     } catch (error) {
       console.error('Error review tugas:', error);
@@ -769,6 +776,15 @@ const ProfilAnakMagang = () => {
                 placeholder="Jelaskan secara detail bagian mana yang harus diperbaiki oleh peserta..."
                 autoFocus
               ></textarea>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Lampiran (Opsional)</label>
+                <input 
+                  type="file" 
+                  onChange={(e) => setFileFeedback(e.target.files[0])}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 border border-gray-300 rounded-xl"
+                  accept="image/png, image/jpeg, application/pdf"
+                />
+              </div>
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
               <button 

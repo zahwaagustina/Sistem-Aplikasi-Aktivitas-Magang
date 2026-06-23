@@ -9,6 +9,7 @@ import {
   reviewTugas
 } from '../controllers/mentorController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
+import upload from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -30,6 +31,6 @@ router.put('/logbook/:id/approve', approveLogbook);
 // Manajemen Tugas
 router.post('/tugas', createTugas);
 router.delete('/tugas/:id', deleteTugas);
-router.put('/tugas/:id/review', reviewTugas);
+router.put('/tugas/:id/review', upload.fields([{ name: 'file_feedback', maxCount: 1 }]), reviewTugas);
 
 export default router;
