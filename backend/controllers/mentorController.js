@@ -104,9 +104,9 @@ export const getDetailAnakMagang = async (req, res) => {
 // Submit Evaluasi
 export const submitEvaluasi = async (req, res) => {
   try {
-    const { id } = req.params; // peserta_id
+    const { id } = req.params;
+    const { tipe, detail_penilaian, feedback } = req.body;
     const mentorId = req.user.id;
-    const { tipe, skor_teknis, skor_komunikasi, skor_disiplin, skor_inisiatif, skor_teamwork, feedback } = req.body;
 
     // Pastikan anak magang ini adalah bimbingan mentor ini
     const profilMagang = await prisma.profilMagang.findUnique({
@@ -126,16 +126,38 @@ export const submitEvaluasi = async (req, res) => {
       return res.status(400).json({ message: 'Peserta belum mengunggah Laporan Akhir. Evaluasi tidak dapat diberikan.' });
     }
 
+    // Hitung subtotal
+    const { q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15 } = detail_penilaian;
+    
+    // 1. Aspek Sikap (30%) - 5 Soal
+    const sumSikap = (q1||0) + (q2||0) + (q3||0) + (q4||0) + (q5||0);
+    const skor_sikap = (sumSikap / 25) * 30;
+
+    // 2. Aspek Kinerja (40%) - 5 Soal
+    const sumKinerja = (q6||0) + (q7||0) + (q8||0) + (q9||0) + (q10||0);
+    const skor_kinerja = (sumKinerja / 25) * 40;
+
+    // 3. Aspek Keterampilan (20%) - 3 Soal
+    const sumKeterampilan = (q11||0) + (q12||0) + (q13||0);
+    const skor_keterampilan = (sumKeterampilan / 15) * 20;
+
+    // 4. Aspek Administrasi (10%) - 2 Soal
+    const sumAdministrasi = (q14||0) + (q15||0);
+    const skor_administrasi = (sumAdministrasi / 10) * 10;
+
+    const skor_akhir = skor_sikap + skor_kinerja + skor_keterampilan + skor_administrasi;
+
     const evaluasi = await prisma.evaluasi.create({
       data: {
         peserta_id: parseInt(id),
         mentor_id: mentorId,
         tipe,
-        skor_teknis: parseFloat(skor_teknis),
-        skor_komunikasi: parseFloat(skor_komunikasi),
-        skor_disiplin: parseFloat(skor_disiplin),
-        skor_inisiatif: parseFloat(skor_inisiatif),
-        skor_teamwork: parseFloat(skor_teamwork),
+        skor_sikap,
+        skor_kinerja,
+        skor_keterampilan,
+        skor_administrasi,
+        skor_akhir,
+        detail_penilaian,
         feedback
       }
     });
@@ -309,5 +331,37 @@ export const reviewTugas = async (req, res) => {
   } catch (error) {
     console.error('Review tugas error:', error);
     res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+  }
+};
+
+// Get Rekap Absensi
+export const getAbsensiRekap = async (req, res) => {
+  try {
+    const { id } = req.params; // peserta_id
+    const mentorId = req.user.id;
+
+    const profilMagang = await prisma.profilMagang.findUnique({
+      where: { user_id: parseInt(id) }
+    });
+
+    if (!profilMagang || profilMagang.mentor_id !== mentorId) {
+      return res.status(403).json({ message: 'Akses ditolak' });
+    }
+
+    const absensiList = await prisma.absensi.findMany({
+      where: { user_id: parseInt(id) }
+    });
+
+    const rekap = {
+      total: absensiList.length,
+      hadir: absensiList.filter(a => a.status === 'HADIR').length,
+      izin: absensiList.filter(a => a.status === 'IZIN').length,
+      sakit: absensiList.filter(a => a.status === 'SAKIT').length,
+      alpa: absensiList.filter(a => a.status === 'TANPA_KETERANGAN').length,
+    };
+
+    res.status(200).json({ data: rekap });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan', error: error.message });
   }
 };

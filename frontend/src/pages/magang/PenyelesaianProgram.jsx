@@ -153,34 +153,30 @@ const PenyelesaianProgram = () => {
             </div>
             
             <div className="p-6">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Teknis</p>
-                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_teknis}</p>
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Sikap (30%)</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_sikap ? evaluasi.skor_sikap.toFixed(1) : '-'}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Komunikasi</p>
-                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_komunikasi}</p>
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Kinerja (40%)</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_kinerja ? evaluasi.skor_kinerja.toFixed(1) : '-'}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Disiplin</p>
-                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_disiplin}</p>
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Keterampilan (20%)</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_keterampilan ? evaluasi.skor_keterampilan.toFixed(1) : '-'}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Inisiatif</p>
-                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_inisiatif}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Teamwork</p>
-                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_teamwork}</p>
+                  <p className="text-[10px] text-gray-500 mb-1 font-medium uppercase">Administrasi (10%)</p>
+                  <p className="font-black text-xl text-gray-800">{evaluasi.skor_administrasi ? evaluasi.skor_administrasi.toFixed(1) : '-'}</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-4 items-center bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100">
                 <div className="text-center w-full pb-4 border-b border-indigo-200/60">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Skor Akhir</p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Skor Akhir (1-100)</p>
                   <p className="text-4xl font-black text-indigo-600">
-                    {((evaluasi.skor_teknis + evaluasi.skor_komunikasi + evaluasi.skor_disiplin + evaluasi.skor_inisiatif + evaluasi.skor_teamwork) / 5).toFixed(1)}
+                    {evaluasi.skor_akhir ? evaluasi.skor_akhir.toFixed(1) : '-'}
                   </p>
                 </div>
                 <div className="w-full">

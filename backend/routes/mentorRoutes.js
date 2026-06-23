@@ -6,7 +6,8 @@ import {
   approveLogbook,
   createTugas,
   deleteTugas,
-  reviewTugas
+  reviewTugas,
+  getAbsensiRekap
 } from '../controllers/mentorController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
@@ -24,6 +25,9 @@ router.get('/anak-magang/:id', getDetailAnakMagang);
 
 // Submit form evaluasi anak magang
 router.post('/anak-magang/:id/evaluasi', submitEvaluasi);
+
+// Ambil rekap kehadiran anak magang
+router.get('/anak-magang/:id/absensi', getAbsensiRekap);
 
 // Approve logbook
 router.put('/logbook/:id/approve', approveLogbook);
