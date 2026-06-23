@@ -678,14 +678,23 @@ const ProfilAnakMagang = () => {
                       <p className="text-xs text-indigo-700">Diunggah oleh anak magang</p>
                     </div>
                   </div>
-                  <a 
-                    href={`http://localhost:5000${selectedTugasForReview.file_hasil}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition"
-                  >
-                    Unduh File
-                  </a>
+                  <div className="flex gap-2">
+                    <a 
+                      href={`http://localhost:5000${selectedTugasForReview.file_hasil}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-white border border-indigo-200 text-indigo-700 text-xs font-bold rounded-lg hover:bg-indigo-50 transition"
+                    >
+                      Lihat Hasil
+                    </a>
+                    <a 
+                      href={`http://localhost:5000${selectedTugasForReview.file_hasil}`} 
+                      download
+                      className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition shadow-sm"
+                    >
+                      Unduh File
+                    </a>
+                  </div>
                 </div>
               ) : (
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
