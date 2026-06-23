@@ -49,6 +49,12 @@ const Sidebar = ({ isOpen }) => {
     }
 
     if (userRole === 'MAGANG') {
+      if (user?.status === 'SELESAI') {
+        return [
+          { name: 'Penyelesaian', path: '/magang/penyelesaian', icon: <CheckCircle size={20} /> },
+          { name: 'Profil', path: '/magang/profil', icon: <User size={20} /> },
+        ];
+      }
       return [
         { name: 'Dashboard', path: '/magang/dashboard', icon: <LayoutDashboard size={20} /> },
         { name: 'Absensi', path: '/magang/absensi', icon: <Settings size={20} /> }, // using Settings as placeholder or replace with Clock

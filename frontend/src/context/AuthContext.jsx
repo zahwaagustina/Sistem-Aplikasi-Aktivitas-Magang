@@ -13,12 +13,29 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      
+      // Fetch latest profile data to ensure status and other fields are up to date
+      api.get('/users/profile', { headers: { Authorization: `Bearer ${storedToken}` } })
+        .then(res => {
+          if (res.data.data) {
+            const updatedUser = { ...parsedUser, ...res.data.data };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch latest profile', err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     } else {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = async (username, password) => {

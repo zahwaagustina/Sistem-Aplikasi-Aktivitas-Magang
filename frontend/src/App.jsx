@@ -80,12 +80,16 @@ function App() {
               <Route path="/mentor/profil-magang" element={<ProfilAnakMagang />} />
             </Route>
 
-            {/* MAGANG Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['MAGANG']} />}>
+            {/* MAGANG Routes (Active Only) */}
+            <Route element={<ProtectedRoute allowedRoles={['MAGANG']} requireActiveMagang={true} />}>
               <Route path="/magang/dashboard" element={<DashboardMagang />} />
               <Route path="/magang/absensi" element={<Absensi />} />
               <Route path="/magang/logbook" element={<Logbook />} />
               <Route path="/magang/tugas" element={<TaskBoard />} />
+            </Route>
+
+            {/* MAGANG Routes (Always Accessible) */}
+            <Route element={<ProtectedRoute allowedRoles={['MAGANG']} />}>
               <Route path="/magang/penyelesaian" element={<PenyelesaianProgram />} />
               <Route path="/magang/profil" element={<Profile />} />
             </Route>

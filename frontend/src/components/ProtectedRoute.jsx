@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ allowedRoles }) => {
+const ProtectedRoute = ({ allowedRoles, requireActiveMagang }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <div>Loading...</div>;
@@ -19,6 +19,10 @@ const ProtectedRoute = ({ allowedRoles }) => {
     !normalizedAllowedRoles.includes(userRole)
   ) {
     return <Navigate to="/unauthorized" replace />;
+  }
+
+  if (requireActiveMagang && userRole === 'MAGANG' && user.status === 'SELESAI') {
+    return <Navigate to="/magang/penyelesaian" replace />;
   }
 
   return <Outlet />;
