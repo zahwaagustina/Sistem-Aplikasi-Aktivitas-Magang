@@ -460,7 +460,6 @@ const ProfilAnakMagang = () => {
               <p className="text-gray-500 text-center py-8">Belum ada evaluasi yang diberikan untuk peserta ini.</p>
             ) : (
               evaluasi.map(ev => {
-                const totalScore = ((ev.skor_teknis + ev.skor_komunikasi + ev.skor_disiplin + ev.skor_inisiatif + ev.skor_teamwork) / 5).toFixed(1);
                 return (
                   <div key={ev.id} className="border border-gray-200 rounded-xl p-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 z-0"></div>
@@ -470,31 +469,27 @@ const ProfilAnakMagang = () => {
                         <p className="text-sm text-gray-500">Diberikan pada: {new Date(ev.created_at).toLocaleDateString('id-ID')}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Skor Rata-Rata</p>
-                        <p className="text-3xl font-extrabold text-emerald-600">{totalScore}</p>
+                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Skor Akhir</p>
+                        <p className="text-3xl font-extrabold text-emerald-600">{ev.skor_akhir ? ev.skor_akhir.toFixed(1) : '-'}</p>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                       <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Teknis</p>
-                        <p className="font-bold text-gray-800">{ev.skor_teknis}</p>
+                        <p className="text-xs text-gray-500 mb-1 font-medium">Sikap (30%)</p>
+                        <p className="font-bold text-gray-800">{ev.skor_sikap ? ev.skor_sikap.toFixed(1) : '-'}</p>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Komunikasi</p>
-                        <p className="font-bold text-gray-800">{ev.skor_komunikasi}</p>
+                        <p className="text-xs text-gray-500 mb-1 font-medium">Kinerja (40%)</p>
+                        <p className="font-bold text-gray-800">{ev.skor_kinerja ? ev.skor_kinerja.toFixed(1) : '-'}</p>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Disiplin</p>
-                        <p className="font-bold text-gray-800">{ev.skor_disiplin}</p>
+                        <p className="text-xs text-gray-500 mb-1 font-medium">Keterampilan (20%)</p>
+                        <p className="font-bold text-gray-800">{ev.skor_keterampilan ? ev.skor_keterampilan.toFixed(1) : '-'}</p>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Inisiatif</p>
-                        <p className="font-bold text-gray-800">{ev.skor_inisiatif}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Teamwork</p>
-                        <p className="font-bold text-gray-800">{ev.skor_teamwork}</p>
+                        <p className="text-xs text-gray-500 mb-1 font-medium">Administrasi (10%)</p>
+                        <p className="font-bold text-gray-800">{ev.skor_administrasi ? ev.skor_administrasi.toFixed(1) : '-'}</p>
                       </div>
                     </div>
 
