@@ -246,7 +246,7 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
           </form>
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl sticky bottom-0 z-10">
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
           <button 
             type="button" 
             onClick={onClose}
