@@ -132,6 +132,11 @@ const ProfilAnakMagang = () => {
   };
 
   const executeReviewTugas = async (status) => {
+    if (status === 'IN_PROGRESS' && !reviewFeedback.trim()) {
+      toast.error('Keterangan revisi wajib diisi agar peserta tahu bagian yang harus diperbaiki!');
+      return;
+    }
+    
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -722,13 +727,15 @@ const ProfilAnakMagang = () => {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Feedback / Catatan (Opsional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Feedback / Catatan <span className="text-red-500 text-xs font-normal ml-1">(Wajib diisi jika Minta Revisi)</span>
+                </label>
                 <textarea 
                   rows="3"
                   value={reviewFeedback}
                   onChange={(e) => setReviewFeedback(e.target.value)}
                   className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  placeholder="Ketik catatan evaluasi atau instruksi revisi jika ada..."
+                  placeholder="Ketik catatan evaluasi atau instruksi detail bagian mana yang harus direvisi..."
                 ></textarea>
               </div>
 
