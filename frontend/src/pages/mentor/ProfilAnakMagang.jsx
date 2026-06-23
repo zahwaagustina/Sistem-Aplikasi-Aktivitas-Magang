@@ -132,9 +132,15 @@ const ProfilAnakMagang = () => {
   };
 
   const executeReviewTugas = async (status) => {
-    if (status === 'IN_PROGRESS' && !reviewFeedback.trim()) {
-      toast.error('Keterangan revisi wajib diisi agar peserta tahu bagian yang harus diperbaiki!');
-      return;
+    let finalFeedback = '';
+    
+    if (status === 'IN_PROGRESS') {
+      const reason = window.prompt('Masukkan instruksi detail bagian mana yang harus direvisi:');
+      if (!reason || !reason.trim()) {
+        toast.error('Revisi dibatalkan. Keterangan revisi wajib diisi!');
+        return;
+      }
+      finalFeedback = reason;
     }
     
     try {
@@ -142,7 +148,7 @@ const ProfilAnakMagang = () => {
       const token = localStorage.getItem('token');
       await axios.put(`http://localhost:5000/api/mentor/tugas/${selectedTugasForReview.id}/review`, {
         status,
-        feedback: reviewFeedback
+        feedback: finalFeedback
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -726,18 +732,7 @@ const ProfilAnakMagang = () => {
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Feedback / Catatan <span className="text-red-500 text-xs font-normal ml-1">(Wajib diisi jika Minta Revisi)</span>
-                </label>
-                <textarea 
-                  rows="3"
-                  value={reviewFeedback}
-                  onChange={(e) => setReviewFeedback(e.target.value)}
-                  className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  placeholder="Ketik catatan evaluasi atau instruksi detail bagian mana yang harus direvisi..."
-                ></textarea>
-              </div>
+              {/* Kolom text area telah dihapus, pindah ke pop-up saat tombol diklik */}
 
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
