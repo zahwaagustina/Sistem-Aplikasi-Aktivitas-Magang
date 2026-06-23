@@ -60,8 +60,10 @@ const ManajemenLowongan = () => {
     if (type === 'ADD') {
       setFormData({
         program_id: programs.length > 0 ? programs[0].id : '',
-        posisi: '', deskripsi: '', kualifikasi: '', benefit: '', divisi: '', 
-        lokasi: '', mode_kerja: 'WFO', kuota: '', status: 'DRAFT'
+        posisi: '', deskripsi: '', kualifikasi: '', 
+        benefit: '- Sertifikat Kelulusan Resmi\n- Uang Saku / Transportasi\n- Konversi SKS (Bagi Mahasiswa)\n- Mentorship & Pengalaman Proyek Nyata', 
+        divisi: '', 
+        lokasi: 'PT. Pandu Cipta Solusi, Kampung Kadu, Tangerang', mode_kerja: 'WFO', kuota: '', status: 'DRAFT'
       });
     } else if (type === 'EDIT' || type === 'DUPLICATE') {
       setFormData({
@@ -142,6 +144,15 @@ const ManajemenLowongan = () => {
 
   const handlePelamarClick = (posisi) => {
     navigate(`/hr/kandidat?posisi=${encodeURIComponent(posisi)}`);
+  };
+
+  const renderLokasi = (lokasiText) => {
+    if (!lokasiText) return '';
+    const idx = lokasiText.indexOf(',');
+    if (idx !== -1) {
+      return <><span className="font-bold text-gray-800">{lokasiText.substring(0, idx)}</span>{lokasiText.substring(idx)}</>;
+    }
+    return lokasiText;
   };
 
   // Derived Filter Options
@@ -363,7 +374,7 @@ const ManajemenLowongan = () => {
                <div>
                  <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold mb-2 inline-block">{selectedLowongan.divisi}</span>
                  <h2 className="text-2xl font-bold text-gray-900">{selectedLowongan.posisi}</h2>
-                 <p className="text-sm text-gray-500 mt-1">{selectedLowongan.program?.nama} • {selectedLowongan.lokasi} • {selectedLowongan.mode_kerja}</p>
+                 <p className="text-sm text-gray-500 mt-1">{selectedLowongan.program?.nama} • {renderLokasi(selectedLowongan.lokasi)} • {selectedLowongan.mode_kerja}</p>
                </div>
                <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600">
                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>

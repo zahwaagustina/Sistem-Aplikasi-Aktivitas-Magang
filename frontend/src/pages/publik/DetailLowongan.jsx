@@ -42,6 +42,15 @@ const DetailLowongan = () => {
     );
   }
 
+  const renderLokasi = (lokasiText) => {
+    if (!lokasiText) return '';
+    const idx = lokasiText.indexOf(',');
+    if (idx !== -1) {
+      return <><strong className="font-bold text-gray-900">{lokasiText.substring(0, idx)}</strong>{lokasiText.substring(idx)}</>;
+    }
+    return lokasiText;
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-blue-200 font-sans pb-20 overflow-x-hidden">
       {/* Background Glows */}
@@ -80,7 +89,7 @@ const DetailLowongan = () => {
               </span>
               <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">{lowongan.posisi}</h1>
               <div className="flex flex-wrap gap-4 text-sm font-medium text-gray-600">
-                <span className="flex items-center"><MapPin className="w-4 h-4 mr-1.5 text-gray-400" /> {lowongan.lokasi}</span>
+                <span className="flex items-center"><MapPin className="w-4 h-4 mr-1.5 text-gray-400" /> <span className="ml-1">{renderLokasi(lowongan.lokasi)}</span></span>
                 <span className="flex items-center"><Briefcase className="w-4 h-4 mr-1.5 text-gray-400" /> Mode: {lowongan.mode_kerja}</span>
                 <span className="flex items-center"><CalendarDays className="w-4 h-4 mr-1.5 text-gray-400" /> Kuota: {lowongan.kuota} Orang</span>
               </div>
@@ -94,7 +103,7 @@ const DetailLowongan = () => {
                     navigate('/register', { state: { lowonganId: lowongan.id } });
                   }
                 }}
-                className="w-full md:w-auto bg-[#004aad] text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-blue-800 transition-colors shadow-md flex items-center justify-center gap-2"
+                className="w-full md:w-auto bg-[#004aad] text-white px-6 py-2.5 rounded-xl font-bold text-base hover:bg-blue-800 transition-colors shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 Daftar Sekarang
               </button>
