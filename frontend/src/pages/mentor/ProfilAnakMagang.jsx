@@ -772,7 +772,7 @@ const ProfilAnakMagang = () => {
                 rows="4"
                 value={reviewFeedback}
                 onChange={(e) => setReviewFeedback(e.target.value)}
-                className={`w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 ${!reviewFeedback.trim() ? 'focus:border-red-500' : 'focus:border-red-500'}`}
+                className={`w-full p-3 border-gray-300 rounded-xl shadow-sm focus:ring-red-500 ${!reviewFeedback.trim() ? 'focus:border-red-500' : 'focus:border-red-500'}`}
                 placeholder="Jelaskan secara detail bagian mana yang harus diperbaiki oleh peserta..."
                 autoFocus
               ></textarea>
