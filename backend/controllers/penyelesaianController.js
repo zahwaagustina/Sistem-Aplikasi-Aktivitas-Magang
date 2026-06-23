@@ -47,6 +47,21 @@ export const uploadLaporan = async (req, res) => {
       }
     });
 
+    const profilMagang = await prisma.profilMagang.findUnique({
+      where: { user_id: userId },
+      include: { user: { select: { nama: true } } }
+    });
+
+    if (profilMagang && profilMagang.mentor_id) {
+      await prisma.notifikasi.create({
+        data: {
+          user_id: profilMagang.mentor_id,
+          judul: 'Laporan Akhir Peserta',
+          pesan: `Peserta ${profilMagang.user?.nama || 'magang Anda'} telah mengunggah Laporan Akhir dan menunggu evaluasi / penerbitan Sertifikat Kelulusan.`
+        }
+      });
+    }
+
     res.json({ message: 'Laporan akhir berhasil diunggah', data: dokumen });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan', error: error.message });
