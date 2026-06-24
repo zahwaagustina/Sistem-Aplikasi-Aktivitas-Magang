@@ -121,7 +121,7 @@ const TaskBoard = () => {
             <p className="text-[10px] font-bold text-gray-500 mb-1">Feedback Mentor:</p>
             <p className="text-xs text-gray-700 bg-gray-50 p-2 rounded-lg italic">"{task.feedback}"</p>
             {task.file_feedback && (
-              <a href={`http://localhost:5000${task.file_feedback}`} target="_blank" rel="noopener noreferrer" className="mt-2 block w-full py-1.5 bg-red-50 text-red-700 text-[10px] font-bold rounded flex items-center justify-center hover:bg-red-100 transition-colors border border-red-100">
+              <a href={`http://localhost:5000${task.file_feedback}`} target="_blank" rel="noopener noreferrer" className="mt-2 w-full py-1.5 bg-red-50 text-red-700 text-[10px] font-bold rounded flex items-center justify-center hover:bg-red-100 transition-colors border border-red-100">
                 Lihat Lampiran Gambar / File
               </a>
             )}
