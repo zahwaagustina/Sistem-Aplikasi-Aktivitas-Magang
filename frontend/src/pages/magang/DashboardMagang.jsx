@@ -117,28 +117,6 @@ const DashboardMagang = () => {
         </div>
       </div>
 
-      <div className="mt-8">
-        {/* Pengumuman Card */}
-        <div className="bg-white/40 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-white/50">
-          <h3 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center tracking-tight">
-            <CalendarCheck className="w-6 h-6 mr-3 text-blue-600" />
-            Pengumuman & Agenda
-          </h3>
-          <div className="space-y-4">
-            <div className="p-5 border border-white/60 rounded-2xl bg-white/60 shadow-sm flex gap-4">
-              <div className="bg-indigo-100 text-indigo-700 font-bold px-3 py-2 rounded-xl text-center h-fit">
-                <div className="text-sm uppercase tracking-wide opacity-80">Jul</div>
-                <div className="text-xl">15</div>
-              </div>
-              <div>
-                <p className="text-base font-bold text-slate-800">Evaluasi Tengah Magang</p>
-                <p className="text-sm font-medium text-slate-500 mt-1">Sesi 1-on-1 bersama Mentor Anda untuk membahas progress selama ini.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   );
 };

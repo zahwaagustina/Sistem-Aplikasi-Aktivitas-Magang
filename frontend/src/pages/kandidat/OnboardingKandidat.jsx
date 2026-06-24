@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FileText, CheckCircle, Clock, XCircle, ArrowRight, UploadCloud, Info, MapPin } from 'lucide-react';
 import api from '../../api';
@@ -13,6 +14,7 @@ const STEPS = [
 
 const OnboardingKandidat = () => {
   const { user, updateUser } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ktpFile, setKtpFile] = useState(null);
@@ -471,6 +473,11 @@ const OnboardingKandidat = () => {
               {effectiveStatus === 'ORIENTATION_SCHEDULED' && (
                 <button onClick={handleConfirmOrientation} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 inline-flex items-center mr-4">
                   Konfirmasi Kehadiran <ArrowRight size={18} className="ml-2" />
+                </button>
+              )}
+              {effectiveStatus === 'COMPLETED' && (
+                <button onClick={() => navigate(user.role === 'MAGANG' ? '/magang/dashboard' : '/kandidat/dashboard')} className="px-6 py-2 bg-indigo-50 text-indigo-700 font-semibold rounded-lg hover:bg-indigo-100 inline-flex items-center">
+                  Buka Dashboard <ArrowRight size={18} className="ml-2" />
                 </button>
               )}
             </div>
