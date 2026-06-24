@@ -111,7 +111,7 @@ const UserManagement = () => {
     setFormData({
       nama: '',
       password: '',
-      role: 'MAGANG',
+      role: 'SUPER_ADMIN',
       email: '',
       universitas: '',
       jurusan: ''
@@ -140,7 +140,7 @@ const UserManagement = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Manajemen Pengguna</h1>
-            <p className="text-sm text-gray-500 mt-1">Kelola akun Anak Magang dan Pembimbing</p>
+            <p className="text-sm text-gray-500 mt-1">Kelola akun Admin dan Mentor</p>
           </div>
           <button 
             onClick={openAddModal}
@@ -324,19 +324,19 @@ const UserManagement = () => {
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">Role Akses *</label>
                       <div className="grid grid-cols-2 gap-3">
-                        <label className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all ${formData.role === 'MAGANG' ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600' : 'border-gray-200 hover:bg-gray-50'}`}>
-                          <input type="radio" name="role" value="MAGANG" checked={formData.role === 'MAGANG'} onChange={handleInputChange} className="hidden" />
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${formData.role === 'MAGANG' ? 'border-indigo-600' : 'border-gray-300'}`}>
-                            {formData.role === 'MAGANG' && <div className="w-2 h-2 rounded-full bg-indigo-600"></div>}
+                        <label className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all ${formData.role === 'SUPER_ADMIN' ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600' : 'border-gray-200 hover:bg-gray-50'}`}>
+                          <input type="radio" name="role" value="SUPER_ADMIN" checked={formData.role === 'SUPER_ADMIN'} onChange={handleInputChange} className="hidden" />
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${formData.role === 'SUPER_ADMIN' ? 'border-indigo-600' : 'border-gray-300'}`}>
+                            {formData.role === 'SUPER_ADMIN' && <div className="w-2 h-2 rounded-full bg-indigo-600"></div>}
                           </div>
-                          <span className="font-medium text-gray-800 text-sm">Anak Magang</span>
+                          <span className="font-medium text-gray-800 text-sm">Admin</span>
                         </label>
                         <label className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all ${formData.role === 'MENTOR' ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-600' : 'border-gray-200 hover:bg-gray-50'}`}>
                           <input type="radio" name="role" value="MENTOR" checked={formData.role === 'MENTOR'} onChange={handleInputChange} className="hidden" />
                           <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${formData.role === 'MENTOR' ? 'border-emerald-600' : 'border-gray-300'}`}>
                             {formData.role === 'MENTOR' && <div className="w-2 h-2 rounded-full bg-emerald-600"></div>}
                           </div>
-                          <span className="font-medium text-gray-800 text-sm">Pembimbing</span>
+                          <span className="font-medium text-gray-800 text-sm">Mentor</span>
                         </label>
                       </div>
                     </div>
