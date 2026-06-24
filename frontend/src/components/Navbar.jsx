@@ -11,6 +11,7 @@ const Navbar = ({ toggleSidebar }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const dropdownRef = useRef(null);
 
@@ -46,7 +47,12 @@ const Navbar = ({ toggleSidebar }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const executeLogout = () => {
+    setShowLogoutConfirm(false);
     logout();
     navigate('/login');
   };
@@ -111,6 +117,7 @@ const Navbar = ({ toggleSidebar }) => {
   };
 
   return (
+    <>
     <header className="h-16 bg-white/40 backdrop-blur-xl border-b border-white/50 shadow-sm flex items-center justify-between px-4 lg:px-8 z-50 relative">
       <div className="flex items-center">
         <button
@@ -191,7 +198,7 @@ const Navbar = ({ toggleSidebar }) => {
         </div>
 
         <button 
-          onClick={handleLogout}
+          onClick={handleLogoutClick}
           className="ml-2 sm:ml-4 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors flex items-center space-x-1"
         >
           <LogOut size={18} />
@@ -199,6 +206,38 @@ const Navbar = ({ toggleSidebar }) => {
         </button>
       </div>
     </header>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <LogOut className="w-8 h-8 text-red-600 ml-1" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Konfirmasi Keluar</h3>
+              <p className="text-gray-500 text-sm">
+                Apakah Anda yakin ingin keluar dari aplikasi? Anda harus login kembali untuk masuk.
+              </p>
+            </div>
+            <div className="p-4 bg-gray-50 flex justify-center gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-5 py-2 rounded-xl font-medium text-gray-600 hover:bg-gray-200 bg-gray-100 transition-colors w-full"
+              >
+                Batal
+              </button>
+              <button
+                onClick={executeLogout}
+                className="px-5 py-2 rounded-xl font-medium text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm w-full"
+              >
+                Ya, Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
