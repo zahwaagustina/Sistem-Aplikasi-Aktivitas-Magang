@@ -197,30 +197,91 @@ const ProfilAnakMagang = () => {
   const hasFinalEval = evaluasi?.some(ev => ev.tipe === 'FINAL');
   const hasLaporan = !!laporan_akhir;
 
-  const handleDownloadExcel = () => {
-    const dataForExcel = absensi.map(row => ({
-      'Tanggal': new Date(row.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
-      'Check-In': row.waktu_masuk ? new Date(row.waktu_masuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-',
-      'Check-Out': row.waktu_keluar ? new Date(row.waktu_keluar).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-',
-      'Status / Keterangan': `${row.status} ${row.keterangan ? '- ' + row.keterangan : ''}`.trim()
-    }));
+  const handleDownloadExcel = async () => {
+    const ExcelJS = (await import('exceljs')).default;
+    const saveAs = (await import('file-saver')).default;
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Absensi');
+
+    worksheet.columns = [
+      { header: 'No', key: 'no', width: 6 },
+      { header: 'Tanggal', key: 'tanggal', width: 25 },
+      { header: 'Check-In', key: 'checkIn', width: 12 },
+      { header: 'Check-Out', key: 'checkOut', width: 12 },
+      { header: 'Status / Keterangan', key: 'status', width: 30 },
+      { header: '', key: 'spacer', width: 10 },
+      { header: 'Rekapitulasi:', key: 'rekapLabel', width: 20 },
+      { header: '', key: 'rekapValue', width: 10 }
+    ];
+
+    worksheet.getRow(1).eachCell((cell, colNumber) => {
+      if (colNumber <= 5 || colNumber >= 7) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFD9E1F2' }
+        };
+        cell.font = { bold: false, color: { argb: 'FF000000' } };
+        cell.border = {
+          top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'}
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      }
+    });
+
+    worksheet.mergeCells('G1:H1');
 
     const hadir = absensi.filter(a => a.status === 'HADIR').length;
     const izin = absensi.filter(a => a.status === 'IZIN').length;
     const sakit = absensi.filter(a => a.status === 'SAKIT').length;
     const alpa = absensi.filter(a => a.status === 'ALPA' || a.status === 'TANPA KETERANGAN').length;
 
-    dataForExcel.push({});
-    dataForExcel.push({ 'Tanggal': 'Rekapitulasi:' });
-    dataForExcel.push({ 'Tanggal': 'Hadir', 'Check-In': hadir });
-    dataForExcel.push({ 'Tanggal': 'Izin', 'Check-In': izin });
-    dataForExcel.push({ 'Tanggal': 'Sakit', 'Check-In': sakit });
-    dataForExcel.push({ 'Tanggal': 'Tanpa Keterangan', 'Check-In': alpa });
+    const rekapData = [
+      { label: 'Hadir', val: hadir },
+      { label: 'Izin', val: izin },
+      { label: 'Sakit', val: sakit },
+      { label: 'Tanpa Keterangan', val: alpa }
+    ];
 
-    const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi");
-    XLSX.writeFile(workbook, `Rekap_Absensi_${profil?.user?.nama || 'Peserta'}.xlsx`);
+    absensi.forEach((row, index) => {
+      const tanggal = new Date(row.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const checkIn = row.waktu_masuk ? new Date(row.waktu_masuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : '-';
+      const checkOut = row.waktu_keluar ? new Date(row.waktu_keluar).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : '-';
+      const statusKet = `${row.status} ${row.keterangan ? '- ' + row.keterangan : ''}`.trim();
+
+      const newRow = worksheet.addRow({
+        no: index + 1,
+        tanggal: tanggal,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        status: statusKet,
+      });
+
+      for (let i = 1; i <= 5; i++) {
+        const cell = newRow.getCell(i);
+        cell.border = {
+          top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'}
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      }
+    });
+
+    for (let i = 0; i < 4; i++) {
+      const rowIndex = i + 2;
+      let row = worksheet.getRow(rowIndex);
+      
+      row.getCell(7).value = rekapData[i].label;
+      row.getCell(8).value = rekapData[i].val;
+
+      row.getCell(7).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+      row.getCell(8).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+      row.getCell(7).alignment = { horizontal: 'left', vertical: 'middle' };
+      row.getCell(8).alignment = { horizontal: 'right', vertical: 'middle' };
+    }
+
+    const buf = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buf]), `Rekap_Absensi_${profil?.user?.nama || 'Peserta'}.xlsx`);
   };
 
   return (
