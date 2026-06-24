@@ -781,7 +781,7 @@ const ProfilAnakMagang = () => {
                   required
                   value={formTugas.judul}
                   onChange={(e) => setFormTugas({...formTugas, judul: e.target.value})}
-                  className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   placeholder="Misal: Buat Laporan Mingguan"
                 />
               </div>
@@ -792,7 +792,7 @@ const ProfilAnakMagang = () => {
                   rows="3"
                   value={formTugas.deskripsi}
                   onChange={(e) => setFormTugas({...formTugas, deskripsi: e.target.value})}
-                  className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   placeholder="Penjelasan detail mengenai tugas..."
                 ></textarea>
               </div>
@@ -804,7 +804,7 @@ const ProfilAnakMagang = () => {
                     required
                     value={formTugas.deadline}
                     onChange={(e) => setFormTugas({...formTugas, deadline: e.target.value})}
-                    className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
@@ -812,7 +812,7 @@ const ProfilAnakMagang = () => {
                   <select 
                     value={formTugas.prioritas}
                     onChange={(e) => setFormTugas({...formTugas, prioritas: e.target.value})}
-                    className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>

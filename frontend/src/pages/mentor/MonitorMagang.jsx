@@ -49,7 +49,11 @@ const MonitorMagang = () => {
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Monitor Anak Magang</h1>
-          <p className="text-gray-500 mt-1">Pantau perkembangan dan aktivitas logbook anak bimbingan Anda.</p>
+          <p className="text-gray-500 mt-1">
+            {user?.role === 'SUPER_ADMIN' 
+              ? 'Pantau perkembangan dan aktivitas logbook peserta magang.'
+              : 'Pantau perkembangan dan aktivitas logbook anak bimbingan Anda.'}
+          </p>
         </div>
         
         <div className="relative w-full sm:w-64">
