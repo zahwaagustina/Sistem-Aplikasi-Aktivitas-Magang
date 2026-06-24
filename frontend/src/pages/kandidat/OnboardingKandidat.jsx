@@ -124,9 +124,22 @@ const OnboardingKandidat = () => {
         await api.put(`/onboarding/${onboarding.id}/download-loa`);
         fetchOnboarding(); // Update status
       }
-      window.open(url, '_blank');
+      
+      // Memaksa unduh (force download) alih-alih sekadar menampilkan
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `LoA_${pendaftaran.user.nama.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
     } catch (err) {
       console.error(err);
+      // Fallback jika fetch gagal (misal masalah CORS)
       window.open(url, '_blank');
     }
   };
