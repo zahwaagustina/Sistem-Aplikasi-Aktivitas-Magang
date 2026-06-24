@@ -237,10 +237,31 @@ export const getLowonganHR = async (req, res) => {
 
 export const createLowonganHR = async (req, res) => {
   try {
-    const { program_id, posisi, deskripsi, kualifikasi, benefit, divisi, lokasi, mode_kerja, kuota, status } = req.body;
+    const { program_nama, posisi, deskripsi, kualifikasi, benefit, divisi, lokasi, mode_kerja, kuota, status } = req.body;
+    
+    // Find or create ProgramBatch based on program_nama
+    let program = await prisma.programBatch.findFirst({
+      where: { nama: program_nama }
+    });
+
+    if (!program) {
+      const now = new Date();
+      const sixMonthsLater = new Date();
+      sixMonthsLater.setMonth(now.getMonth() + 6);
+      
+      program = await prisma.programBatch.create({
+        data: {
+          nama: program_nama,
+          tanggal_mulai: now,
+          tanggal_selesai: sixMonthsLater,
+          is_active: true
+        }
+      });
+    }
+
     const newLowongan = await prisma.lowongan.create({
       data: {
-        program_id: parseInt(program_id),
+        program_id: program.id,
         posisi,
         deskripsi,
         kualifikasi,
@@ -261,12 +282,32 @@ export const createLowonganHR = async (req, res) => {
 export const updateLowonganHR = async (req, res) => {
   try {
     const { id } = req.params;
-    const { program_id, posisi, deskripsi, kualifikasi, benefit, divisi, lokasi, mode_kerja, kuota, status } = req.body;
+    const { program_nama, posisi, deskripsi, kualifikasi, benefit, divisi, lokasi, mode_kerja, kuota, status } = req.body;
+    
+    // Find or create ProgramBatch based on program_nama
+    let program = await prisma.programBatch.findFirst({
+      where: { nama: program_nama }
+    });
+
+    if (!program) {
+      const now = new Date();
+      const sixMonthsLater = new Date();
+      sixMonthsLater.setMonth(now.getMonth() + 6);
+      
+      program = await prisma.programBatch.create({
+        data: {
+          nama: program_nama,
+          tanggal_mulai: now,
+          tanggal_selesai: sixMonthsLater,
+          is_active: true
+        }
+      });
+    }
     
     const updated = await prisma.lowongan.update({
       where: { id: parseInt(id) },
       data: {
-        program_id: parseInt(program_id),
+        program_id: program.id,
         posisi,
         deskripsi,
         kualifikasi,

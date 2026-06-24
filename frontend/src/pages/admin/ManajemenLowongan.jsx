@@ -59,7 +59,7 @@ const ManajemenLowongan = () => {
     setSelectedLowongan(item);
     if (type === 'ADD') {
       setFormData({
-        program_id: programs.length > 0 ? programs[0].id : '',
+        program_nama: '',
         posisi: '', deskripsi: '', kualifikasi: '', 
         benefit: '- Sertifikat Kelulusan Resmi\n- Uang Saku / Transportasi\n- Konversi SKS (Bagi Mahasiswa)\n- Mentorship & Pengalaman Proyek Nyata', 
         divisi: '', 
@@ -67,7 +67,7 @@ const ManajemenLowongan = () => {
       });
     } else if (type === 'EDIT' || type === 'DUPLICATE') {
       setFormData({
-        program_id: item.program_id,
+        program_nama: item.program?.nama || '',
         posisi: type === 'DUPLICATE' ? `${item.posisi} (Copy)` : item.posisi,
         deskripsi: item.deskripsi,
         kualifikasi: item.kualifikasi,
@@ -300,10 +300,7 @@ const ManajemenLowongan = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Program Batch</label>
-                  <select required name="program_id" value={formData.program_id} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500">
-                    <option value="">-- Pilih Program --</option>
-                    {programs.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-                  </select>
+                  <input required type="text" name="program_nama" value={formData.program_nama} onChange={handleChange} placeholder="Contoh: Batch Juli 2025" className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500" />
                 </div>
                 <div className="col-span-1 md:col-span-2">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Deskripsi Pekerjaan</label>
