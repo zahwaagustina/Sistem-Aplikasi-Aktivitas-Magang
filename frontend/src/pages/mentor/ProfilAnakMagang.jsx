@@ -333,9 +333,14 @@ const ProfilAnakMagang = () => {
                   <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-4">
                     <div>
                       <h4 className="font-bold text-gray-800 text-lg">{new Date(log.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h4>
-                      <p className="text-sm text-gray-500 flex items-center mt-1">
-                        <Clock className="w-3.5 h-3.5 mr-1.5" /> {log.waktu_mulai} - {log.waktu_selesai}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                        <p className="text-sm text-gray-500 flex items-center">
+                          <Clock className="w-3.5 h-3.5 mr-1.5" /> {log.waktu_mulai} - {log.waktu_selesai}
+                        </p>
+                        <p className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100 flex items-center font-medium">
+                          Disubmit pada {new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider

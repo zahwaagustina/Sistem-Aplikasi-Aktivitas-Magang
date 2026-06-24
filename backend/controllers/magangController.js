@@ -171,6 +171,16 @@ export const createLogbook = async (req, res) => {
   try {
     const user_id = req.user.id;
     const { tanggal, deskripsi_kegiatan, hasil_kegiatan, waktu_mulai, waktu_selesai, kendala } = req.body;
+
+    const logDate = new Date(tanggal);
+    const today = new Date();
+    logDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    if (logDate > today) {
+      return res.status(400).json({ message: 'Tidak dapat mengisi logbook untuk hari kedepan' });
+    }
+
     const files = req.files;
 
     const result = await prisma.$transaction(async (tx) => {

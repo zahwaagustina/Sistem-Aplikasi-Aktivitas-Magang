@@ -31,12 +31,18 @@ const MonitorMagang = () => {
     fetchAnakMagang();
   }, []);
 
-  const filteredData = (anakMagang || []).filter(m => {
-    const search = searchTerm.toLowerCase();
-    const nama = m?.user?.nama || '';
-    const univ = m?.universitas || '';
-    return nama.toLowerCase().includes(search) || univ.toLowerCase().includes(search);
-  });
+  const filteredData = (anakMagang || [])
+    .filter(m => {
+      const search = searchTerm.toLowerCase();
+      const nama = m?.user?.nama || '';
+      const univ = m?.universitas || '';
+      return nama.toLowerCase().includes(search) || univ.toLowerCase().includes(search);
+    })
+    .sort((a, b) => {
+      if (a.status === 'SELESAI' && b.status !== 'SELESAI') return 1;
+      if (a.status !== 'SELESAI' && b.status === 'SELESAI') return -1;
+      return 0;
+    });
 
   return (
     <div className="space-y-6">

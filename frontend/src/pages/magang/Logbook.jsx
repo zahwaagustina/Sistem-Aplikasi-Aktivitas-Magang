@@ -221,9 +221,10 @@ const Logbook = () => {
                       {getStatusBadge(log.status)}
                     </div>
                     
-                    <div className="flex items-center gap-4 text-xs text-gray-500 font-medium mb-5">
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-medium mb-5">
                       <span className="flex items-center"><Activity className="w-4 h-4 mr-1.5"/> {new Date(log.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
                       <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5"/> {log.waktu_mulai} - {log.waktu_selesai}</span>
+                      <span className="flex items-center text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100"><CheckCircle className="w-3.5 h-3.5 mr-1.5"/> Disubmit pada {new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
 
                     <div className="space-y-4">
@@ -285,7 +286,7 @@ const Logbook = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
-                    <input type="date" name="tanggal" required value={formData.tanggal} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
+                    <input type="date" name="tanggal" required value={formData.tanggal} max={new Date().toISOString().split('T')[0]} onChange={handleChange} className="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-gray-800" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Jam Mulai</label>
