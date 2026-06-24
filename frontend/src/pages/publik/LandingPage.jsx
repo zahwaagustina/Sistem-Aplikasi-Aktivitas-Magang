@@ -124,7 +124,7 @@ const LandingPage = () => {
                   </button>
                   <button 
                     onClick={() => navigate('/register')}
-                    className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-blue-700 transition shadow-sm flex items-center gap-2"
+                    className="bg-gradient-to-r from-blue-600 to-cyan-400 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:from-blue-700 hover:to-cyan-500 transition shadow-sm flex items-center gap-2"
                   >
                     Get started <ArrowRight className="w-4 h-4" />
                   </button>
@@ -160,7 +160,7 @@ const LandingPage = () => {
             {user ? (
               <button 
                 onClick={() => navigate(user.role === 'KANDIDAT' ? '/kandidat/dashboard' : '/dashboard')}
-                className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3.5 rounded-xl font-medium hover:bg-blue-700 transition shadow-sm text-lg"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-400 text-white px-6 py-3.5 rounded-xl font-medium hover:from-blue-700 hover:to-cyan-500 transition shadow-sm text-lg"
               >
                 <ArrowRight className="w-5 h-5" />
                 Ke Dashboard
