@@ -497,8 +497,8 @@ export const uploadOnboardingDocs = async (req, res) => {
     const userId = req.user.id;
     const files = req.files;
 
-    if (!files || !files['ktp'] || !files['surat_pengantar']) {
-      return res.status(400).json({ message: 'Pilih dokumen KTM/KTP dan Surat Pengantar untuk diunggah.' });
+    if (!files || (!files['ktp'] && !files['surat_pengantar'] && !files['surat_kerjasama'])) {
+      return res.status(400).json({ message: 'Tidak ada dokumen yang diunggah.' });
     }
 
     const onboarding = await prisma.onboarding.findUnique({

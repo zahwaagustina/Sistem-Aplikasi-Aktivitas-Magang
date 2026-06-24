@@ -94,13 +94,11 @@ const OnboardingDashboard = () => {
     );
   };
 
-  const handleIssueLoa = async (e) => {
-    e.preventDefault();
+  const handleIssueLoa = async (item) => {
     try {
-      const npm = e.target.npm.value;
-      await api.post(`/onboarding/${selectedItem.id}/issue-loa`, { npm });
+      const npm = item.pendaftaran.user.profilKandidat?.npm || '';
+      await api.post(`/onboarding/${item.id}/issue-loa`, { npm });
       alert('LoA berhasil diterbitkan secara otomatis');
-      setModalType('');
       fetchData();
     } catch (e) { alert('Error: ' + e.message); }
   };
@@ -180,7 +178,7 @@ const OnboardingDashboard = () => {
                         <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
                       )}
                       {!item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') && ['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED'].includes(item.status) ? (
-                        <button onClick={() => openModal(item, 'ISSUE_LOA')} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
+                        <button onClick={() => handleIssueLoa(item)} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
                       ) : item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') ? (
                         <button disabled className="whitespace-nowrap text-sm bg-gray-100 text-gray-500 px-3 py-1.5 rounded-lg font-medium cursor-not-allowed">LoA Telah Diterbitkan</button>
                       ) : null}
@@ -208,18 +206,17 @@ const OnboardingDashboard = () => {
       {/* Modals */}
       {modalType && selectedItem && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col max-h-[90vh] overflow-hidden">
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50 flex-shrink-0">
               <h3 className="font-bold text-gray-800">
                 {modalType === 'VERIFY_DOCS' && 'Verifikasi Dokumen'}
-                {modalType === 'ISSUE_LOA' && 'Terbitkan LoA'}
                 {modalType === 'PLACEMENT' && 'Atur Penempatan'}
                 {modalType === 'ORIENTATION' && 'Jadwalkan Orientasi'}
               </h3>
               <button onClick={() => setModalType('')} className="text-gray-400 hover:text-gray-600"><XCircle size={20} /></button>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto">
               {modalType === 'VERIFY_DOCS' && (
                 <div>
                   <p className="text-gray-600 mb-4">Periksa dokumen yang telah diunggah oleh <b>{selectedItem.pendaftaran.user.nama}</b>.</p>
@@ -307,8 +304,6 @@ const OnboardingDashboard = () => {
                     )}
                   </div>
 
-                  </div>
-
                   {!isRevising ? (
                     <div className="flex space-x-3">
                       <button onClick={() => setIsRevising(true)} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg font-medium hover:bg-red-100">Minta Revisi</button>
@@ -355,18 +350,6 @@ const OnboardingDashboard = () => {
                     </div>
                   )}
                 </div>
-              )}
-
-              {modalType === 'ISSUE_LOA' && (
-                <form onSubmit={handleIssueLoa}>
-                  <p className="text-gray-600 mb-4 text-sm">Sistem akan secara otomatis men-generate file PDF LoA menggunakan template standar perusahaan.</p>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">NPM / NIM Mahasiswa (Opsional)</label>
-                    <input type="text" name="npm" placeholder="Contoh: 12345678" defaultValue={selectedItem.pendaftaran.user.profilKandidat?.npm || ''} className="w-full border border-gray-300 rounded-lg p-2" />
-                    <p className="text-xs text-gray-500 mt-1">NPM akan dicetak di dalam surat LoA. Anda bisa mengisi ini jika kandidat belum melengkapinya.</p>
-                  </div>
-                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Terbitkan LoA Otomatis</button>
-                </form>
               )}
 
               {modalType === 'PLACEMENT' && (
