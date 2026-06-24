@@ -153,7 +153,7 @@ const LandingPage = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white shadow-md text-slate-900 px-5 py-2 rounded-full text-sm font-medium mb-10">
             <CalendarDays className="w-4 h-4" />
-            Batch Juli 2025 &middot; Pendaftaran dibuka
+            {lowongan && lowongan.length > 0 ? "Pendaftaran dibuka" : "Lowongan belum tersedia"}
           </div>
 
           {/* Headlines */}
