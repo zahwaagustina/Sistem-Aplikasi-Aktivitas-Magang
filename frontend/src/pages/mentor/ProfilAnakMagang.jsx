@@ -338,7 +338,7 @@ const ProfilAnakMagang = () => {
                           <Clock className="w-3.5 h-3.5 mr-1.5" /> {log.waktu_mulai} - {log.waktu_selesai}
                         </p>
                         <p className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100 flex items-center font-medium">
-                          Disubmit pada {new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                          Disubmit pada {new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} {new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>
@@ -513,6 +513,27 @@ const ProfilAnakMagang = () => {
 
         {activeTab === 'absensi' && (
           <div className="space-y-6">
+            {absensi.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Hadir</p>
+                  <p className="text-2xl font-black text-emerald-700">{absensi.filter(a => a.status === 'HADIR').length}</p>
+                </div>
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Izin</p>
+                  <p className="text-2xl font-black text-blue-700">{absensi.filter(a => a.status === 'IZIN').length}</p>
+                </div>
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Sakit</p>
+                  <p className="text-2xl font-black text-amber-700">{absensi.filter(a => a.status === 'SAKIT').length}</p>
+                </div>
+                <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-1">Tanpa Keterangan</p>
+                  <p className="text-2xl font-black text-red-700">{absensi.filter(a => a.status === 'ALPA' || a.status === 'TANPA KETERANGAN').length}</p>
+                </div>
+              </div>
+            )}
+            
             {absensi.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Belum ada riwayat absensi untuk peserta ini.</p>
             ) : (

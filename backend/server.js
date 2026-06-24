@@ -14,10 +14,14 @@ import penyelesaianRoutes from './routes/penyelesaianRoutes.js';
 import onboardingRoutes from './routes/onboardingRoutes.js';
 import notifikasiRoutes from './routes/notifikasiRoutes.js';
 import { auditTrail } from './middleware/auditTrail.js';
+import { initAbsensiCron } from './cron/absensiCron.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+// Inisialisasi Cron Jobs
+initAbsensiCron();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

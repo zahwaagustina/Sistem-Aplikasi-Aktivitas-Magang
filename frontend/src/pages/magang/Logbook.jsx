@@ -224,7 +224,7 @@ const Logbook = () => {
                     <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-medium mb-5">
                       <span className="flex items-center"><Activity className="w-4 h-4 mr-1.5"/> {new Date(log.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
                       <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5"/> {log.waktu_mulai} - {log.waktu_selesai}</span>
-                      <span className="flex items-center text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100"><CheckCircle className="w-3.5 h-3.5 mr-1.5"/> Disubmit pada {new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="flex items-center text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100"><CheckCircle className="w-3.5 h-3.5 mr-1.5"/> Disubmit pada {new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} {new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
 
                     <div className="space-y-4">
