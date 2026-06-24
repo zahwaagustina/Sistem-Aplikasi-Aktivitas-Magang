@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import { ArrowLeft, User, BookOpen, Clock, Activity, FileText, CheckCircle, XCircle, Award } from 'lucide-react';
+import { ArrowLeft, User, BookOpen, Clock, Activity, FileText, CheckCircle, XCircle, Award, Download } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import FormEvaluasi from './FormEvaluasi';
 
