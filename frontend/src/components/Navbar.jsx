@@ -111,8 +111,8 @@ const Navbar = ({ toggleSidebar }) => {
     // Rute untuk Kandidat
     if (userRole === 'KANDIDAT') {
       if (j.includes('interview')) return '/kandidat/interview';
-      if (j.includes('onboarding') || j.includes('diterima') || j.includes('revisi')) return '/kandidat/onboarding';
-      return null;
+      if (j.includes('onboarding') || j.includes('diterima') || j.includes('revisi') || j.includes('loa') || j.includes('dokumen')) return '/kandidat/onboarding';
+      return '/kandidat/dashboard'; // Default fallback untuk kandidat
     }
 
     return null;
