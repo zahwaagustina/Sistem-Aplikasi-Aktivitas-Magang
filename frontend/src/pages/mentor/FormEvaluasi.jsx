@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { X, CheckCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -103,8 +104,8 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
 
   let totalAkhir = 0;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl flex flex-col my-8">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-indigo-50/50 rounded-t-2xl sticky top-0 z-10">
           <h2 className="text-xl font-bold text-gray-800">Form Evaluasi Kinerja</h2>
@@ -168,21 +169,36 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
                     <div className="text-center text-gray-500 text-sm py-4">Memuat rekap...</div>
                   ) : rekap ? (
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-green-50 p-3 rounded-lg border border-green-100">
+                      <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex flex-col justify-between">
                         <div className="text-xs text-green-600 font-bold mb-1 uppercase tracking-wider">Hadir</div>
-                        <div className="text-2xl font-black text-green-700">{rekap.total_hadir || 0}</div>
+                        <div className="text-2xl font-black text-green-700 flex items-baseline gap-2">
+                          {rekap.hadir || 0}
+                          <span className="text-sm font-bold opacity-75">
+                            ({rekap.total > 0 ? Math.round(((rekap.hadir || 0) / rekap.total) * 100) : 0}%)
+                          </span>
+                        </div>
                       </div>
-                      <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100">
+                      <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100 flex flex-col justify-between">
                         <div className="text-xs text-yellow-600 font-bold mb-1 uppercase tracking-wider">Izin/Sakit</div>
-                        <div className="text-2xl font-black text-yellow-700">{rekap.total_izin || 0}</div>
+                        <div className="text-2xl font-black text-yellow-700 flex items-baseline gap-2">
+                          {(rekap.izin || 0) + (rekap.sakit || 0)}
+                          <span className="text-sm font-bold opacity-75">
+                            ({rekap.total > 0 ? Math.round((((rekap.izin || 0) + (rekap.sakit || 0)) / rekap.total) * 100) : 0}%)
+                          </span>
+                        </div>
                       </div>
-                      <div className="bg-red-50 p-3 rounded-lg border border-red-100">
+                      <div className="bg-red-50 p-3 rounded-lg border border-red-100 flex flex-col justify-between">
                         <div className="text-xs text-red-600 font-bold mb-1 uppercase tracking-wider">Alpa/Tanpa Keterangan</div>
-                        <div className="text-2xl font-black text-red-700">{rekap.total_alpa || 0}</div>
+                        <div className="text-2xl font-black text-red-700 flex items-baseline gap-2">
+                          {rekap.alpa || 0}
+                          <span className="text-sm font-bold opacity-75">
+                            ({rekap.total > 0 ? Math.round(((rekap.alpa || 0) / rekap.total) * 100) : 0}%)
+                          </span>
+                        </div>
                       </div>
                       <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
                         <div className="text-xs text-indigo-600 font-bold mb-1 uppercase tracking-wider">Total Hari Kerja</div>
-                        <div className="text-2xl font-black text-indigo-700">{rekap.total_hari_kerja || 0}</div>
+                        <div className="text-2xl font-black text-indigo-700">{rekap.total || 0}</div>
                       </div>
                     </div>
                   ) : (
@@ -191,31 +207,34 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
                 </div>
               </div>
 
-              {/* Feedback Tambahan */}
-              <div className="border border-gray-200 rounded-xl overflow-hidden h-fit flex flex-col">
-                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                  <h3 className="font-bold text-gray-800 text-sm">Komentar & Catatan (Opsional)</h3>
+              {/* Kolom Kanan: Skor & Feedback */}
+              <div className="flex flex-col gap-4">
+                {/* Skor Akhir Evaluasi */}
+                <div className="bg-indigo-600 text-white px-6 py-4 rounded-xl flex items-center justify-between shadow-md">
+                  <div className="text-indigo-100 font-medium uppercase tracking-wider">Skor Akhir Evaluasi</div>
+                  <div className="text-4xl font-black">{totalAkhir.toFixed(1)}</div>
                 </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <textarea
-                    rows="6"
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    className="w-full border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-indigo-500 flex-1 resize-none border"
-                    placeholder="Tuliskan evaluasi menyeluruh, kekuatan, dan kelemahan peserta..."
-                  ></textarea>
+
+                {/* Feedback Tambahan */}
+                <div className="border border-gray-200 rounded-xl overflow-hidden flex-1 flex flex-col">
+                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 className="font-bold text-gray-800 text-sm">Komentar & Catatan (Opsional)</h3>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col">
+                    <textarea
+                      rows="6"
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      className="w-full border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-indigo-500 flex-1 resize-none border"
+                      placeholder="Tuliskan evaluasi menyeluruh, kekuatan, dan kelemahan peserta..."
+                    ></textarea>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Sticky Footer for Submit */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4 -mx-6 -mb-6 mt-6 rounded-b-2xl flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-3">
-                  <div className="text-indigo-100 text-sm font-medium mb-1 uppercase tracking-wider">Skor Akhir Evaluasi</div>
-                  <div className="text-3xl font-black">{totalAkhir.toFixed(1)}</div>
-                </div>
-              </div>
+            {/* Footer for Submit */}
+            <div className="bg-white border-t border-gray-100 pt-6 mt-8 flex items-center justify-end">
               <button
                 type="submit"
                 disabled={loading}
@@ -236,6 +255,8 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default FormEvaluasi;
