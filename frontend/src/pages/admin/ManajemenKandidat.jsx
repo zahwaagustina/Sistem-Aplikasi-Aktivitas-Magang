@@ -301,7 +301,6 @@ const ManajemenKandidat = () => {
               <div className="mb-4">
                 <label className="block text-sm font-semibold mb-2">Status Baru</label>
                 <select value={statusForm} onChange={(e) => setStatusForm(e.target.value)} className="w-full border p-2 rounded-lg">
-                  <option value="SUBMITTED">SUBMITTED</option>
                   <option value="REVIEWED">REVIEWED</option>
                   <option value="SHORTLISTED">SHORTLISTED (Lolos Administrasi)</option>
                   <option value="REJECTED">REJECTED (Tolak)</option>

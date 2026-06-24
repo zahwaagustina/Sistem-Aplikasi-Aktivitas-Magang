@@ -39,7 +39,7 @@ const DashboardKandidat = () => {
   const getStatusDisplay = (status) => {
     switch(status) {
       case 'DRAFT': return { label: 'Draft', color: 'bg-slate-100 text-slate-800', icon: <Clock className="w-4 h-4 mr-1" /> };
-      case 'SUBMITTED': return { label: 'Sedang Direview HR', color: 'bg-blue-100 text-blue-800', icon: <Clock className="w-4 h-4 mr-1" /> };
+      case 'SUBMITTED': return { label: 'Lamaran Terkirim', color: 'bg-blue-100 text-blue-800', icon: <Clock className="w-4 h-4 mr-1" /> };
       case 'REVIEWED': return { label: 'Sedang Direview HR', color: 'bg-indigo-100 text-indigo-800', icon: <Clock className="w-4 h-4 mr-1" /> };
       case 'SHORTLISTED': return { label: 'Lolos Administrasi', color: 'bg-yellow-100 text-yellow-800', icon: <CheckCircle className="w-4 h-4 mr-1" /> };
       case 'INTERVIEW': return { label: 'Tahap Wawancara', color: 'bg-purple-100 text-purple-800', icon: <Calendar className="w-4 h-4 mr-1" /> };
