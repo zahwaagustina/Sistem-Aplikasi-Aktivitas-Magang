@@ -60,8 +60,9 @@ const ManajemenLowongan = () => {
     if (type === 'ADD') {
       setFormData({
         program_nama: '',
-        posisi: '', deskripsi: '', kualifikasi: '', 
-        benefit: '- Sertifikat Kelulusan Resmi\n- Uang Saku / Transportasi\n- Konversi SKS (Bagi Mahasiswa)\n- Mentorship & Pengalaman Proyek Nyata', 
+        posisi: '', deskripsi: '', 
+        kualifikasi: '1. Mahasiswa aktif minimal semester 5\n2. Memiliki semangat belajar yang tinggi\n3. Mampu bekerja sama dalam tim\n4. ', 
+        benefit: '1. Sertifikat Kelulusan Resmi\n2. Uang Saku / Transportasi\n3. Konversi SKS (Bagi Mahasiswa)\n4. Mentorship & Pengalaman Proyek Nyata', 
         divisi: '', 
         lokasi: 'PT. Pandu Cipta Solusi, Kampung Kadu, Tangerang', mode_kerja: 'WFO', kuota: '', status: 'DRAFT'
       });
@@ -316,7 +317,7 @@ const ManajemenLowongan = () => {
                   <textarea required name="kualifikasi" value={formData.kualifikasi} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-2 h-24 focus:ring-2 focus:ring-indigo-500" />
                 </div>
                 <div className="col-span-1 md:col-span-2">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Benefit (Opsional)</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Benefit</label>
                   <textarea name="benefit" value={formData.benefit} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-2 h-16 focus:ring-2 focus:ring-indigo-500" />
                 </div>
                 <div>
@@ -325,7 +326,7 @@ const ManajemenLowongan = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Lokasi</label>
-                  <input required type="text" name="lokasi" value={formData.lokasi} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500" />
+                  <input type="text" name="lokasi" value={formData.lokasi} readOnly className="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Kuota Penerimaan</label>
@@ -333,11 +334,7 @@ const ManajemenLowongan = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Mode Kerja</label>
-                  <select name="mode_kerja" value={formData.mode_kerja} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500">
-                    <option value="WFO">Work From Office</option>
-                    <option value="WFH">Work From Home</option>
-                    <option value="HYBRID">Hybrid</option>
-                  </select>
+                  <input type="text" value="Work From Office" readOnly className="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none" />
                 </div>
                 <div className="col-span-1 md:col-span-2 mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
                    <label className="block text-sm font-bold text-gray-800 mb-2">Status Publikasi</label>

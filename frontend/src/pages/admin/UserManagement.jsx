@@ -204,7 +204,7 @@ const UserManagement = () => {
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-1
                         ${u.role === 'MENTOR' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
-                        {u.role}
+                        {u.role === 'SUPER_ADMIN' ? 'ADMIN' : u.role}
                       </span>
                       {u.role === 'MAGANG' && (
                         <p className="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
