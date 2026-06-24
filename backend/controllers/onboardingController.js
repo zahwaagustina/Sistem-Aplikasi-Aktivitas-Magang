@@ -207,7 +207,8 @@ export const issueLoa = async (req, res) => {
       nama: onboarding.pendaftaran.user.nama,
       npm: npm || onboarding.pendaftaran.user.profilKandidat?.npm || '-',
       universitas: onboarding.pendaftaran.user.profilKandidat?.universitas || '-',
-      tanggalTerbit
+      tanggalTerbit,
+      adminName: req.user.nama || 'HR Admin'
     };
 
     const path = await import('path');

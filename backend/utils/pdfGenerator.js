@@ -40,7 +40,9 @@ const generateLoA = (data, outputPath) => {
       doc.text('Yang bertanda tangan dibawah ini :', leftMargin, doc.y);
       doc.moveDown(0.5);
       
-      drawRow(doc, 'Nama', 'Nanda Gita Anggini S.M', colonOffset);
+      const adminName = data.adminName || 'Nanda Gita Anggini S.M';
+
+      drawRow(doc, 'Nama', adminName, colonOffset);
       drawRow(doc, 'Jabatan', 'HR', colonOffset);
       drawRow(doc, 'Perusahaan', 'PT. Pandu Cipta Solusi', colonOffset);
       doc.moveDown(2);
@@ -73,7 +75,7 @@ const generateLoA = (data, outputPath) => {
       doc.text('PT. Pandu Cipta Solusi', sigX, doc.y, { align: 'right', width: 180 });
       doc.moveDown(4);
       
-      doc.font('Helvetica-Bold').text('Nanda Gita Anggini S,M', sigX, doc.y, { align: 'right', width: 180 });
+      doc.font('Helvetica-Bold').text(adminName, sigX, doc.y, { align: 'right', width: 180 });
       doc.font('Helvetica').text('(HR)', sigX, doc.y, { align: 'right', width: 180 });
 
       doc.end();
