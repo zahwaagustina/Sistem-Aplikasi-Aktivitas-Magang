@@ -34,6 +34,7 @@ const Sidebar = ({ isOpen }) => {
         { name: 'Kandidat Pelamar', path: '/hr/kandidat', icon: <Users size={20} /> },
         { name: 'Onboarding Kandidat', path: '/hr/onboarding', icon: <UserPlus size={20} /> },
         { name: 'Data Peserta Aktif', path: '/hr/peserta', icon: <Briefcase size={20} /> },
+        { name: 'Monitor Magang', path: '/mentor/monitor', icon: <Users size={20} /> },
         { name: 'Administrasi', path: '/admin/users', icon: <Settings size={20} /> },
         { name: 'Audit Trail', path: '/admin/audit-logs', icon: <Shield size={20} /> }
       ];

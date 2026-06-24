@@ -328,8 +328,8 @@ const ProfilAnakMagang = () => {
           </div>
 
           {/* Action Buttons (Right Aligned) */}
-          <div className="flex justify-end pt-4 space-x-3 mb-6">
-            {hasLaporan && (
+          <div className="flex justify-end pt-4 space-x-3 mb-6 min-h-[4rem]">
+            {hasLaporan && user?.role !== 'SUPER_ADMIN' && (
               <a 
                 href={`http://localhost:5000${laporan_akhir.file_path}`}
                 target="_blank"
@@ -340,23 +340,27 @@ const ProfilAnakMagang = () => {
                 Lihat Laporan
               </a>
             )}
-            <button 
-              onClick={() => hasLaporan && !hasFinalEval && setIsEvaluasiModalOpen(true)}
-              disabled={hasFinalEval || !hasLaporan}
-              className={`${hasFinalEval ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : !hasLaporan ? 'bg-amber-100 text-amber-600 cursor-not-allowed border border-amber-200' : 'bg-emerald-500 hover:bg-emerald-600 text-white'} px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2`}
-              title={!hasLaporan ? 'Peserta belum mengunggah laporan akhir' : ''}
-            >
-              <Award className="w-4 h-4" />
-              {hasFinalEval ? 'Evaluasi Telah Dikirim' : !hasLaporan ? 'Menunggu Laporan' : 'Beri Evaluasi'}
-            </button>
-            {profil.status !== 'SELESAI' && (
-              <button 
-                onClick={handleSelesaikan}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2"
-              >
-                <CheckCircle className="w-4 h-4" />
-                Luluskan Program
-              </button>
+            {user?.role !== 'SUPER_ADMIN' && (
+              <>
+                <button 
+                  onClick={() => hasLaporan && !hasFinalEval && setIsEvaluasiModalOpen(true)}
+                  disabled={hasFinalEval || !hasLaporan}
+                  className={`${hasFinalEval ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : !hasLaporan ? 'bg-amber-100 text-amber-600 cursor-not-allowed border border-amber-200' : 'bg-emerald-500 hover:bg-emerald-600 text-white'} px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2`}
+                  title={!hasLaporan ? 'Peserta belum mengunggah laporan akhir' : ''}
+                >
+                  <Award className="w-4 h-4" />
+                  {hasFinalEval ? 'Evaluasi Telah Dikirim' : !hasLaporan ? 'Menunggu Laporan' : 'Beri Evaluasi'}
+                </button>
+                {profil.status !== 'SELESAI' && (
+                  <button 
+                    onClick={handleSelesaikan}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Luluskan Program
+                  </button>
+                )}
+              </>
             )}
           </div>
 
@@ -395,12 +399,14 @@ const ProfilAnakMagang = () => {
         >
           <BookOpen className="w-4 h-4 inline mr-2" /> Logbook ({logbooks.length})
         </button>
-        <button 
-          onClick={() => setActiveTab('tugas')}
-          className={`flex-1 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'tugas' ? 'border-indigo-600 text-indigo-600 bg-indigo-50/30' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}
-        >
-          <FileText className="w-4 h-4 inline mr-2" /> Tugas / Task ({tugas.length})
-        </button>
+        {user?.role !== 'SUPER_ADMIN' && (
+          <button 
+            onClick={() => setActiveTab('tugas')}
+            className={`flex-1 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'tugas' ? 'border-indigo-600 text-indigo-600 bg-indigo-50/30' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}
+          >
+            <FileText className="w-4 h-4 inline mr-2" /> Tugas / Task ({tugas.length})
+          </button>
+        )}
         <button 
           onClick={() => setActiveTab('evaluasi')}
           className={`flex-1 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'evaluasi' ? 'border-indigo-600 text-indigo-600 bg-indigo-50/30' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}
@@ -474,7 +480,7 @@ const ProfilAnakMagang = () => {
                   </div>
 
                   {/* Actions */}
-                  {log.status === 'TERKIRIM' && (
+                  {log.status === 'TERKIRIM' && user?.role !== 'SUPER_ADMIN' && (
                     <div className="mt-6 pt-4 border-t border-gray-100">
                       <button 
                         onClick={() => handleApproveLogbook(log.id, 'DISETUJUI')}

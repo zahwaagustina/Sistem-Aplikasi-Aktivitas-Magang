@@ -6,8 +6,15 @@ const prisma = new PrismaClient();
 export const getAnakMagang = async (req, res) => {
   try {
     const mentorId = req.user.id;
+    const role = req.user.role;
+    
+    let whereClause = {};
+    if (role !== 'SUPER_ADMIN') {
+      whereClause = { mentor_id: mentorId };
+    }
+
     const magangList = await prisma.profilMagang.findMany({
-      where: { mentor_id: mentorId },
+      where: whereClause,
       include: {
         user: {
           select: {
@@ -57,8 +64,11 @@ export const getDetailAnakMagang = async (req, res) => {
       }
     });
 
-    if (!profilMagang || profilMagang.mentor_id !== mentorId) {
-      return res.status(403).json({ message: 'Akses ditolak atau data tidak ditemukan' });
+    if (!profilMagang) {
+      return res.status(404).json({ message: 'Data tidak ditemukan' });
+    }
+    if (req.user.role !== 'SUPER_ADMIN' && profilMagang.mentor_id !== mentorId) {
+      return res.status(403).json({ message: 'Akses ditolak' });
     }
 
     const logbooks = await prisma.aktivitasHarian.findMany({
@@ -68,12 +78,12 @@ export const getDetailAnakMagang = async (req, res) => {
     });
 
     const tugas = await prisma.tugas.findMany({
-      where: { peserta_id: parseInt(id), mentor_id: mentorId },
+      where: req.user.role === 'SUPER_ADMIN' ? { peserta_id: parseInt(id) } : { peserta_id: parseInt(id), mentor_id: mentorId },
       orderBy: { deadline: 'asc' }
     });
 
     const evaluasi = await prisma.evaluasi.findMany({
-      where: { peserta_id: parseInt(id), mentor_id: mentorId },
+      where: req.user.role === 'SUPER_ADMIN' ? { peserta_id: parseInt(id) } : { peserta_id: parseInt(id), mentor_id: mentorId },
       orderBy: { created_at: 'desc' }
     });
 
