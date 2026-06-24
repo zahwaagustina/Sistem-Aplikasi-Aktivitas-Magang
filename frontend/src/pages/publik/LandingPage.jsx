@@ -139,7 +139,7 @@ const LandingPage = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 flex flex-col xl:flex-row items-center justify-between min-h-[60vh]">
         
         {/* Left Content (Text & Buttons) */}
-        <div className="relative z-10 max-w-2xl text-left px-4 xl:px-0">
+        <div className="relative z-10 max-w-2xl text-left px-4 sm:px-8 lg:px-12 xl:pl-16 xl:pr-0">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white shadow-md text-slate-900 px-5 py-2 rounded-full text-sm font-medium mb-10">
             <CalendarDays className="w-4 h-4" />
@@ -149,7 +149,7 @@ const LandingPage = () => {
           {/* Headlines */}
           <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] mb-8">
             Selamat datang di<br />
-            <span className="text-blue-600">PCS Internship Portal</span>
+            <span className="bg-gradient-to-r from-blue-600 to-cyan-400 bg-clip-text text-transparent">PCS Internship Portal</span>
           </h1>
           <p className="text-lg text-slate-500 max-w-xl mb-12 leading-relaxed">
             Bangun pengalaman kerja profesional bersama tim terbaik kami di <span className="whitespace-nowrap">PT Pandu Cipta Solusi</span>.
