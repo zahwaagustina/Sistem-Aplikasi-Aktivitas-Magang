@@ -84,6 +84,17 @@ export const getDetailAnakMagang = async (req, res) => {
 
     const evaluasi = await prisma.hasilEvaluasi.findMany({
       where: req.user.role === 'SUPER_ADMIN' ? { peserta_id: parseInt(id) } : { peserta_id: parseInt(id), mentor_id: mentorId },
+      include: {
+        detailEvaluasi: {
+          include: {
+            pertanyaan: {
+              include: {
+                aspek: true
+              }
+            }
+          }
+        }
+      },
       orderBy: { created_at: 'desc' }
     });
 
@@ -136,39 +147,49 @@ export const submitEvaluasi = async (req, res) => {
       return res.status(400).json({ message: 'Peserta belum mengunggah Laporan Akhir. Evaluasi tidak dapat diberikan.' });
     }
 
-    // Hitung subtotal
-    const { q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15 } = detail_penilaian;
-    
-    // 1. Aspek Sikap (30%) - 5 Soal
-    const sumSikap = (q1||0) + (q2||0) + (q3||0) + (q4||0) + (q5||0);
-    const skor_sikap = (sumSikap / 25) * 30;
+    // Ambil data aspek dan pertanyaan untuk menghitung skor akhir
+    const aspekPenilaian = await prisma.aspekPenilaian.findMany({
+      where: { is_active: true },
+      include: {
+        pertanyaan: {
+          where: { is_active: true }
+        }
+      }
+    });
 
-    // 2. Aspek Kinerja (40%) - 5 Soal
-    const sumKinerja = (q6||0) + (q7||0) + (q8||0) + (q9||0) + (q10||0);
-    const skor_kinerja = (sumKinerja / 25) * 40;
+    let skor_akhir = 0;
 
-    // 3. Aspek Keterampilan (20%) - 3 Soal
-    const sumKeterampilan = (q11||0) + (q12||0) + (q13||0);
-    const skor_keterampilan = (sumKeterampilan / 15) * 20;
+    // Hitung subtotal per aspek berdasarkan bobot
+    for (const aspek of aspekPenilaian) {
+      if (aspek.pertanyaan.length === 0) continue;
 
-    // 4. Aspek Administrasi (10%) - 2 Soal
-    const sumAdministrasi = (q14||0) + (q15||0);
-    const skor_administrasi = (sumAdministrasi / 10) * 10;
+      let sumSkorAspek = 0;
+      for (const p of aspek.pertanyaan) {
+        const jawaban = detail_penilaian.find(d => parseInt(d.pertanyaan_id) === p.id);
+        if (jawaban) {
+          sumSkorAspek += parseInt(jawaban.skor);
+        }
+      }
 
-    const skor_akhir = skor_sikap + skor_kinerja + skor_keterampilan + skor_administrasi;
+      const maxSkorAspek = aspek.pertanyaan.length * 5;
+      const subtotalAspek = (sumSkorAspek / maxSkorAspek) * aspek.bobot;
+      skor_akhir += subtotalAspek;
+    }
 
+    // Simpan hasil evaluasi
     const evaluasi = await prisma.hasilEvaluasi.create({
       data: {
         peserta_id: parseInt(id),
         mentor_id: mentorId,
         tipe,
-        skor_sikap,
-        skor_kinerja,
-        skor_keterampilan,
-        skor_administrasi,
         skor_akhir,
-        detail_penilaian,
-        feedback
+        feedback,
+        detailEvaluasi: {
+          create: detail_penilaian.map(d => ({
+            pertanyaan_id: parseInt(d.pertanyaan_id),
+            skor: parseInt(d.skor)
+          }))
+        }
       }
     });
 

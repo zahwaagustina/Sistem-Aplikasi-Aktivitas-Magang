@@ -89,7 +89,18 @@ export const getPenyelesaianStatus = async (req, res) => {
     });
 
     const evaluasi = await prisma.hasilEvaluasi.findFirst({
-      where: { peserta_id: userId, tipe: 'FINAL' }
+      where: { peserta_id: userId, tipe: 'FINAL' },
+      include: {
+        detailEvaluasi: {
+          include: {
+            pertanyaan: {
+              include: {
+                aspek: true
+              }
+            }
+          }
+        }
+      }
     });
 
     res.json({
