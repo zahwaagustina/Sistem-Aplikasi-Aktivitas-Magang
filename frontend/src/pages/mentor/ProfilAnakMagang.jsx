@@ -196,6 +196,39 @@ const ProfilAnakMagang = () => {
   const hasFinalEval = evaluasi?.some(ev => ev.tipe === 'FINAL');
   const hasLaporan = !!laporan_akhir;
 
+  const handleDownloadCSV = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Tanggal,Check-In,Check-Out,Status/Keterangan\n";
+
+    absensi.forEach(row => {
+      const tanggal = new Date(row.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const checkIn = row.waktu_masuk ? new Date(row.waktu_masuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+      const checkOut = row.waktu_keluar ? new Date(row.waktu_keluar).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+      const statusKet = `${row.status} ${row.keterangan ? '- ' + row.keterangan : ''}`.replace(/,/g, '');
+
+      csvContent += `${tanggal},${checkIn},${checkOut},${statusKet}\n`;
+    });
+
+    const hadir = absensi.filter(a => a.status === 'HADIR').length;
+    const izin = absensi.filter(a => a.status === 'IZIN').length;
+    const sakit = absensi.filter(a => a.status === 'SAKIT').length;
+    const alpa = absensi.filter(a => a.status === 'ALPA' || a.status === 'TANPA KETERANGAN').length;
+
+    csvContent += `\nRekapitulasi:\n`;
+    csvContent += `Hadir,${hadir}\n`;
+    csvContent += `Izin,${izin}\n`;
+    csvContent += `Sakit,${sakit}\n`;
+    csvContent += `Tanpa Keterangan,${alpa}\n`;
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Rekap_Absensi_${profil?.user?.nama || 'Peserta'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6 pb-20">
       {/* Header Back Button */}
@@ -514,7 +547,14 @@ const ProfilAnakMagang = () => {
         {activeTab === 'absensi' && (
           <div className="space-y-6">
             {absensi.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
+              <div className="flex flex-col gap-4 mb-2">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-bold text-gray-800">Ringkasan Kehadiran</h3>
+                  <button onClick={handleDownloadCSV} className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-100 transition-colors text-sm border border-indigo-100">
+                    <Download className="w-4 h-4" /> Unduh Laporan (.csv)
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center shadow-sm">
                   <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Hadir</p>
                   <p className="text-2xl font-black text-emerald-700">{absensi.filter(a => a.status === 'HADIR').length}</p>
@@ -530,6 +570,7 @@ const ProfilAnakMagang = () => {
                 <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-center shadow-sm">
                   <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-1">Tanpa Keterangan</p>
                   <p className="text-2xl font-black text-red-700">{absensi.filter(a => a.status === 'ALPA' || a.status === 'TANPA KETERANGAN').length}</p>
+                </div>
                 </div>
               </div>
             )}
