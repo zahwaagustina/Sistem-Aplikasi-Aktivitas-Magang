@@ -53,8 +53,10 @@ const Navbar = ({ toggleSidebar }) => {
 
   const executeLogout = () => {
     setShowLogoutConfirm(false);
-    logout();
     navigate('/');
+    setTimeout(() => {
+      logout();
+    }, 100);
   };
 
   const handleRead = async (id, link) => {
