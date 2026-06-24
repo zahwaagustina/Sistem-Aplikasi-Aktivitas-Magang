@@ -115,9 +115,9 @@ const OnboardingDashboard = () => {
       </div>
 
       <div className="flex overflow-x-auto space-x-2 pb-4 mb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <button onClick={() => setActiveTab('ALL')} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'ALL' ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>Semua Proses</button>
+        <button onClick={() => setActiveTab('ALL')} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'ALL' ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white shadow-sm' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>Semua Proses</button>
         {STEPS.map(s => (
-          <button key={s.id} onClick={() => setActiveTab(s.id)} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === s.id ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>
+          <button key={s.id} onClick={() => setActiveTab(s.id)} className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === s.id ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white shadow-sm' : 'bg-white border text-gray-600 hover:bg-gray-50'}`}>
             {s.label}
           </button>
         ))}
