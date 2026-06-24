@@ -94,12 +94,12 @@ const LandingPage = () => {
       </div>
 
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur-lg border-b border-white/30 py-4 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
+      <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur-lg border-b border-white/30 py-2 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-12">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-              <img src="/logo pcs.png.png" alt="Logo PCS" className="h-10 w-auto object-contain" />
+              <img src="/logo pcs.png.png" alt="Logo PCS" className="h-8 w-auto object-contain" />
               <span className="font-extrabold text-xl tracking-tight text-slate-900">PCS Internship Portal</span>
             </div>
 
