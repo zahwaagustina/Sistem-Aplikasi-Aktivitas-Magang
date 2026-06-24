@@ -94,14 +94,6 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto pb-8">
-      {/* Back Button */}
-      <div className="mb-4">
-        <Link to="/" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
-          <ArrowLeft size={16} className="mr-1.5" />
-          Kembali ke Dashboard
-        </Link>
-      </div>
-
       {/* Cover Image & Header Container */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
         
