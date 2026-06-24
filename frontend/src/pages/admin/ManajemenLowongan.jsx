@@ -291,7 +291,12 @@ const ManajemenLowongan = () => {
       {(modalType === 'ADD' || modalType === 'EDIT') && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <h3 className="text-xl font-bold mb-4">{modalType === 'ADD' ? 'Tambah Lowongan' : 'Edit Lowongan'}</h3>
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold">{modalType === 'ADD' ? 'Tambah Lowongan' : 'Edit Lowongan'}</h3>
+              <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600 focus:outline-none">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
