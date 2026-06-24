@@ -581,22 +581,45 @@ const ProfilAnakMagang = () => {
                     </div>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                      <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Sikap (30%)</p>
-                        <p className="font-bold text-gray-800">{ev.skor_sikap ? ev.skor_sikap.toFixed(1) : '-'}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Kinerja (40%)</p>
-                        <p className="font-bold text-gray-800">{ev.skor_kinerja ? ev.skor_kinerja.toFixed(1) : '-'}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Keterampilan (20%)</p>
-                        <p className="font-bold text-gray-800">{ev.skor_keterampilan ? ev.skor_keterampilan.toFixed(1) : '-'}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1 font-medium">Administrasi (10%)</p>
-                        <p className="font-bold text-gray-800">{ev.skor_administrasi ? ev.skor_administrasi.toFixed(1) : '-'}</p>
-                      </div>
+                      {(() => {
+                        const aspectsMap = {};
+                        if (ev?.detailEvaluasi) {
+                          ev.detailEvaluasi.forEach(detail => {
+                            const aspek = detail.pertanyaan?.aspek;
+                            if (aspek) {
+                              if (!aspectsMap[aspek.id]) {
+                                aspectsMap[aspek.id] = {
+                                  nama: aspek.nama,
+                                  bobot: aspek.bobot,
+                                  totalSkor: 0,
+                                  maxSkor: 0
+                                };
+                              }
+                              aspectsMap[aspek.id].totalSkor += detail.skor;
+                              aspectsMap[aspek.id].maxSkor += 5;
+                            }
+                          });
+                        }
+                        const aspects = Object.values(aspectsMap).map(a => ({
+                          ...a,
+                          score: a.maxSkor > 0 ? (a.totalSkor / a.maxSkor) * a.bobot : 0
+                        }));
+
+                        if (aspects.length === 0) {
+                          return (
+                            <div className="col-span-full text-center py-2 text-sm text-gray-500 bg-gray-50 rounded-lg">
+                              Detail aspek penilaian tidak tersedia (Format lama)
+                            </div>
+                          );
+                        }
+
+                        return aspects.map((a, idx) => (
+                          <div key={idx} className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+                            <p className="text-xs text-gray-500 mb-1 font-medium truncate" title={`${a.nama} (${a.bobot}%)`}>{a.nama} ({a.bobot}%)</p>
+                            <p className="font-bold text-gray-800">{a.score ? a.score.toFixed(1) : '-'}</p>
+                          </div>
+                        ));
+                      })()}
                     </div>
 
                     <div>

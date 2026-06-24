@@ -153,24 +153,45 @@ const PenyelesaianProgram = () => {
             </div>
             
             <div className="p-5">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-                <div className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[9px] text-gray-500 mb-1 font-medium uppercase">Sikap (30%)</p>
-                  <p className="font-black text-lg text-gray-800">{evaluasi.skor_sikap ? evaluasi.skor_sikap.toFixed(1) : '-'}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[9px] text-gray-500 mb-1 font-medium uppercase">Kinerja (40%)</p>
-                  <p className="font-black text-lg text-gray-800">{evaluasi.skor_kinerja ? evaluasi.skor_kinerja.toFixed(1) : '-'}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[9px] text-gray-500 mb-1 font-medium uppercase">Keterampilan (20%)</p>
-                  <p className="font-black text-lg text-gray-800">{evaluasi.skor_keterampilan ? evaluasi.skor_keterampilan.toFixed(1) : '-'}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100 shadow-sm">
-                  <p className="text-[9px] text-gray-500 mb-1 font-medium uppercase">Admin (10%)</p>
-                  <p className="font-black text-lg text-gray-800">{evaluasi.skor_administrasi ? evaluasi.skor_administrasi.toFixed(1) : '-'}</p>
-                </div>
-              </div>
+              {(() => {
+                const aspectsMap = {};
+                if (evaluasi?.detailEvaluasi) {
+                  evaluasi.detailEvaluasi.forEach(detail => {
+                    const aspek = detail.pertanyaan?.aspek;
+                    if (aspek) {
+                      if (!aspectsMap[aspek.id]) {
+                        aspectsMap[aspek.id] = {
+                          nama: aspek.nama,
+                          bobot: aspek.bobot,
+                          totalSkor: 0,
+                          maxSkor: 0
+                        };
+                      }
+                      aspectsMap[aspek.id].totalSkor += detail.skor;
+                      aspectsMap[aspek.id].maxSkor += 5;
+                    }
+                  });
+                }
+                const aspects = Object.values(aspectsMap).map(a => ({
+                  ...a,
+                  score: a.maxSkor > 0 ? (a.totalSkor / a.maxSkor) * a.bobot : 0
+                }));
+
+                return (
+                  <div className={`grid grid-cols-2 sm:grid-cols-${Math.min(aspects.length || 2, 4)} gap-2 mb-5`}>
+                    {aspects.length > 0 ? aspects.map(a => (
+                      <div key={a.nama} className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100 shadow-sm">
+                        <p className="text-[9px] text-gray-500 mb-1 font-medium uppercase truncate" title={`${a.nama} (${a.bobot}%)`}>{a.nama} ({a.bobot}%)</p>
+                        <p className="font-black text-lg text-gray-800">{a.score ? a.score.toFixed(1) : '-'}</p>
+                      </div>
+                    )) : (
+                      <div className="col-span-full text-center py-2 text-sm text-gray-500">
+                        Detail aspek penilaian tidak tersedia (Format lama)
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               <div className="flex flex-col gap-3 items-center bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
                 <div className="text-center w-full pb-3 border-b border-indigo-200/60">

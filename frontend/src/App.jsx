@@ -19,6 +19,7 @@ import OnboardingDashboard from './pages/admin/OnboardingDashboard';
 import ProfilPeserta from './pages/admin/ProfilPeserta';
 import UserManagement from './pages/admin/UserManagement';
 import AuditTrail from './pages/admin/AuditTrail';
+import MasterEvaluasi from './pages/admin/MasterEvaluasi';
 
 // Kandidat Pages
 import DashboardKandidat from './pages/kandidat/DashboardKandidat';
@@ -72,6 +73,7 @@ function App() {
               <Route path="/hr/peserta" element={<ProfilPeserta />} />
               <Route path="/admin/users" element={<UserManagement />} />
               <Route path="/admin/audit-logs" element={<AuditTrail />} />
+              <Route path="/admin/master-evaluasi" element={<MasterEvaluasi />} />
             </Route>
 
             {/* MENTOR / PEMBIMBING Routes */}
