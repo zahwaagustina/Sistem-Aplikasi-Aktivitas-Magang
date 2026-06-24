@@ -136,15 +136,10 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 flex flex-col xl:flex-row items-center justify-between min-h-[60vh]">
         
-        {/* Left Image (Hidden on mobile, absolutely positioned) */}
-        <div className="hidden xl:block absolute left-4 top-1/2 -translate-y-1/2 w-[280px] opacity-90 hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <img src="/hero-left.png.png" alt="Illustration" className="w-full object-contain drop-shadow-2xl pointer-events-auto hover:-translate-y-2 transition-transform duration-300" />
-        </div>
-
-        {/* Center Content (Restored to original wide layout) */}
-        <div className="relative z-10 max-w-4xl text-center px-4">
+        {/* Left Content (Text & Buttons) */}
+        <div className="relative z-10 max-w-2xl text-left px-4 xl:px-0">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white shadow-md text-slate-900 px-5 py-2 rounded-full text-sm font-medium mb-10">
             <CalendarDays className="w-4 h-4" />
@@ -156,12 +151,12 @@ const LandingPage = () => {
             Selamat datang di<br />
             <span className="text-blue-600">PCS Internship Portal</span>
           </h1>
-          <p className="text-lg text-slate-500 max-w-xl mx-auto mb-12 leading-relaxed">
+          <p className="text-lg text-slate-500 max-w-xl mb-12 leading-relaxed">
             Bangun pengalaman kerja profesional bersama tim terbaik kami di <span className="whitespace-nowrap">PT Pandu Cipta Solusi</span>.
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row justify-start gap-4 mb-4">
             {user ? (
               <button 
                 onClick={() => navigate(user.role === 'KANDIDAT' ? '/kandidat/dashboard' : '/dashboard')}
@@ -188,9 +183,9 @@ const LandingPage = () => {
           </div>
         </div>
 
-        {/* Right Image (Hidden on mobile, absolutely positioned) */}
-        <div className="hidden xl:block absolute right-4 top-1/2 -translate-y-1/2 w-[280px] opacity-90 hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <img src="/hero-right.png.png" alt="Illustration" className="w-full object-contain drop-shadow-2xl pointer-events-auto hover:-translate-y-2 transition-transform duration-300" />
+        {/* Right Image (Hidden on mobile, now part of flex layout) */}
+        <div className="hidden xl:block w-[400px] opacity-90 hover:opacity-100 transition-opacity duration-300">
+          <img src="/hero-right.png.png" alt="Illustration" className="w-full object-contain drop-shadow-2xl hover:-translate-y-2 transition-transform duration-300" />
         </div>
       </div>
 
