@@ -313,6 +313,8 @@ model Onboarding {
   pendaftaran_id  Int               @unique
   pendaftaran     Pendaftaran       @relation(fields: [pendaftaran_id], references: [id], onDelete: Cascade)
   status          StatusOnboarding  @default(WAITING_CONFIRMATION)
+  catatan_revisi  String?           @db.Text
+  dokumen_revisi  Json?             
   
   // Placement
   divisi          String?

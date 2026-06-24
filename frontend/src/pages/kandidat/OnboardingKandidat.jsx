@@ -69,12 +69,35 @@ const OnboardingKandidat = () => {
     }
   };
 
+  if (loading) return <div className="p-8 text-center">Memuat...</div>;
+  if (!data || !data.onboarding) return (
+    <div className="p-8 text-center">
+      <h2 className="text-xl font-bold">Belum ada proses Onboarding</h2>
+      <p className="text-gray-500">Anda belum mencapai tahap onboarding atau pendaftaran Anda belum diterima.</p>
+    </div>
+  );
+
+  const { onboarding, pendaftaran, dokumen } = data;
+
+  const isDocumentNeedsUpload = (docType) => {
+    const hasDoc = dokumen.find(d => d.tipe === docType);
+    if (!hasDoc) return true; // Belum upload sama sekali
+
+    if (onboarding.status === 'DOCUMENT_REVISION' && onboarding.dokumen_revisi?.includes(docType)) {
+      return true; // Minta revisi untuk dokumen ini
+    }
+
+    return false; // Sudah upload dan tidak direvisi
+  };
+
   const handleUploadDocs = async () => {
-    if (!ktpFile || !suratPengantarFile) return alert('Pilih dokumen KTM/KTP dan Surat Pengantar untuk diunggah');
+    if (isDocumentNeedsUpload('KTP') && !ktpFile) return alert('Pilih dokumen KTM/KTP untuk diunggah');
+    if (isDocumentNeedsUpload('SURAT_PENGANTAR') && !suratPengantarFile) return alert('Pilih Surat Pengantar untuk diunggah');
+    
     setUploading(true);
     const formData = new FormData();
-    formData.append('ktp', ktpFile);
-    formData.append('surat_pengantar', suratPengantarFile);
+    if (ktpFile) formData.append('ktp', ktpFile);
+    if (suratPengantarFile) formData.append('surat_pengantar', suratPengantarFile);
     if (suratKerjasamaFile) formData.append('surat_kerjasama', suratKerjasamaFile);
 
     try {
@@ -94,16 +117,6 @@ const OnboardingKandidat = () => {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Memuat...</div>;
-  if (!data || !data.onboarding) return (
-    <div className="p-8 text-center">
-      <h2 className="text-xl font-bold">Belum ada proses Onboarding</h2>
-      <p className="text-gray-500">Anda belum mencapai tahap onboarding atau pendaftaran Anda belum diterima.</p>
-    </div>
-  );
-
-  const { onboarding, pendaftaran, dokumen } = data;
-  
   let currentStepIndex = STEPS.findIndex(s => s.id === onboarding.status);
   if (['CHECKLIST_IN_PROGRESS', 'ACCOUNT_CREATED', 'PLACEMENT_ASSIGNED'].includes(onboarding.status)) {
     // Berada di antara LOA dan ORIENTASI (setengah jalan)
@@ -191,7 +204,7 @@ const OnboardingKandidat = () => {
                 <Info className="text-yellow-500 flex-shrink-0 mt-0.5" size={20} />
                 <div>
                   <h4 className="font-bold">Revisi Diperlukan</h4>
-                  <p className="text-sm mt-1">Ada dokumen yang perlu direvisi. Silakan unggah ulang dokumen yang sesuai.</p>
+                  <p className="text-sm mt-1">{onboarding.catatan_revisi || 'Ada dokumen yang perlu direvisi. Silakan unggah ulang dokumen yang sesuai.'}</p>
                 </div>
               </div>
             )}
@@ -201,7 +214,7 @@ const OnboardingKandidat = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl">
                 
                 {/* 1. KTP */}
-                {(onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'KTP')) ? (
+                {!isDocumentNeedsUpload('KTP') ? (
                   <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-5 flex flex-col items-center text-center">
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
                       <CheckCircle size={20} />
@@ -233,7 +246,7 @@ const OnboardingKandidat = () => {
                 )}
 
                 {/* 2. Surat Pengantar */}
-                {(onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'SURAT_PENGANTAR')) ? (
+                {!isDocumentNeedsUpload('SURAT_PENGANTAR') ? (
                   <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-5 flex flex-col items-center text-center">
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
                       <CheckCircle size={20} />
@@ -265,7 +278,7 @@ const OnboardingKandidat = () => {
                 )}
 
                 {/* 3. Surat Kerja Sama (Opsional) */}
-                {(onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'SURAT_KERJASAMA')) ? (
+                {!isDocumentNeedsUpload('SURAT_KERJASAMA') && dokumen.find(d => d.tipe === 'SURAT_KERJASAMA') ? (
                   <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-5 flex flex-col items-center text-center">
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
                       <CheckCircle size={20} />
@@ -354,11 +367,11 @@ const OnboardingKandidat = () => {
               </div>
             </div>
 
-            {!((onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'KTP'))) && (ktpFile || suratPengantarFile || suratKerjasamaFile) && (
+            {(isDocumentNeedsUpload('KTP') || isDocumentNeedsUpload('SURAT_PENGANTAR') || isDocumentNeedsUpload('SURAT_KERJASAMA')) && (
               <div className="mt-8 flex justify-end pr-4">
                 <button
                   onClick={handleUploadDocs}
-                  disabled={uploading || !ktpFile || !suratPengantarFile}
+                  disabled={uploading || (isDocumentNeedsUpload('KTP') && !ktpFile) || (isDocumentNeedsUpload('SURAT_PENGANTAR') && !suratPengantarFile)}
                   className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-md shadow-indigo-200 transition-colors disabled:opacity-50"
                 >
                   <UploadCloud size={20} className="mr-2" />

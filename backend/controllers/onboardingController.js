@@ -105,18 +105,22 @@ export const getAllOnboarding = async (req, res) => {
   }
 };
 
-// 4. Admin: Verifikasi Dokumen
+  // 4. Admin: Verifikasi Dokumen
 export const verifyDocuments = async (req, res) => {
   try {
     const { id } = req.params; // onboarding id
-    const { approved } = req.body;
+    const { approved, catatan_revisi, dokumen_revisi } = req.body;
 
     const onboarding = await prisma.onboarding.findUnique({ where: { id: parseInt(id) }, include: { pendaftaran: { include: { user: true } } } });
 
     if (approved) {
       await prisma.onboarding.update({
         where: { id: parseInt(id) },
-        data: { status: 'LOA_ISSUED' } // Lanjut ke LOA_ISSUED, tombol Upload LoA akan muncul di FE jika belum ada file LoA
+        data: { 
+          status: 'LOA_ISSUED',
+          catatan_revisi: null,
+          dokumen_revisi: null
+        } // Lanjut ke LOA_ISSUED
       });
       await sendEmail(onboarding.pendaftaran.user.email, 'Dokumen Diterima', 'Dokumen Anda valid. Silakan menunggu penerbitan LoA.');
       await prisma.notifikasi.create({
@@ -129,7 +133,11 @@ export const verifyDocuments = async (req, res) => {
     } else {
       await prisma.onboarding.update({
         where: { id: parseInt(id) },
-        data: { status: 'DOCUMENT_REVISION' }
+        data: { 
+          status: 'DOCUMENT_REVISION',
+          catatan_revisi: catatan_revisi || 'Ada dokumen yang tidak valid.',
+          dokumen_revisi: dokumen_revisi || [] 
+        }
       });
       await sendEmail(onboarding.pendaftaran.user.email, 'Revisi Dokumen Onboarding', 'Ada dokumen yang tidak valid. Mohon unggah ulang di portal.');
       await prisma.notifikasi.create({

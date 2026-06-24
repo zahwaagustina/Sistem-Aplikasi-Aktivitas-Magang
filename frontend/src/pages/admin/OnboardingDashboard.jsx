@@ -28,6 +28,11 @@ const OnboardingDashboard = () => {
   const [modalType, setModalType] = useState(''); // 'VERIFY_DOCS', 'ISSUE_LOA', 'PLACEMENT', 'ORIENTATION'
   
   const [formData, setFormData] = useState({});
+  
+  // Revision states
+  const [isRevising, setIsRevising] = useState(false);
+  const [revisionNote, setRevisionNote] = useState('');
+  const [revisionDocs, setRevisionDocs] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -56,6 +61,9 @@ const OnboardingDashboard = () => {
     setSelectedItem(item);
     setModalType(type);
     setFormData({});
+    setIsRevising(false);
+    setRevisionNote('');
+    setRevisionDocs([]);
     if (type === 'PLACEMENT') {
       setFormData({ divisi: item.pendaftaran.lowongan.divisi, mentor_id: '' });
     } else if (type === 'ORIENTATION') {
@@ -64,12 +72,26 @@ const OnboardingDashboard = () => {
   };
 
   const handleVerifyDocs = async (approved) => {
+    if (!approved && (!revisionNote || revisionDocs.length === 0)) {
+      alert('Harap isi catatan revisi dan pilih minimal satu dokumen yang perlu direvisi.');
+      return;
+    }
     try {
-      await api.put(`/onboarding/${selectedItem.id}/verify-docs`, { approved });
+      await api.put(`/onboarding/${selectedItem.id}/verify-docs`, { 
+        approved, 
+        catatan_revisi: revisionNote, 
+        dokumen_revisi: revisionDocs 
+      });
       alert(approved ? 'Dokumen disetujui' : 'Revisi diminta');
       setModalType('');
       fetchData();
     } catch (e) { alert('Error: ' + e.message); }
+  };
+
+  const handleToggleDocRevision = (docType) => {
+    setRevisionDocs(prev => 
+      prev.includes(docType) ? prev.filter(d => d !== docType) : [...prev, docType]
+    );
   };
 
   const handleIssueLoa = async (e) => {
@@ -285,10 +307,53 @@ const OnboardingDashboard = () => {
                     )}
                   </div>
 
-                  <div className="flex space-x-3">
-                    <button onClick={() => handleVerifyDocs(false)} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg font-medium hover:bg-red-100">Minta Revisi</button>
-                    <button onClick={() => handleVerifyDocs(true)} className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700">Setujui Dokumen</button>
                   </div>
+
+                  {!isRevising ? (
+                    <div className="flex space-x-3">
+                      <button onClick={() => setIsRevising(true)} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg font-medium hover:bg-red-100">Minta Revisi</button>
+                      <button onClick={() => handleVerifyDocs(true)} className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700">Setujui Dokumen</button>
+                    </div>
+                  ) : (
+                    <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                      <h4 className="font-bold text-red-800 mb-3 text-sm">Form Permintaan Revisi</h4>
+                      
+                      <div className="mb-3">
+                        <label className="block text-xs font-bold text-red-700 mb-1">Catatan Revisi *</label>
+                        <textarea 
+                          rows="3" 
+                          required
+                          value={revisionNote}
+                          onChange={(e) => setRevisionNote(e.target.value)}
+                          placeholder="Contoh: KTP tidak terbaca jelas, mohon upload foto yang lebih terang."
+                          className="w-full p-2 border border-red-200 rounded-md text-sm outline-none focus:ring-2 focus:ring-red-200"
+                        ></textarea>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-xs font-bold text-red-700 mb-2">Dokumen yang perlu direvisi *</label>
+                        <div className="space-y-2">
+                          <label className="flex items-center">
+                            <input type="checkbox" checked={revisionDocs.includes('KTP')} onChange={() => handleToggleDocRevision('KTP')} className="mr-2 text-red-600 rounded" />
+                            <span className="text-sm text-gray-700">KTM / KTP</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input type="checkbox" checked={revisionDocs.includes('SURAT_PENGANTAR')} onChange={() => handleToggleDocRevision('SURAT_PENGANTAR')} className="mr-2 text-red-600 rounded" />
+                            <span className="text-sm text-gray-700">Surat Pengantar Kampus</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input type="checkbox" checked={revisionDocs.includes('SURAT_KERJASAMA')} onChange={() => handleToggleDocRevision('SURAT_KERJASAMA')} className="mr-2 text-red-600 rounded" />
+                            <span className="text-sm text-gray-700">Surat Kerja Sama (Opsional)</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="flex space-x-2 justify-end">
+                        <button onClick={() => setIsRevising(false)} className="px-3 py-1.5 bg-white border border-red-200 text-red-600 rounded-md text-sm font-medium hover:bg-red-50">Batal</button>
+                        <button onClick={() => handleVerifyDocs(false)} className="px-3 py-1.5 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">Kirim Permintaan Revisi</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
