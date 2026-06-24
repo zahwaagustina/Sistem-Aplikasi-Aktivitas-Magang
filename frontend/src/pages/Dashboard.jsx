@@ -83,6 +83,13 @@ const Dashboard = () => {
     return <Navigate to="/kandidat/dashboard" replace />;
   }
 
+  if (user?.role?.toUpperCase() === 'MAGANG') {
+    if (user.status === 'SELESAI') {
+      return <Navigate to="/magang/penyelesaian" replace />;
+    }
+    return <Navigate to="/magang/dashboard" replace />;
+  }
+
   if (user?.role === 'SUPER_ADMIN') {
     return <DashboardAnalitik />;
   }
