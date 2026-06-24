@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Upload, FileText, FileBadge, CheckCircle, GraduationCap } from 'lucide-react';
@@ -11,7 +11,6 @@ const ApplyLowongan = () => {
   const [formData, setFormData] = useState({
     universitas: '',
     jurusan: '',
-    angkatan: '',
     semester: '',
     npm: ''
   });
@@ -23,6 +22,15 @@ const ApplyLowongan = () => {
     transkrip: null
   });
   const [loading, setLoading] = useState(false);
+  const [lowonganDetail, setLowonganDetail] = useState(null);
+
+  useEffect(() => {
+    if (lowonganId) {
+      axios.get(`http://localhost:5000/api/public/lowongan/${lowonganId}`)
+        .then(res => setLowonganDetail(res.data.data))
+        .catch(err => console.error(err));
+    }
+  }, [lowonganId]);
 
   // Jika lowonganId tidak ada, arahkan kembali ke landing page
   if (!lowonganId) {
@@ -74,29 +82,24 @@ const ApplyLowongan = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 py-10 px-4 relative overflow-hidden font-sans">
-      
-      {/* Decorative background blobs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 blur-[100px]"></div>
-        <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] rounded-full bg-indigo-400/20 blur-[100px]"></div>
-      </div>
-
+    <div className="w-full relative font-sans">
       <div className="max-w-4xl mx-auto bg-white/60 backdrop-blur-xl rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.05)] border border-white/50 overflow-hidden">
         
         {/* Glassmorphism Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-10 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-cyan-400 px-8 py-10 text-white relative overflow-hidden">
           {/* Header decorative elements */}
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-black/10 blur-2xl pointer-events-none"></div>
           
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight relative z-10">Lengkapi Data Lamaran</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight relative z-10">
+            Lengkapi Data Lamaran {lowonganDetail && <span className="block text-2xl mt-2 font-semibold text-cyan-100">Posisi: {lowonganDetail.posisi}</span>}
+          </h2>
           <p className="mt-3 text-blue-100 text-lg relative z-10 max-w-2xl">Silakan lengkapi profil akademik dan unggah dokumen yang diperlukan untuk melangkah ke tahap selanjutnya.</p>
         </div>
         
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
           
-          {/* Card: Informasi Akademik */}
+          {/* Card: Profil Akademik */}
           <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-white/60 p-8 hover:shadow-md transition-shadow">
             <h3 className="text-2xl font-extrabold text-slate-800 mb-6 flex items-center border-b border-gray-100 pb-4 tracking-tight">
               <div className="p-2.5 bg-blue-100 rounded-xl mr-3">
@@ -122,11 +125,6 @@ const ApplyLowongan = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Angkatan</label>
-                <input type="text" name="angkatan" required value={formData.angkatan} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 placeholder-slate-400 bg-white/80 transition-all outline-none" placeholder="Contoh: 2021" />
-              </div>
-
-              <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">Semester / Kelas</label>
                 <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white/80 transition-all outline-none">
                   <option value="" disabled>Pilih semester</option>
@@ -140,6 +138,7 @@ const ApplyLowongan = () => {
             </div>
           </div>
 
+          {/* Card: Dokumen Persyaratan */}
           <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-white/60 p-8 hover:shadow-md transition-shadow">
             <h3 className="text-2xl font-extrabold text-slate-800 mb-6 flex items-center border-b border-gray-100 pb-4 tracking-tight">
               <div className="p-2.5 bg-indigo-100 rounded-xl mr-3">
