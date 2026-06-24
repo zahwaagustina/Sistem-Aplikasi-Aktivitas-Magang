@@ -93,7 +93,7 @@ const Sidebar = ({ isOpen }) => {
             to={item.path}
             className={({ isActive }) =>
               `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium ${
-                isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-white/60 hover:text-blue-700 hover:shadow-sm'
+                isActive ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white shadow-md' : 'text-slate-600 hover:bg-white/60 hover:text-blue-700 hover:shadow-sm'
               }`
             }
           >
