@@ -142,24 +142,12 @@ const DetailLowongan = () => {
             <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/60 shadow-sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Nama Batch</h4>
+                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Batch</h4>
                   <p className="text-lg font-medium text-gray-900">{lowongan.program?.nama || '-'}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Status</h4>
                   <p className="text-lg font-medium text-green-600 flex items-center"><CheckCircle className="w-5 h-5 mr-1.5" /> Penerimaan Terbuka</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Tanggal Mulai Magang</h4>
-                  <p className="text-lg font-medium text-gray-900">
-                    {lowongan.program?.tanggal_mulai ? new Date(lowongan.program.tanggal_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Tanggal Berakhir Magang</h4>
-                  <p className="text-lg font-medium text-gray-900">
-                    {lowongan.program?.tanggal_selesai ? new Date(lowongan.program.tanggal_selesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
-                  </p>
                 </div>
               </div>
             </div>
