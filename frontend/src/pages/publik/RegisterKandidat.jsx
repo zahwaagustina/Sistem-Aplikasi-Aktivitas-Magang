@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { User, Mail, Lock, Phone, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const RegisterKandidat = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    if (location.state?.lowonganId) {
+      localStorage.setItem('pendingApplyLowonganId', location.state.lowonganId);
+    }
+  }, [location.state]);
 
   const [formData, setFormData] = useState({
     nama: '',
     email: '',
     password: '',
+    confirm_password: '',
     no_telepon: ''
   });
 
@@ -18,6 +26,7 @@ const RegisterKandidat = () => {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,6 +36,12 @@ const RegisterKandidat = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (formData.password !== formData.confirm_password) {
+      setError('Konfirmasi password tidak cocok');
+      setLoading(false);
+      return;
+    }
 
     try {
       await axios.post('http://localhost:5000/api/public/register', formData);
@@ -117,6 +132,25 @@ const RegisterKandidat = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
+                      <Eye className="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" />
+                    ) : (
+                      <EyeOff className="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">Konfirmasi Password*</label>
+                <div className="relative">
+                  <input type={showConfirmPassword ? "text" : "password"} name="confirm_password" required value={formData.confirm_password} onChange={handleChange} 
+                    className="block w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm" 
+                    placeholder="Ulangi password" />
+                  <div 
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
                       <Eye className="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" />
                     ) : (
                       <EyeOff className="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" />

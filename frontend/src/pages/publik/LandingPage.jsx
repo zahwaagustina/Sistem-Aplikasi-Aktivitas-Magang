@@ -26,6 +26,16 @@ const LandingPage = () => {
     }
   }, [hash, loading]);
 
+  useEffect(() => {
+    if (user && user.role === 'KANDIDAT') {
+      const pendingLowonganId = localStorage.getItem('pendingApplyLowonganId');
+      if (pendingLowonganId) {
+        localStorage.removeItem('pendingApplyLowonganId');
+        navigate('/apply', { state: { lowonganId: parseInt(pendingLowonganId, 10) } });
+      }
+    }
+  }, [user, navigate]);
+
   const fetchLowongan = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/public/lowongan');
