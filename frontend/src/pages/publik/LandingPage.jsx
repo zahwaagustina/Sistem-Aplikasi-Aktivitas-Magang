@@ -94,7 +94,7 @@ const LandingPage = () => {
       </div>
 
       {/* Navigation Bar */}
-      <nav className="relative z-10 bg-transparent py-4">
+      <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur-lg border-b border-white/30 py-4 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
