@@ -50,7 +50,7 @@ const ManajemenKandidat = () => {
 
   const openStatusModal = (kandidat) => {
     setSelectedKandidat(kandidat);
-    setStatusForm(kandidat.status);
+    setStatusForm(kandidat.status === 'SUBMITTED' ? '' : kandidat.status);
     setActiveModal('STATUS');
   };
 
@@ -300,7 +300,8 @@ const ManajemenKandidat = () => {
             <form onSubmit={handleUpdateStatus}>
               <div className="mb-4">
                 <label className="block text-sm font-semibold mb-2">Status Baru</label>
-                <select value={statusForm} onChange={(e) => setStatusForm(e.target.value)} className="w-full border p-2 rounded-lg">
+                <select value={statusForm} onChange={(e) => setStatusForm(e.target.value)} className="w-full border p-2 rounded-lg" required>
+                  <option value="" disabled>-- Pilih Status Baru --</option>
                   <option value="REVIEWED">REVIEWED</option>
                   <option value="SHORTLISTED">SHORTLISTED (Lolos Administrasi)</option>
                   <option value="REJECTED">REJECTED (Tolak)</option>

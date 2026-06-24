@@ -245,7 +245,7 @@ const DashboardKandidat = () => {
                           href={app.interview.link_meeting} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="mt-4 inline-flex items-center text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-lg transition-colors w-full justify-center shadow-sm"
+                          className="mt-4 inline-flex items-center text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors shadow-sm w-fit"
                         >
                           <Video className="w-4 h-4 mr-2" /> Gabung Meeting Online
                         </a>
