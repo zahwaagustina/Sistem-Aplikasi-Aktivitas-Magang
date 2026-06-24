@@ -115,8 +115,8 @@ model User {
   absensi           Absensi[]
   tugasDiberikan    Tugas[]           @relation("TugasMentor")
   tugasDiterima     Tugas[]           @relation("TugasPeserta")
-  evaluasiDiberikan Evaluasi[]        @relation("EvaluasiMentor")
-  evaluasiDiterima  Evaluasi[]        @relation("EvaluasiPeserta")
+  evaluasiDiberikan HasilEvaluasi[]   @relation("EvaluasiMentor")
+  evaluasiDiterima  HasilEvaluasi[]   @relation("EvaluasiPeserta")
   dokumen           Dokumen[]
   auditTrails       AuditTrail[]
   onboardingDimementori Onboarding[]  @relation("OnboardingMentor")
@@ -270,21 +270,58 @@ model Tugas {
   updated_at DateTime       @updatedAt
 }
 
-model Evaluasi {
+model AspekPenilaian {
+  id         Int      @id @default(autoincrement())
+  nama       String
+  bobot      Float
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  pertanyaan PertanyaanPenilaian[]
+  
+  @@map("tabel_aspek_penilaian")
+}
+
+model PertanyaanPenilaian {
+  id          Int      @id @default(autoincrement())
+  aspek_id    Int
+  aspek       AspekPenilaian @relation(fields: [aspek_id], references: [id], onDelete: Cascade)
+  pertanyaan  String   @db.Text
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  detailEvaluasi DetailEvaluasi[]
+  
+  @@map("tabel_pertanyaan_penilaian")
+}
+
+model HasilEvaluasi {
   id              Int          @id @default(autoincrement())
   peserta_id      Int
   peserta         User         @relation("EvaluasiPeserta", fields: [peserta_id], references: [id], onDelete: Cascade)
   mentor_id       Int
   mentor          User         @relation("EvaluasiMentor", fields: [mentor_id], references: [id], onDelete: Cascade)
   tipe            TipeEvaluasi
-  skor_sikap        Float        @default(0)
-  skor_kinerja      Float        @default(0)
-  skor_keterampilan Float        @default(0)
-  skor_administrasi Float        @default(0)
-  skor_akhir        Float        @default(0)
-  detail_penilaian  Json?
+  skor_akhir      Float        @default(0)
   feedback        String       @db.Text
   created_at      DateTime     @default(now())
+
+  detailEvaluasi  DetailEvaluasi[]
+  
+  @@map("tabel_hasil_evaluasi")
+}
+
+model DetailEvaluasi {
+  id                Int                 @id @default(autoincrement())
+  hasil_evaluasi_id Int
+  hasilEvaluasi     HasilEvaluasi       @relation(fields: [hasil_evaluasi_id], references: [id], onDelete: Cascade)
+  pertanyaan_id     Int
+  pertanyaan        PertanyaanPenilaian @relation(fields: [pertanyaan_id], references: [id], onDelete: Cascade)
+  skor              Int                 // 1-5
+  
+  @@map("tabel_detail_evaluasi")
 }
 
 model Dokumen {

@@ -82,7 +82,7 @@ export const getDetailAnakMagang = async (req, res) => {
       orderBy: { deadline: 'asc' }
     });
 
-    const evaluasi = await prisma.evaluasi.findMany({
+    const evaluasi = await prisma.hasilEvaluasi.findMany({
       where: req.user.role === 'SUPER_ADMIN' ? { peserta_id: parseInt(id) } : { peserta_id: parseInt(id), mentor_id: mentorId },
       orderBy: { created_at: 'desc' }
     });
@@ -157,7 +157,7 @@ export const submitEvaluasi = async (req, res) => {
 
     const skor_akhir = skor_sikap + skor_kinerja + skor_keterampilan + skor_administrasi;
 
-    const evaluasi = await prisma.evaluasi.create({
+    const evaluasi = await prisma.hasilEvaluasi.create({
       data: {
         peserta_id: parseInt(id),
         mentor_id: mentorId,

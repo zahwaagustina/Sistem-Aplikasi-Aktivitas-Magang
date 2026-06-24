@@ -37,4 +37,8 @@ router.post('/tugas', createTugas);
 router.delete('/tugas/:id', deleteTugas);
 router.put('/tugas/:id/review', upload.fields([{ name: 'file_feedback', maxCount: 1 }]), reviewTugas);
 
+import { getAspekPenilaian } from '../controllers/evaluasiMasterController.js';
+
+router.get('/evaluasi-aspek', getAspekPenilaian);
+
 export default router;

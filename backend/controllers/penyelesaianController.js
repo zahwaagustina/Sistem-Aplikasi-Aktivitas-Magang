@@ -88,7 +88,7 @@ export const getPenyelesaianStatus = async (req, res) => {
       where: { user_id: userId, tipe: 'SERTIFIKAT' }
     });
 
-    const evaluasi = await prisma.evaluasi.findFirst({
+    const evaluasi = await prisma.hasilEvaluasi.findFirst({
       where: { peserta_id: userId, tipe: 'FINAL' }
     });
 
@@ -131,7 +131,7 @@ export const generateSertifikat = async (req, res) => {
     }
 
     // Pastikan mentor sudah memberikan Evaluasi Akhir (FINAL)
-    const evaluasiFinal = await prisma.evaluasi.findFirst({
+    const evaluasiFinal = await prisma.hasilEvaluasi.findFirst({
       where: { peserta_id: targetUserId, tipe: 'FINAL' }
     });
 
