@@ -61,7 +61,13 @@ const DashboardMagang = () => {
           <div>
             <p className="text-sm font-bold text-slate-900">Sisa Waktu Magang</p>
             <p className="text-xs font-medium text-slate-500">
-              {user?.tanggal_selesai ? <span className="text-indigo-600 font-bold">{sisaHari()} Hari Kerja Lagi</span> : 'Belum Diatur'}
+              {user?.status === 'SELESAI' ? (
+                <span className="text-emerald-600 font-bold text-lg">Selesai</span>
+              ) : user?.tanggal_selesai ? (
+                <span className="text-indigo-600 font-bold">{sisaHari()} Hari Kerja Lagi</span>
+              ) : (
+                'Belum Diatur'
+              )}
             </p>
           </div>
         </div>

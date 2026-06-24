@@ -79,7 +79,8 @@ export const login = async (req, res) => {
           { username: validatedData.username },
           { email: validatedData.username }
         ]
-      }
+      },
+      include: { profilMagang: true }
     });
 
     if (!user) {
@@ -124,7 +125,8 @@ export const login = async (req, res) => {
         tanggal_selesai: user.tanggal_selesai,
         no_telepon: user.no_telepon,
         id_magang: user.id_magang,
-        surat_keterangan: user.surat_keterangan
+        surat_keterangan: user.surat_keterangan,
+        status: user.profilMagang?.status || null
       }
     });
   } catch (error) {
