@@ -211,23 +211,6 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Sisa Waktu Card */}
-      <div className="mt-6 bg-indigo-50/70 border border-indigo-100 rounded-xl p-5 flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="p-2 bg-indigo-100 rounded-lg mr-4 text-indigo-600">
-            <Clock size={24} />
-          </div>
-          <div>
-            <h3 className="font-semibold text-indigo-900">Sisa waktu magang</h3>
-            <p className="text-sm text-indigo-700">Berakhir {formattedEndDate}</p>
-          </div>
-        </div>
-        
-        <div className="text-right">
-          <div className="text-2xl font-bold text-indigo-900">{sisaHari()}</div>
-          <p className="text-sm text-indigo-700">hari tersisa</p>
-        </div>
-      </div>
 
       {/* Edit Profile Modal */}
       {isEditing && (
@@ -286,10 +269,7 @@ const Profile = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi (Otomatis)</label>
                   <input type="text" value={user?.lokasi || 'Kadu, Tangerang'} disabled className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai Magang</label>
-                  <input type="date" name="tanggal_selesai" value={formData.tanggal_selesai} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
+
               </div>
             </div>
 

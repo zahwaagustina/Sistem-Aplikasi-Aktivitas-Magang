@@ -49,27 +49,10 @@ const DashboardMagang = () => {
     <div className="space-y-8 font-sans pb-10">
       
       {/* Glassmorphism Header */}
-      <div className="bg-white/40 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.05)] border border-white/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="bg-white/40 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.05)] border border-white/50 flex flex-col justify-between items-start">
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Halo, {user?.nama}! 👋</h1>
           <p className="text-slate-600 text-lg">Selamat datang di Ruang Kerja Magang Anda.</p>
-        </div>
-        <div className="px-6 py-4 bg-white/60 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm flex items-center gap-4 w-full md:w-auto">
-          <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-            <Clock className="w-6 h-6 text-indigo-600" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-slate-900">Sisa Waktu Magang</p>
-            <p className="text-xs font-medium text-slate-500">
-              {user?.status === 'SELESAI' ? (
-                <span className="text-emerald-600 font-bold text-lg">Selesai</span>
-              ) : user?.tanggal_selesai ? (
-                <span className="text-indigo-600 font-bold">{sisaHari()} Hari Kerja Lagi</span>
-              ) : (
-                'Belum Diatur'
-              )}
-            </p>
-          </div>
         </div>
       </div>
 
