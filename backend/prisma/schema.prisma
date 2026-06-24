@@ -315,6 +315,7 @@ model Onboarding {
   status          StatusOnboarding  @default(WAITING_CONFIRMATION)
   catatan_revisi  String?           @db.Text
   dokumen_revisi  Json?             
+  is_loa_downloaded Boolean         @default(false)
   
   // Placement
   divisi          String?

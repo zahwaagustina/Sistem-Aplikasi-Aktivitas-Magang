@@ -10,7 +10,8 @@ import {
   scheduleOrientation, 
   updateChecklist, 
   confirmOrientation,
-  uploadOnboardingDocs
+  uploadOnboardingDocs,
+  downloadLoa
 } from '../controllers/onboardingController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 import multer from 'multer';
@@ -38,6 +39,7 @@ router.put('/:id/respond', respondOffer);
 router.post('/:id/upload-docs', uploadDocs.fields([{ name: 'ktp', maxCount: 1 }, { name: 'surat_pengantar', maxCount: 1 }, { name: 'surat_kerjasama', maxCount: 1 }]), uploadOnboardingDocs);
 router.put('/checklist/:taskId', updateChecklist);
 router.put('/:id/confirm-orientation', confirmOrientation);
+router.put('/:id/download-loa', downloadLoa);
 
 // --- ADMIN ROUTES ---
 router.get('/all', authorizeRole(['SUPER_ADMIN']), getAllOnboarding);

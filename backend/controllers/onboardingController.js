@@ -79,6 +79,19 @@ export const respondOffer = async (req, res) => {
   }
 };
 
+export const downloadLoa = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = await prisma.onboarding.update({
+      where: { id: parseInt(id) },
+      data: { is_loa_downloaded: true }
+    });
+    res.status(200).json({ message: 'LoA downloaded', data: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating download status', error: error.message });
+  }
+};
+
 // 3. Admin: Ambil semua onboarding
 export const getAllOnboarding = async (req, res) => {
   try {
