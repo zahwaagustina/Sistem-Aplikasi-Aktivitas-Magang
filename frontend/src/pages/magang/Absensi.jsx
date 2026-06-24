@@ -166,6 +166,13 @@ const Absensi = () => {
     return new Date(isoString).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   };
 
+  const groupedAbsensi = absensiList.reduce((acc, item) => {
+    const monthYear = new Date(item.tanggal).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    if (!acc[monthYear]) acc[monthYear] = [];
+    acc[monthYear].push(item);
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -264,63 +271,79 @@ const Absensi = () => {
 
       {/* Tabel Riwayat */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 className="font-bold text-lg text-gray-800 mb-4">Riwayat Kehadiran</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
-                <th className="p-4 font-semibold rounded-tl-lg">Tanggal</th>
-                <th className="p-4 font-semibold">Check-In</th>
-                <th className="p-4 font-semibold">Check-Out</th>
-                <th className="p-4 font-semibold rounded-tr-lg">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {absensiList.map((item) => (
-                <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="p-4 text-sm font-medium text-gray-800">{formatDate(item.tanggal)}</td>
-                  <td className="p-4 text-sm text-gray-600">
-                    <span className="bg-green-50 text-green-700 px-2 py-1 rounded font-mono text-xs font-semibold">
-                      {formatTime(item.waktu_masuk)}
-                    </span>
-                  </td>
-                  <td className="p-4 text-sm text-gray-600">
-                    {item.waktu_keluar ? (
-                      <span className="bg-red-50 text-red-700 px-2 py-1 rounded font-mono text-xs font-semibold">
-                        {formatTime(item.waktu_keluar)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic">Belum</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                      item.status === 'HADIR' ? 'bg-green-100 text-green-800' :
-                      item.status === 'IZIN' ? 'bg-amber-100 text-amber-800' :
-                      item.status === 'SAKIT' ? 'bg-blue-100 text-blue-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {item.status}
-                    </span>
-                    {item.bukti_path && (
-                      <a href={`http://localhost:5000${item.bukti_path}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-blue-600 hover:underline">
-                        Lihat Bukti
-                      </a>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {absensiList.length === 0 && (
-                <tr>
-                  <td colSpan="4" className="p-8 text-center text-gray-500 italic">
-                    Belum ada riwayat absensi.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <h3 className="font-bold text-lg text-gray-800 mb-6">Riwayat Kehadiran</h3>
+        
+        {absensiList.length === 0 ? (
+          <div className="text-center text-gray-500 italic py-8">
+            Belum ada riwayat absensi.
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {Object.entries(groupedAbsensi).map(([month, records]) => (
+              <div key={month} className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="bg-indigo-50 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200">
+                  <h4 className="font-bold text-indigo-900 mb-3 md:mb-0 text-lg">{month}</h4>
+                  <div className="flex gap-4 text-sm font-semibold">
+                    <span className="text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">Hadir: {records.filter(r => r.status === 'HADIR').length}</span>
+                    <span className="text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Izin: {records.filter(r => r.status === 'IZIN').length}</span>
+                    <span className="text-amber-700 bg-amber-100 px-3 py-1 rounded-full">Sakit: {records.filter(r => r.status === 'SAKIT').length}</span>
+                    <span className="text-red-700 bg-red-100 px-3 py-1 rounded-full">Alpa: {records.filter(r => r.status === 'ALPA' || r.status === 'TANPA_KETERANGAN').length}</span>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-white border-b border-gray-200 text-sm text-gray-600">
+                        <th className="p-4 font-semibold">Tanggal</th>
+                        <th className="p-4 font-semibold">Check-In</th>
+                        <th className="p-4 font-semibold">Check-Out</th>
+                        <th className="p-4 font-semibold">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {records.map((item) => (
+                        <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="p-4 text-sm font-medium text-gray-800">{formatDate(item.tanggal)}</td>
+                          <td className="p-4 text-sm text-gray-600">
+                            <span className="bg-green-50 text-green-700 px-2 py-1 rounded font-mono text-xs font-semibold">
+                              {formatTime(item.waktu_masuk)}
+                            </span>
+                          </td>
+                          <td className="p-4 text-sm text-gray-600">
+                            {item.waktu_keluar ? (
+                              <span className="bg-red-50 text-red-700 px-2 py-1 rounded font-mono text-xs font-semibold">
+                                {formatTime(item.waktu_keluar)}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 italic">Belum</span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                              item.status === 'HADIR' ? 'bg-green-100 text-green-800' :
+                              item.status === 'IZIN' ? 'bg-amber-100 text-amber-800' :
+                              item.status === 'SAKIT' ? 'bg-blue-100 text-blue-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {item.status}
+                            </span>
+                            {item.bukti_path && (
+                              <a href={`http://localhost:5000${item.bukti_path}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-blue-600 hover:underline">
+                                Lihat Bukti
+                              </a>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
       {/* Modal Izin/Sakit */}
       {showIzinModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">

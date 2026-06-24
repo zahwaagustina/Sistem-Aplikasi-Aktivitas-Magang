@@ -284,6 +284,13 @@ const ProfilAnakMagang = () => {
     saveAs(new Blob([buf]), `Rekap_Absensi_${profil?.user?.nama || 'Peserta'}.xlsx`);
   };
 
+  const groupedAbsensi = absensi?.reduce((acc, item) => {
+    const monthYear = new Date(item.tanggal).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    if (!acc[monthYear]) acc[monthYear] = [];
+    acc[monthYear].push(item);
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-6 pb-20">
       {/* Header Back Button */}
@@ -633,53 +640,68 @@ const ProfilAnakMagang = () => {
             {absensi.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Belum ada riwayat absensi untuk peserta ini.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
-                      <th className="p-4 font-semibold rounded-tl-lg">Tanggal</th>
-                      <th className="p-4 font-semibold">Check-In</th>
-                      <th className="p-4 font-semibold">Check-Out</th>
-                      <th className="p-4 font-semibold">Status / Keterangan</th>
-                      <th className="p-4 font-semibold rounded-tr-lg">Bukti</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {absensi.map((absen) => (
-                      <tr key={absen.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="p-4 text-sm font-medium text-gray-800">
-                          {new Date(absen.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                        </td>
-                        <td className="p-4 text-sm text-gray-600">
-                          {absen.waktu_masuk ? new Date(absen.waktu_masuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
-                        </td>
-                        <td className="p-4 text-sm text-gray-600">
-                          {absen.waktu_keluar ? new Date(absen.waktu_keluar).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex flex-col gap-1 items-start">
-                            <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                              absen.status === 'HADIR' ? 'bg-green-100 text-green-800' :
-                              absen.status === 'IZIN' ? 'bg-amber-100 text-amber-800' :
-                              absen.status === 'SAKIT' ? 'bg-blue-100 text-blue-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {absen.status}
-                            </span>
-                            {absen.keterangan && <span className="text-xs text-gray-500 max-w-[200px] truncate" title={absen.keterangan}>{absen.keterangan}</span>}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          {absen.bukti_path ? (
-                            <a href={`http://localhost:5000${absen.bukti_path}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm font-medium">Lihat Bukti</a>
-                          ) : (
-                            <span className="text-gray-400 text-xs">-</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-8 mt-6">
+                {Object.entries(groupedAbsensi).map(([month, records]) => (
+                  <div key={month} className="border border-gray-200 rounded-xl overflow-hidden">
+                    <div className="bg-indigo-50 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200">
+                      <h4 className="font-bold text-indigo-900 mb-3 md:mb-0 text-lg">{month}</h4>
+                      <div className="flex gap-4 text-sm font-semibold">
+                        <span className="text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">Hadir: {records.filter(r => r.status === 'HADIR').length}</span>
+                        <span className="text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Izin: {records.filter(r => r.status === 'IZIN').length}</span>
+                        <span className="text-amber-700 bg-amber-100 px-3 py-1 rounded-full">Sakit: {records.filter(r => r.status === 'SAKIT').length}</span>
+                        <span className="text-red-700 bg-red-100 px-3 py-1 rounded-full">Alpa: {records.filter(r => r.status === 'ALPA' || r.status === 'TANPA_KETERANGAN').length}</span>
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-white border-b border-gray-200 text-sm text-gray-600">
+                            <th className="p-4 font-semibold">Tanggal</th>
+                            <th className="p-4 font-semibold">Check-In</th>
+                            <th className="p-4 font-semibold">Check-Out</th>
+                            <th className="p-4 font-semibold">Status / Keterangan</th>
+                            <th className="p-4 font-semibold">Bukti</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {records.map((absen) => (
+                            <tr key={absen.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                              <td className="p-4 text-sm font-medium text-gray-800">
+                                {new Date(absen.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                              </td>
+                              <td className="p-4 text-sm text-gray-600">
+                                {absen.waktu_masuk ? new Date(absen.waktu_masuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                              </td>
+                              <td className="p-4 text-sm text-gray-600">
+                                {absen.waktu_keluar ? new Date(absen.waktu_keluar).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                              </td>
+                              <td className="p-4">
+                                <div className="flex flex-col gap-1 items-start">
+                                  <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                    absen.status === 'HADIR' ? 'bg-green-100 text-green-800' :
+                                    absen.status === 'IZIN' ? 'bg-amber-100 text-amber-800' :
+                                    absen.status === 'SAKIT' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-red-100 text-red-800'
+                                  }`}>
+                                    {absen.status}
+                                  </span>
+                                  {absen.keterangan && <span className="text-xs text-gray-500 max-w-[200px] truncate" title={absen.keterangan}>{absen.keterangan}</span>}
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                {absen.bukti_path ? (
+                                  <a href={`http://localhost:5000${absen.bukti_path}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm font-medium">Lihat Bukti</a>
+                                ) : (
+                                  <span className="text-gray-400 text-xs">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
