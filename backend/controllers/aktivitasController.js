@@ -137,8 +137,8 @@ export const updateAktivitas = async (req, res) => {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
-    if (req.user.role === 'MAGANG' && !['DRAFT', 'TERKIRIM'].includes(aktivitas.status)) {
-      return res.status(403).json({ message: 'Tidak dapat mengedit aktivitas yang sudah direview' });
+    if (req.user.role === 'MAGANG' && !['DRAFT', 'TERKIRIM', 'REVISI'].includes(aktivitas.status)) {
+      return res.status(403).json({ message: 'Tidak dapat mengedit aktivitas yang sudah disetujui atau telat' });
     }
 
     const inputDate = new Date(validatedData.tanggal);
@@ -179,7 +179,7 @@ export const approveAktivitas = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body; // Expects 'DISETUJUI' or 'TELAT_MENGISI'
 
-    if (!['DISETUJUI', 'TELAT_MENGISI'].includes(status)) {
+    if (!['DISETUJUI', 'REVISI', 'TELAT_MENGISI'].includes(status)) {
       return res.status(400).json({ message: 'Status review tidak valid' });
     }
 

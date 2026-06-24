@@ -481,10 +481,16 @@ const ProfilAnakMagang = () => {
 
                   {/* Actions */}
                   {log.status === 'TERKIRIM' && user?.role !== 'SUPER_ADMIN' && (
-                    <div className="mt-6 pt-4 border-t border-gray-100">
+                    <div className="mt-6 pt-4 border-t border-gray-100 flex gap-3">
+                      <button 
+                        onClick={() => handleApproveLogbook(log.id, 'REVISI')}
+                        className="flex-1 bg-white border border-red-200 text-red-600 hover:bg-red-50 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg> Tolak / Revisi
+                      </button>
                       <button 
                         onClick={() => handleApproveLogbook(log.id, 'DISETUJUI')}
-                        className="w-full bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
+                        className="flex-1 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
                       >
                         <CheckCircle className="w-4 h-4 mr-2" /> Setujui
                       </button>

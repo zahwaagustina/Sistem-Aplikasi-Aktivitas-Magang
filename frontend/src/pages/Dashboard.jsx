@@ -114,7 +114,7 @@ const Dashboard = () => {
           <StatCard title="Total Disetujui" value={totalDisetujui} icon={CheckCircle} color="bg-emerald-500" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Menunggu Evaluasi */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -141,35 +141,6 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500 text-sm">Tidak ada logbook yang perlu dinilai.</div>
-            )}
-          </div>
-
-          {/* Telat Mengisi / Ditolak */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <Activity className="mr-2 text-red-500" size={20} />
-              Aktivitas Telat / Ditolak
-            </h2>
-            {isLoading ? (
-              <div className="flex justify-center p-4"><div className="w-6 h-6 border-2 border-red-200 border-t-red-600 rounded-full animate-spin"></div></div>
-            ) : telatAtauDitolak.length > 0 ? (
-              <div className="space-y-3">
-                {telatAtauDitolak.slice(0, 5).map(log => (
-                  <div key={log.id} className="p-3 border border-red-100 rounded-lg bg-red-50/50">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-sm text-gray-800">{log.user?.nama}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{new Date(log.tanggal).toLocaleDateString('id-ID')}</p>
-                      </div>
-                      <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-medium">
-                        Telat Mengisi
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500 text-sm">Tidak ada aktivitas telat.</div>
             )}
           </div>
         </div>
@@ -324,7 +295,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 bg-gray-50/80 flex justify-end space-x-3 rounded-b-2xl">
-              <button onClick={() => handleReviewLogbook(selectedLogbook.id, 'TELAT_MENGISI')} className="px-5 py-2.5 bg-white border border-red-200 text-red-600 font-medium rounded-xl hover:bg-red-50 transition-colors shadow-sm">
+              <button onClick={() => handleReviewLogbook(selectedLogbook.id, 'REVISI')} className="px-5 py-2.5 bg-white border border-red-200 text-red-600 font-medium rounded-xl hover:bg-red-50 transition-colors shadow-sm">
                 Tolak / Revisi
               </button>
               <button onClick={() => handleReviewLogbook(selectedLogbook.id, 'DISETUJUI')} className="px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center">
