@@ -113,13 +113,7 @@ const LandingPage = () => {
               <span className="font-extrabold text-xl tracking-tight text-slate-900">PCS Internship Portal</span>
             </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex space-x-8 items-center">
-              <a href="#lowongan-section" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">Posisi tersedia</a>
-              <a href="#" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">Benefit</a>
-              <a href="#" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">Alur seleksi</a>
-              <a href="#" className="text-slate-500 hover:text-slate-900 font-medium text-sm transition-colors">FAQ</a>
-            </div>
+            {/* Desktop Menu removed as per user request */}
 
             {/* CTA Button */}
             <div className="flex items-center gap-6">
