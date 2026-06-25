@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 // Konfigurasi transporter untuk nodemailer
 // Saat environment variables belum diatur, kita akan menggunakan Ethereal Email (layanan testing gratis)
-const createTransporter = async () => {
+export const createTransporter = async () => {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -37,7 +37,7 @@ export const sendVerificationEmail = async (to, token) => {
     const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
 
     const info = await transporter.sendMail({
-      from: '"PCS Internship Portal" <noreply@panduciptasolusi.com>',
+      from: `"PCS Internship Portal" <${process.env.SMTP_USER || 'noreply@panduciptasolusi.com'}>`,
       to: to,
       subject: 'Verifikasi Akun Magang Anda',
       html: `
