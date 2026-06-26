@@ -65,7 +65,8 @@ export const scheduleInterview = async (req, res) => {
       // 1. Ubah status pendaftaran menjadi INTERVIEW
       const pendaftaran = await tx.pendaftaran.update({
         where: { id: parseInt(id) },
-        data: { status: 'INTERVIEW' }
+        data: { status: 'INTERVIEW' },
+        include: { lowongan: true, user: true }
       });
 
       // 2. Simpan jadwal ke tabel Interview (upsert agar bisa update jika sudah ada)
@@ -91,6 +92,25 @@ export const scheduleInterview = async (req, res) => {
           link: '/kandidat/dashboard'
         }
       });
+
+      // 4. Kirim email undangan wawancara beserta link zoom
+      const { sendEmail } = await import('../utils/emailService.js');
+      const formattedDate = new Date(tanggal_waktu).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const emailText = `Halo ${pendaftaran.user.nama},\n\nSelamat! Anda telah lolos tahap administrasi untuk posisi ${pendaftaran.lowongan.posisi}.\n\nAnda diundang untuk mengikuti wawancara pada:\nTanggal & Waktu: ${formattedDate} WIB\nLink Meeting: ${link_meeting}\n\nHarap hadir tepat waktu dan persiapkan diri Anda dengan baik.\n\nSalam,\nTim HR`;
+      const emailHtml = `
+        <p>Halo <strong>${pendaftaran.user.nama}</strong>,</p>
+        <p>Selamat! Anda telah lolos tahap administrasi untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
+        <p>Anda diundang untuk mengikuti wawancara pada:</p>
+        <ul>
+          <li><strong>Tanggal & Waktu:</strong> ${formattedDate} WIB</li>
+          <li><strong>Link Meeting:</strong> <a href="${link_meeting}">${link_meeting}</a></li>
+        </ul>
+        <p>Harap hadir tepat waktu dan persiapkan diri Anda dengan baik.</p>
+        <br/>
+        <p>Salam,</p>
+        <p><strong>Tim HR</strong></p>
+      `;
+      sendEmail(pendaftaran.user.email, 'Undangan Wawancara Magang', emailText, emailHtml);
 
       return { pendaftaran, interview };
     });
@@ -156,10 +176,21 @@ export const submitNilaiInterview = async (req, res) => {
             data: { pendaftaran_id: pendaftaran.id }
           });
           
-          // Kirim email notifikasi secara asinkron (diluar transaksi lebih aman jika gagal, tapi kita panggil fire-and-forget saja)
+          // Kirim email notifikasi secara asinkron
           const user = await tx.user.findUnique({ where: { id: pendaftaran.user_id } });
           const { sendEmail } = await import('../utils/emailService.js');
-          sendEmail(user.email, 'Selamat! Anda Diterima Magang', `Halo ${user.nama},\n\nSelamat! Anda diterima magang. Silakan cek portal untuk tahap Onboarding.`);
+          
+          const emailText = `Halo ${user.nama},\n\nSelamat! Anda telah resmi diterima magang untuk posisi ${pendaftaran.lowongan.posisi}.\n\nSilakan segera login ke portal web sistem aplikasi aktivitas magang untuk melengkapi data dan masuk ke tahap Onboarding.\n\nSalam,\nTim HR`;
+          const emailHtml = `
+            <p>Halo <strong>${user.nama}</strong>,</p>
+            <p>Selamat! Anda telah resmi <strong>diterima magang</strong> untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
+            <p>Silakan segera login ke portal web untuk melengkapi data Anda dan masuk ke tahap <strong>Onboarding</strong>.</p>
+            <br/>
+            <p>Salam,</p>
+            <p><strong>Tim HR</strong></p>
+          `;
+          
+          sendEmail(user.email, 'Selamat! Anda Diterima Magang', emailText, emailHtml);
         }
       }
 
