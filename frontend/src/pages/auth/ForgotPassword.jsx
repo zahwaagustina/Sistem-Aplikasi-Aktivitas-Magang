@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { AlertCircle, CheckCircle } from 'lucide-react';
-import api from '../../api/config'; // Sesuaikan path ini jika perlu, saya anggap axios instance ada di src/api/config.js. Jika tidak, gunakan axios biasa atau path yang sesuai.
+import api from '../../api';
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const location = useLocation();
+  const [email, setEmail] = useState(location.state?.email || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');

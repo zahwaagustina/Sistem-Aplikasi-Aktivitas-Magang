@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
-import api from '../../api/config'; // Sesuaikan path jika perlu
+import api from '../../api';
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
