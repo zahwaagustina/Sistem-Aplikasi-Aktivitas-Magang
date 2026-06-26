@@ -71,3 +71,47 @@ export const sendVerificationEmail = async (to, token) => {
     return false;
   }
 };
+
+export const sendPasswordResetEmail = async (to, token) => {
+  try {
+    const transporter = await createTransporter();
+    
+    // URL frontend tempat user akan reset password
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
+
+    const info = await transporter.sendMail({
+      from: '"PCS Internship Portal" <noreply@panduciptasolusi.com>',
+      to: to,
+      subject: 'Reset Password Akun Anda',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <h2 style="color: #4f46e5; text-align: center;">Reset Password</h2>
+          <p>Halo,</p>
+          <p>Anda menerima email ini karena ada permintaan untuk mengatur ulang password pada akun Anda.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
+          </div>
+          <p>Atau copy link berikut ke browser Anda:</p>
+          <p style="word-break: break-all; color: #64748b; font-size: 14px;">${resetUrl}</p>
+          <br/>
+          <p>Link ini akan kedaluwarsa dalam 60 menit.</p>
+          <p>Jika Anda tidak meminta reset password, Anda dapat mengabaikan email ini.</p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
+          <p style="font-size: 12px; color: #94a3b8; text-align: center;">Email ini dihasilkan secara otomatis, mohon jangan dibalas.</p>
+        </div>
+      `,
+    });
+
+    console.log('Message sent: %s', info.messageId);
+    
+    // Jika menggunakan ethereal, ini akan memberikan link URL untuk melihat email
+    if (info.messageId && !process.env.SMTP_HOST) {
+      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return false;
+  }
+};

@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema } from '../validators/validation.js';
+import { sendPasswordResetEmail } from '../utils/mailer.js';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -168,6 +170,92 @@ export const verifyEmail = async (req, res) => {
     });
 
     res.status(200).json({ message: 'Email berhasil diverifikasi! Silakan login.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
+  }
+};
+
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email wajib diisi' });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { email: email }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Email tidak ditemukan.' });
+    }
+
+    // Buat token random
+    const token = crypto.randomBytes(32).toString('hex');
+    
+    // Masa berlaku 60 menit
+    const expiredAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Simpan token ke database
+    await prisma.passwordResetToken.create({
+      data: {
+        user_id: user.id,
+        email: user.email,
+        token: token,
+        expired_at: expiredAt
+      }
+    });
+
+    // Kirim email
+    const emailSent = await sendPasswordResetEmail(user.email, token);
+
+    if (!emailSent) {
+      return res.status(500).json({ message: 'Gagal mengirim email reset password.' });
+    }
+
+    res.status(200).json({ message: 'Link reset password telah dikirim ke email Anda.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'Token dan password baru wajib diisi' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'Password minimal 8 karakter' });
+    }
+
+    // Cek token di database
+    const resetTokenRecord = await prisma.passwordResetToken.findUnique({
+      where: { token: token }
+    });
+
+    if (!resetTokenRecord || resetTokenRecord.expired_at < new Date()) {
+      return res.status(400).json({ message: 'Link reset password tidak valid atau telah kedaluwarsa.' });
+    }
+
+    // Hash password baru
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password user
+    await prisma.user.update({
+      where: { id: resetTokenRecord.user_id },
+      data: { password: hashedPassword }
+    });
+
+    // Hapus token yang sudah digunakan
+    await prisma.passwordResetToken.delete({
+      where: { id: resetTokenRecord.id }
+    });
+
+    res.status(200).json({ message: 'Password berhasil diubah. Silakan login menggunakan password baru.' });
   } catch (error) {
     res.status(500).json({ message: 'Terjadi kesalahan pada server', error: error.message });
   }

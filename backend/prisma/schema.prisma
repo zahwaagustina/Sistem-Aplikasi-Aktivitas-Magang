@@ -121,6 +121,7 @@ model User {
   auditTrails       AuditTrail[]
   onboardingDimementori Onboarding[]  @relation("OnboardingMentor")
   notifikasi        Notifikasi[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model ProfilKandidat {
@@ -393,3 +394,14 @@ model Notifikasi {
   @@map("notifikasi")
 }
 
+model PasswordResetToken {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  email      String
+  token      String   @unique
+  expired_at DateTime
+  created_at DateTime @default(now())
+
+  @@map("password_reset_tokens")
+}

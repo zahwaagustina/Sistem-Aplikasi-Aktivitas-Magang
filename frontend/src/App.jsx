@@ -10,7 +10,8 @@ import RegisterKandidat from './pages/publik/RegisterKandidat';
 import Login from './pages/Login';
 import DetailLowongan from './pages/publik/DetailLowongan';
 import VerifyEmail from './pages/publik/VerifyEmail';
-
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 // Admin / HR Pages
 import Dashboard from './pages/Dashboard';
 import ManajemenLowongan from './pages/admin/ManajemenLowongan';
@@ -51,6 +52,8 @@ function App() {
         <Route path="/register" element={user ? (user.role === 'KANDIDAT' ? <Navigate to="/#lowongan-section" /> : <Navigate to="/dashboard" />) : <RegisterKandidat />} />
         <Route path="/verify-email" element={user ? (user.role === 'KANDIDAT' ? <Navigate to="/#lowongan-section" /> : <Navigate to="/dashboard" />) : <VerifyEmail />} />
         <Route path="/login" element={user ? (user.role === 'KANDIDAT' ? <Navigate to="/#lowongan-section" /> : <Navigate to="/dashboard" />) : <Login />} />
+        <Route path="/forgot-password" element={user ? <Navigate to="/dashboard" /> : <ForgotPassword />} />
+        <Route path="/reset-password" element={user ? <Navigate to="/dashboard" /> : <ResetPassword />} />
 
         {/* Authenticated Routes */}
         <Route element={<ProtectedRoute />}>
