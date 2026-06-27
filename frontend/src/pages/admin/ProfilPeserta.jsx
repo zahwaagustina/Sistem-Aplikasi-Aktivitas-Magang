@@ -109,13 +109,6 @@ const ProfilPeserta = () => {
                       }`}>
                         {p.status}
                       </span>
-                      <button 
-                        onClick={() => handleTestSertifikat(p.user_id)} 
-                        className="p-1.5 bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors" 
-                        title="Test Generate Sertifikat"
-                      >
-                        <FileText size={16} />
-                      </button>
                     </td>
                   </tr>
                 ))

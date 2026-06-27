@@ -197,8 +197,14 @@ export const generateSertifikat = async (req, res) => {
       doc.font('Helvetica');
     }
 
+    const pendaftaran = await prisma.pendaftaran.findFirst({
+      where: { user_id: targetUserId, status: 'ACCEPTED' },
+      include: { lowongan: { include: { program: true } }, onboarding: true },
+      orderBy: { created_at: 'desc' }
+    });
+
     const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    const effectiveTglMulai = profilMagang.tanggal_mulai || pendaftaran?.lowongan?.program?.tanggal_mulai;
+    const effectiveTglMulai = profilMagang.tanggal_mulai || pendaftaran?.onboarding?.jadwal_orientasi || pendaftaran?.lowongan?.program?.tanggal_mulai;
     const effectiveTglSelesai = profilMagang.tanggal_selesai || pendaftaran?.lowongan?.program?.tanggal_selesai;
 
     const tglMulai = effectiveTglMulai ? new Date(effectiveTglMulai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
@@ -275,7 +281,7 @@ export const testGenerateSertifikat = async (req, res) => {
 
     const pendaftaran = await prisma.pendaftaran.findFirst({
       where: { user_id: targetUserId, status: 'ACCEPTED' },
-      include: { lowongan: { include: { program: true } } },
+      include: { lowongan: { include: { program: true } }, onboarding: true },
       orderBy: { created_at: 'desc' }
     });
 
@@ -310,7 +316,7 @@ export const testGenerateSertifikat = async (req, res) => {
 
     const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
 
-    const effectiveTglMulai = profilMagang.tanggal_mulai || pendaftaran?.lowongan?.program?.tanggal_mulai;
+    const effectiveTglMulai = profilMagang.tanggal_mulai || pendaftaran?.onboarding?.jadwal_orientasi || pendaftaran?.lowongan?.program?.tanggal_mulai;
     const effectiveTglSelesai = profilMagang.tanggal_selesai || pendaftaran?.lowongan?.program?.tanggal_selesai;
 
     const tglMulai = effectiveTglMulai ? new Date(effectiveTglMulai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
