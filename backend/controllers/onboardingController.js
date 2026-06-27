@@ -179,7 +179,7 @@ export const issueLoa = async (req, res) => {
         pendaftaran: { 
           include: { 
             user: { include: { profilKandidat: true } },
-            lowongan: true 
+            lowongan: { include: { program: true } } 
           } 
         } 
       } 
@@ -215,13 +215,20 @@ export const issueLoa = async (req, res) => {
     const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
     const tanggalTerbit = `Tangerang, ${new Date().toLocaleDateString('id-ID', dateOptions)}`;
 
+    const programMulai = onboarding.pendaftaran.lowongan.program?.tanggal_mulai;
+    const programSelesai = onboarding.pendaftaran.lowongan.program?.tanggal_selesai;
+    const periodeFormat = programMulai && programSelesai 
+      ? `${new Date(programMulai).toLocaleDateString('id-ID', dateOptions)} - ${new Date(programSelesai).toLocaleDateString('id-ID', dateOptions)}`
+      : '-';
+
     const pdfData = {
       nomorSurat,
       nama: onboarding.pendaftaran.user.nama,
       npm: npm || onboarding.pendaftaran.user.profilKandidat?.npm || '-',
       universitas: onboarding.pendaftaran.user.profilKandidat?.universitas || '-',
-      tanggalTerbit,
-      adminName: req.user.nama || 'HR Admin'
+      periode: periodeFormat,
+      penempatan: onboarding.pendaftaran.lowongan.divisi || 'PT Pandu Cipta Solusi',
+      tanggalTerbit
     };
 
     const path = await import('path');
