@@ -43,19 +43,29 @@ const generateLoA = async (data, outputPath) => {
     // Y is from bottom to top. 842 is top, 0 is bottom.
     
     // Nomor Surat (Top part)
-    drawText(data.nomorSurat || '', 125, 718); // Adjust Y based on testing
+    // Gambar kotak putih untuk menutupi titik-titik dan tulisan '/PCS/HRD/...' bawaan template
+    firstPage.drawRectangle({
+      x: 135,
+      y: 705,
+      width: 250,
+      height: 15,
+      color: rgb(1, 1, 1),
+    });
+    drawText(data.nomorSurat || '', 140, 707);
 
     // Data Kandidat (Middle part)
-    drawText(data.nama || '', 130, 597);
-    drawText(data.npm || '', 130, 582);
-    drawText(data.universitas || '', 130, 567);
+    drawText(data.nama || '', 160, 574);
+    drawText(data.npm || '', 160, 558);
+    drawText(data.universitas || '', 160, 542);
     
     // Periode & Penempatan
-    drawText(data.periode || '', 130, 452);
-    drawText(data.penempatan || '', 130, 437);
+    drawText(data.periode || '', 160, 482);
+    drawText(data.penempatan || '', 160, 466);
 
     // Tanggal Terbit (Bottom part, above signature)
-    drawText(data.tanggalTerbit || '', 125, 290);
+    // Karena template sudah ada 'Tangerang, ', kita hapus kata 'Tangerang, ' dari variabel
+    const tglSaja = (data.tanggalTerbit || '').replace('Tangerang, ', '');
+    drawText(tglSaja, 140, 245);
 
     // Serialize the PDFDocument to bytes (a Uint8Array)
     const pdfBytes = await pdfDoc.save();

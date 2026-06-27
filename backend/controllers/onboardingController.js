@@ -205,7 +205,7 @@ export const issueLoa = async (req, res) => {
     const currentYear = new Date().getFullYear();
     const count = await prisma.dokumen.count({ where: { tipe: 'LOA' } });
     const nomorUrut = (count + 1).toString().padStart(3, '0');
-    const nomorSurat = `${nomorUrut}/LOA-MAGANG/PCS/${monthRoman[currentMonth]}/${currentYear}`;
+    const nomorSurat = `${nomorUrut}/${monthRoman[currentMonth]}/${currentYear}`;
 
     // Generate PDF
     const { generateLoA } = await import('../utils/pdfGenerator.js');
@@ -215,11 +215,20 @@ export const issueLoa = async (req, res) => {
     const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
     const tanggalTerbit = `Tangerang, ${new Date().toLocaleDateString('id-ID', dateOptions)}`;
 
-    const programMulai = onboarding.pendaftaran.lowongan.program?.tanggal_mulai;
-    const programSelesai = onboarding.pendaftaran.lowongan.program?.tanggal_selesai;
-    const periodeFormat = programMulai && programSelesai 
-      ? `${new Date(programMulai).toLocaleDateString('id-ID', dateOptions)} - ${new Date(programSelesai).toLocaleDateString('id-ID', dateOptions)}`
-      : '-';
+    // Menghitung Tanggal Mulai (Hari Senin berikutnya dari saat LoA diterbitkan)
+    const hariIni = new Date();
+    let daysUntilNextMonday = (1 + 7 - hariIni.getDay()) % 7;
+    if (daysUntilNextMonday === 0) daysUntilNextMonday = 7; // Jika hari ini Senin, mulai Senin depan
+
+    const tglMulai = new Date(hariIni);
+    tglMulai.setDate(tglMulai.getDate() + daysUntilNextMonday);
+
+    // Menghitung Tanggal Selesai (5 bulan dari tanggal mulai)
+    const tglSelesai = new Date(tglMulai);
+    tglSelesai.setMonth(tglSelesai.getMonth() + 5);
+    tglSelesai.setDate(tglSelesai.getDate() - 1); // Kurangi 1 hari agar genap 5 bulan
+
+    const periodeFormat = `${tglMulai.toLocaleDateString('id-ID', dateOptions)} - ${tglSelesai.toLocaleDateString('id-ID', dateOptions)}`;
 
     const pdfData = {
       nomorSurat,

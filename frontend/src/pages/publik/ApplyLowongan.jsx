@@ -110,13 +110,13 @@ const ApplyLowongan = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Institusi / Kampus</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Institusi / Kampus / Sekolah</label>
                 <input type="text" name="universitas" required value={formData.universitas} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 placeholder-slate-400 bg-white/80 transition-all outline-none" placeholder="Universitas / Sekolah" />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">NPM / NIM</label>
-                <input type="text" name="npm" required value={formData.npm} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 placeholder-slate-400 bg-white/80 transition-all outline-none" placeholder="Nomor Induk Mahasiswa" />
+                <label className="block text-sm font-bold text-slate-700 mb-2">NPM / NIM / NISN</label>
+                <input type="text" name="npm" required value={formData.npm} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 placeholder-slate-400 bg-white/80 transition-all outline-none" placeholder="Nomor Induk / NISN" />
               </div>
 
               <div>
@@ -127,12 +127,19 @@ const ApplyLowongan = () => {
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">Semester / Kelas</label>
                 <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white/80 transition-all outline-none">
-                  <option value="" disabled>Pilih semester</option>
-                  <option value="5">Semester 5</option>
-                  <option value="6">Semester 6</option>
-                  <option value="7">Semester 7</option>
-                  <option value="8">Semester 8</option>
-                  <option value="Lulus">Lulus / Fresh Graduate</option>
+                  <option value="" disabled>Pilih semester / kelas</option>
+                  <optgroup label="--- Siswa (SMA/SMK) ---">
+                    <option value="Kelas 10">Kelas 10</option>
+                    <option value="Kelas 11">Kelas 11</option>
+                    <option value="Kelas 12">Kelas 12</option>
+                  </optgroup>
+                  <optgroup label="--- Mahasiswa ---">
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                    <option value="7">Semester 7</option>
+                    <option value="8">Semester 8</option>
+                    <option value="Lulus">Lulus / Fresh Graduate</option>
+                  </optgroup>
                 </select>
               </div>
             </div>

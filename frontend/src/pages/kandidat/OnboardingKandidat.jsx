@@ -21,6 +21,7 @@ const OnboardingKandidat = () => {
   const [suratPengantarFile, setSuratPengantarFile] = useState(null);
   const [suratKerjasamaFile, setSuratKerjasamaFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     fetchOnboarding();
@@ -92,10 +93,15 @@ const OnboardingKandidat = () => {
     return false; // Sudah upload dan tidak direvisi
   };
 
-  const handleUploadDocs = async () => {
+  const handleUploadDocs = () => {
     if (isDocumentNeedsUpload('KTP') && !ktpFile) return alert('Pilih dokumen KTM/KTP untuk diunggah');
     if (isDocumentNeedsUpload('SURAT_PENGANTAR') && !suratPengantarFile) return alert('Pilih Surat Pengantar untuk diunggah');
     
+    setShowConfirmModal(true);
+  };
+
+  const executeUploadDocs = async () => {
+    setShowConfirmModal(false);
     setUploading(true);
     const formData = new FormData();
     if (ktpFile) formData.append('ktp', ktpFile);
@@ -148,6 +154,7 @@ const OnboardingKandidat = () => {
 
   const isLoaIssuedOrBeyond = STEPS.findIndex(s => s.id === onboarding.status) >= STEPS.findIndex(s => s.id === 'LOA_ISSUED');
   const effectiveStatus = (!onboarding.is_loa_downloaded && isLoaIssuedOrBeyond) ? 'LOA_ISSUED' : onboarding.status;
+  const hasSubmittedDocs = onboarding.status === 'DOCUMENT_VERIFICATION' && dokumen.find(d => d.tipe === 'KTP');
 
   let currentStepIndex = STEPS.findIndex(s => s.id === effectiveStatus);
   if (['CHECKLIST_IN_PROGRESS', 'ACCOUNT_CREATED', 'PLACEMENT_ASSIGNED'].includes(effectiveStatus)) {
@@ -399,15 +406,15 @@ const OnboardingKandidat = () => {
               </div>
             </div>
 
-            {(isDocumentNeedsUpload('KTP') || isDocumentNeedsUpload('SURAT_PENGANTAR') || isDocumentNeedsUpload('SURAT_KERJASAMA')) && (
+            {(effectiveStatus === 'DOCUMENT_VERIFICATION' || effectiveStatus === 'DOCUMENT_REVISION') && (
               <div className="mt-8 flex justify-end pr-4">
                 <button
                   onClick={handleUploadDocs}
-                  disabled={uploading || (isDocumentNeedsUpload('KTP') && !ktpFile) || (isDocumentNeedsUpload('SURAT_PENGANTAR') && !suratPengantarFile)}
-                  className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-md shadow-indigo-200 transition-colors disabled:opacity-50"
+                  disabled={hasSubmittedDocs || uploading || (isDocumentNeedsUpload('KTP') && !ktpFile) || (isDocumentNeedsUpload('SURAT_PENGANTAR') && !suratPengantarFile)}
+                  className={`inline-flex items-center px-6 py-3 rounded-xl font-medium shadow-md transition-colors ${hasSubmittedDocs ? 'bg-indigo-400 text-white cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'} disabled:opacity-70`}
                 >
-                  <UploadCloud size={20} className="mr-2" />
-                  {uploading ? 'Mengunggah...' : 'Kirim Dokumen Verifikasi'}
+                  {hasSubmittedDocs ? <CheckCircle size={20} className="mr-2" /> : <UploadCloud size={20} className="mr-2" />}
+                  {uploading ? 'Mengunggah...' : hasSubmittedDocs ? 'Dokumen Telah Dikirim' : 'Kirim Dokumen Verifikasi'}
                 </button>
               </div>
             )}
@@ -484,6 +491,35 @@ const OnboardingKandidat = () => {
           </div>
         )}
       </div>
+
+      {/* Custom Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
+              <Info className="text-indigo-600" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Kirim Dokumen Verifikasi?</h3>
+            <p className="text-gray-500 mb-6">
+              Apakah Anda yakin ingin mengirim dokumen ini? Dokumen yang telah dikirim akan langsung diperiksa oleh tim HR dan tidak dapat diubah lagi.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={executeUploadDocs}
+                className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 shadow-sm transition-colors"
+              >
+                Ya, Kirim Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
