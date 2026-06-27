@@ -43,7 +43,7 @@ const generateLoA = async (data, outputPath) => {
     // Y is from bottom to top. 842 is top, 0 is bottom.
 
     // Nomor Surat (Top part)
-    drawText(data.nomorSurat || '', 130, 714);
+    drawText(data.nomorSurat || '', 122, 714);
 
     // Data Kandidat (Middle part)
     drawText(data.nama || '', 156, 593);

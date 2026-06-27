@@ -177,11 +177,11 @@ const OnboardingDashboard = () => {
                       {item.status === 'DOCUMENT_VERIFICATION' && (
                         <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
                       )}
-                      {['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED', 'COMPLETED'].includes(item.status) && (
-                        <button onClick={() => handleIssueLoa(item)} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">
-                          {item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') ? 'Generate Ulang LoA' : 'Terbitkan LoA'}
-                        </button>
-                      )}
+                      {!item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') && ['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED'].includes(item.status) ? (
+                        <button onClick={() => handleIssueLoa(item)} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
+                      ) : item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') ? (
+                        <button onClick={() => handleIssueLoa(item)} className="whitespace-nowrap text-sm bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-medium">Cetak Ulang LoA</button>
+                      ) : null}
                       {(item.status === 'LOA_ISSUED' || item.status === 'PLACEMENT_ASSIGNED' || item.status === 'ACCOUNT_CREATED') && (
                         <button onClick={() => openModal(item, 'PLACEMENT')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Atur Penempatan</button>
                       )}
