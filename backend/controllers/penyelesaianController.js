@@ -193,6 +193,16 @@ export const generateSertifikat = async (req, res) => {
     // Reset font back to default (Helvetica)
     doc.font('Helvetica');
     
+    // Format Tanggal
+    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+    const tglMulai = profilMagang.tanggal_mulai ? new Date(profilMagang.tanggal_mulai).toLocaleDateString('id-ID', dateOptions) : '-';
+    const tglSelesai = profilMagang.tanggal_selesai ? new Date(profilMagang.tanggal_selesai).toLocaleDateString('id-ID', dateOptions) : '-';
+
+    const deskripsiText = `${tglMulai} - ${tglSelesai}`;
+    
+    const descY = nameY + 65; // Sesuaikan (Y) ini jika kurang pas posisinya terhadap text di background
+    doc.fontSize(16).fillColor('#374151').text(deskripsiText, 0, descY, { align: 'center', width: doc.page.width });
+
     if (!fs.existsSync(templatePath)) {
       doc.fontSize(12).fillColor('#1f2937').text('Ketua Panitia / Mentor', doc.page.width - 250, 480);
     }
@@ -239,6 +249,86 @@ export const generateSertifikat = async (req, res) => {
   } catch (error) {
     console.error('Generate sertifikat error:', error);
     res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+  }
+};
+
+export const testGenerateSertifikat = async (req, res) => {
+  try {
+    const targetUserId = parseInt(req.params.userId);
+
+    const profilMagang = await prisma.profilMagang.findUnique({
+      where: { user_id: targetUserId },
+      include: { user: true }
+    });
+
+    if (!profilMagang) {
+      return res.status(404).json({ message: 'Profil magang tidak ditemukan' });
+    }
+
+    // Generate PDF Sertifikat
+    const sertifikatPathName = `sertifikat-test-${targetUserId}-${Date.now()}.pdf`;
+    const fullPath = path.join(__dirname, '..', 'uploads', 'dokumen', sertifikatPathName);
+    
+    const doc = new PDFDocument({
+      layout: 'landscape',
+      size: 'A4',
+      margin: 0
+    });
+
+    doc.pipe(fs.createWriteStream(fullPath));
+
+    const templatePath = path.join(__dirname, '..', 'uploads', 'template_sertifikat.png');
+    if (fs.existsSync(templatePath)) {
+      doc.image(templatePath, 0, 0, { width: doc.page.width, height: doc.page.height });
+    } else {
+      doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
+    }
+
+    const nameY = 265;
+    doc.font('Times-Bold').fontSize(38).fillColor('#1e1b4b').text(profilMagang.user.nama.toUpperCase(), 0, nameY, { align: 'center', width: doc.page.width });
+    
+    doc.font('Helvetica');
+    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+    const tglMulai = profilMagang.tanggal_mulai ? new Date(profilMagang.tanggal_mulai).toLocaleDateString('id-ID', dateOptions) : '-';
+    const tglSelesai = profilMagang.tanggal_selesai ? new Date(profilMagang.tanggal_selesai).toLocaleDateString('id-ID', dateOptions) : '-';
+
+    // Posisi Y untuk baris kedua ("... sampai dengan ... dengan baik")
+    const dateY = 368; 
+    
+    // Teks Tanggal Mulai diletakkan di celah pertama
+    doc.fontSize(15).fillColor('#374151').text(tglMulai, 150, dateY, { align: 'center', width: 220 });
+    
+    // Teks Tanggal Selesai diletakkan di celah kedua
+    doc.fontSize(15).fillColor('#374151').text(tglSelesai, 480, dateY, { align: 'center', width: 200 });
+
+    doc.end();
+
+    const dbPath = `/uploads/dokumen/${sertifikatPathName}`;
+    
+    // Cek jika sudah pernah di-generate sebelumnya
+    const existingSertifikat = await prisma.dokumen.findFirst({
+        where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
+    });
+
+    if (existingSertifikat) {
+        await prisma.dokumen.update({
+            where: { id: existingSertifikat.id },
+            data: { file_path: dbPath }
+        });
+    } else {
+        await prisma.dokumen.create({
+            data: {
+                user_id: targetUserId,
+                tipe: 'SERTIFIKAT',
+                nama_file: `Test-Sertifikat.pdf`,
+                file_path: dbPath
+            }
+        });
+    }
+
+    res.json({ message: 'Sertifikat test berhasil di-generate', file_path: dbPath });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal test generate sertifikat', error: error.message });
   }
 };
 

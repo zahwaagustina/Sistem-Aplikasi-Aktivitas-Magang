@@ -81,6 +81,23 @@ const ProfilAnakMagang = () => {
     setIsConfirmSelesaiOpen(true);
   };
 
+  const handleTestSertifikat = async () => {
+    try {
+      const toastId = toast.loading('Memproses test generate sertifikat...');
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`http://localhost:5000/api/test-generate-sertifikat/${userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.dismiss(toastId);
+      if (response.data?.file_path) {
+        window.open(`http://localhost:5000${response.data.file_path}`, '_blank');
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Gagal test sertifikat: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
   const executeSelesaikan = async () => {
     setIsConfirmSelesaiOpen(false);
     try {
@@ -350,6 +367,13 @@ const ProfilAnakMagang = () => {
                 >
                   <Award className="w-4 h-4" />
                   {hasFinalEval ? 'Evaluasi Telah Dikirim' : !hasLaporan ? 'Menunggu Laporan' : 'Beri Evaluasi'}
+                </button>
+                <button 
+                  onClick={handleTestSertifikat}
+                  className="bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 px-5 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  Coba Cetak Sertifikat
                 </button>
                 {profil.status !== 'SELESAI' && (
                   <button 

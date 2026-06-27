@@ -29,7 +29,12 @@ export const authenticateToken = async (req, res, next) => {
 
 export const authorizeRole = (roles) => {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    console.log('AUTHORIZE_ROLE CHECK:', { 
+      userRole: req.user?.role, 
+      allowedRoles: roles, 
+      isArray: Array.isArray(roles) 
+    });
+    if (!req.user || (Array.isArray(roles) ? !roles.includes(req.user.role) : !roles.includes(req.user.role))) {
       return res.status(403).json({ message: 'Forbidden: Insufficient privileges' });
     }
     next();

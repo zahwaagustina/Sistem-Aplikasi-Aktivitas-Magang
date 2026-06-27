@@ -124,15 +124,15 @@ const Profile = () => {
 
           {/* Action Buttons (Right Aligned) */}
           <div className="flex justify-end pt-4 space-x-3">
-            {user?.surat_keterangan ? (
-              <a href={`http://localhost:5000${user.surat_keterangan}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">
+            {user?.dokumen?.find(d => d.tipe === 'LOA') ? (
+              <a href={`http://localhost:5000${user.dokumen.find(d => d.tipe === 'LOA').file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">
                 <FileText size={16} />
-                <span>Unduh Surat</span>
+                <span>Unduh LoA</span>
               </a>
             ) : (
-              <button disabled className="flex items-center space-x-2 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed" title="Surat keterangan belum diunggah oleh pembimbing">
+              <button disabled className="flex items-center space-x-2 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed" title="LoA belum diterbitkan">
                 <FileText size={16} />
-                <span>Surat belum tersedia</span>
+                <span>LoA belum tersedia</span>
               </button>
             )}
             <button onClick={() => setIsEditing(true)} className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
@@ -145,7 +145,7 @@ const Profile = () => {
           <div className="mt-8 md:mt-2">
             <h1 className="text-3xl font-bold text-gray-900">{user?.nama} {user?.nickname ? `(${user?.nickname})` : ''}</h1>
             <p className="text-gray-600 mt-1">
-              {user?.jurusan || 'Jurusan -'} · {user?.universitas || 'Universitas -'} · {user?.angkatan || 'Angkatan -'} {user?.semester ? `(Semester ${user?.semester})` : ''}
+              {user?.jurusan || 'Jurusan -'} · {user?.universitas || 'Universitas -'} {user?.semester ? `· (Semester ${user?.semester})` : ''}
             </p>
             <div className="mt-3 flex items-center space-x-2">
               <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium">
@@ -249,10 +249,7 @@ const Profile = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Jurusan</label>
                   <input type="text" name="jurusan" value={formData.jurusan} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Angkatan</label>
-                  <input type="text" name="angkatan" value={formData.angkatan} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
                   <input type="text" name="semester" value={formData.semester} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />

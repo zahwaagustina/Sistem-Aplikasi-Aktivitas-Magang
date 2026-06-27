@@ -215,13 +215,18 @@ export const issueLoa = async (req, res) => {
     const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
     const tanggalTerbit = `Tangerang, ${new Date().toLocaleDateString('id-ID', dateOptions)}`;
 
-    // Menghitung Tanggal Mulai (Hari Senin berikutnya dari saat LoA diterbitkan)
-    const hariIni = new Date();
-    let daysUntilNextMonday = (1 + 7 - hariIni.getDay()) % 7;
-    if (daysUntilNextMonday === 0) daysUntilNextMonday = 7; // Jika hari ini Senin, mulai Senin depan
-
-    const tglMulai = new Date(hariIni);
-    tglMulai.setDate(tglMulai.getDate() + daysUntilNextMonday);
+    // Menghitung Tanggal Mulai
+    let tglMulai;
+    if (onboarding.jadwal_orientasi) {
+      tglMulai = new Date(onboarding.jadwal_orientasi);
+    } else {
+      // Jika belum ada jadwal orientasi, default ke hari Senin terdekat
+      const hariIni = new Date();
+      let daysUntilNextMonday = (1 + 7 - hariIni.getDay()) % 7;
+      if (daysUntilNextMonday === 0) daysUntilNextMonday = 7;
+      tglMulai = new Date(hariIni);
+      tglMulai.setDate(tglMulai.getDate() + daysUntilNextMonday);
+    }
 
     // Menghitung Tanggal Selesai (5 bulan dari tanggal mulai)
     const tglSelesai = new Date(tglMulai);
@@ -244,6 +249,20 @@ export const issueLoa = async (req, res) => {
     const path = await import('path');
     const fullPath = path.resolve(filepath);
     await generateLoA(pdfData, fullPath);
+
+    // Simpan tanggal_mulai dan tanggal_selesai ke ProfilMagang
+    await prisma.profilMagang.upsert({
+      where: { user_id: onboarding.pendaftaran.user.id },
+      update: {
+        tanggal_mulai: tglMulai,
+        tanggal_selesai: tglSelesai
+      },
+      create: {
+        user_id: onboarding.pendaftaran.user.id,
+        tanggal_mulai: tglMulai,
+        tanggal_selesai: tglSelesai
+      }
+    });
 
     // Hapus dokumen LOA yang lama jika ada (untuk regenerasi)
     await prisma.dokumen.deleteMany({
@@ -470,6 +489,19 @@ export const scheduleOrientation = async (req, res) => {
         status: 'COMPLETED'
       },
       include: { pendaftaran: { include: { user: true } } }
+    });
+
+    const tglMulai = new Date(jadwal_orientasi);
+    const tglSelesai = new Date(tglMulai);
+    tglSelesai.setMonth(tglSelesai.getMonth() + 5);
+    tglSelesai.setDate(tglSelesai.getDate() - 1);
+
+    await prisma.profilMagang.update({
+      where: { user_id: updated.pendaftaran.user.id },
+      data: {
+        tanggal_mulai: tglMulai,
+        tanggal_selesai: tglSelesai
+      }
     });
 
     await prisma.notifikasi.create({

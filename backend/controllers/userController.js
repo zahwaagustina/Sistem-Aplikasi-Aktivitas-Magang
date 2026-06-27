@@ -84,7 +84,8 @@ export const getProfile = async (req, res) => {
       where: { id: userId },
       include: {
         profilMagang: true,
-        profilKandidat: true
+        profilKandidat: true,
+        dokumen: true
       }
     });
 

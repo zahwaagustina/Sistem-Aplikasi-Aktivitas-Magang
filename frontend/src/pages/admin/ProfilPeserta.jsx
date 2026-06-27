@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, GraduationCap, Building, MapPin, Search } from 'lucide-react';
+import { Users, GraduationCap, Building, MapPin, Search, FileText } from 'lucide-react';
 
 const ProfilPeserta = () => {
   const [peserta, setPeserta] = useState([]);
@@ -26,9 +26,22 @@ const ProfilPeserta = () => {
   };
 
   const filteredPeserta = peserta.filter(p => 
-    p.user?.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.divisi?.toLowerCase().includes(searchTerm.toLowerCase())
+    (p.user?.nama || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.id_magang || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleTestSertifikat = async (userId) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/test-generate-sertifikat/${userId}`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (response.data?.file_path) {
+        window.open(`http://localhost:5000${response.data.file_path}`, '_blank');
+      }
+    } catch (error) {
+      alert('Gagal test sertifikat: ' + (error.response?.data?.message || error.message));
+    }
+  };
 
   return (
     <div className="p-6">
@@ -84,17 +97,25 @@ const ProfilPeserta = () => {
                     </td>
                     <td className="py-2.5 px-3">
                       <div className="text-xs text-gray-800">
-                        {p.tanggal_mulai ? new Date(p.tanggal_mulai).toLocaleDateString('id-ID') : '-'} <span className="text-gray-400 mx-1">s/d</span> 
-                        {p.tanggal_selesai ? new Date(p.tanggal_selesai).toLocaleDateString('id-ID') : '-'}
+                        {p.tanggal_mulai ? new Date(p.tanggal_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'} 
+                        <br/><span className="text-gray-400">s/d</span><br/> 
+                        {p.tanggal_selesai ? new Date(p.tanggal_selesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3">
+                    <td className="py-2.5 px-3 flex items-center space-x-2">
                       <span className={`px-2 py-1 rounded-md text-[11px] font-semibold tracking-wide uppercase ${
                         p.status === 'AKTIF' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
                         p.status === 'SELESAI' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-gray-100 text-gray-700 border border-gray-200'
                       }`}>
                         {p.status}
                       </span>
+                      <button 
+                        onClick={() => handleTestSertifikat(p.user_id)} 
+                        className="p-1.5 bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors" 
+                        title="Test Generate Sertifikat"
+                      >
+                        <FileText size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))

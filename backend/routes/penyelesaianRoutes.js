@@ -1,5 +1,5 @@
 import express from 'express';
-import { uploadLaporan, getPenyelesaianStatus, generateSertifikat, uploadSertifikatManual } from '../controllers/penyelesaianController.js';
+import { uploadLaporan, getPenyelesaianStatus, generateSertifikat, uploadSertifikatManual, testGenerateSertifikat } from '../controllers/penyelesaianController.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
@@ -25,13 +25,16 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Rute untuk Peserta Magang
-router.get('/magang/status', authenticateToken, authorizeRole('MAGANG'), getPenyelesaianStatus);
-router.post('/magang/upload-laporan', authenticateToken, authorizeRole('MAGANG'), upload.single('laporan'), uploadLaporan);
+router.get('/magang/status', authenticateToken, authorizeRole(['MAGANG']), getPenyelesaianStatus);
+router.post('/magang/upload-laporan', authenticateToken, authorizeRole(['MAGANG']), upload.single('laporan'), uploadLaporan);
+
+// Rute untuk testing generate sertifikat
+router.post('/test-generate-sertifikat/:userId', authenticateToken, authorizeRole(['ADMIN', 'SUPER_ADMIN', 'HR', 'MENTOR']), testGenerateSertifikat);
 
 // Rute untuk Mentor (Generate Sertifikat Otomatis - Opsional/Deprecated)
-router.post('/mentor/generate-sertifikat/:userId', authenticateToken, authorizeRole('MENTOR', 'SUPER_ADMIN'), generateSertifikat);
+router.post('/mentor/generate-sertifikat/:userId', authenticateToken, authorizeRole(['MENTOR', 'SUPER_ADMIN']), generateSertifikat);
 
 // Rute untuk Mentor (Upload Sertifikat Manual)
-router.post('/mentor/upload-sertifikat/:userId', authenticateToken, authorizeRole('MENTOR', 'SUPER_ADMIN'), upload.single('sertifikat'), uploadSertifikatManual);
+router.post('/mentor/upload-sertifikat/:userId', authenticateToken, authorizeRole(['MENTOR', 'SUPER_ADMIN']), upload.single('sertifikat'), uploadSertifikatManual);
 
 export default router;
