@@ -205,7 +205,7 @@ export const issueLoa = async (req, res) => {
     const currentYear = new Date().getFullYear();
     const count = await prisma.dokumen.count({ where: { tipe: 'LOA' } });
     const nomorUrut = (count + 1).toString().padStart(3, '0');
-    const nomorSurat = `${nomorUrut}/${monthRoman[currentMonth]}/${currentYear}`;
+    const nomorSurat = `${nomorUrut}/PCS/HRD/${monthRoman[currentMonth]}/${currentYear}`;
 
     // Generate PDF
     const { generateLoA } = await import('../utils/pdfGenerator.js');
@@ -234,6 +234,7 @@ export const issueLoa = async (req, res) => {
       nomorSurat,
       nama: onboarding.pendaftaran.user.nama,
       npm: npm || onboarding.pendaftaran.user.profilKandidat?.npm || '-',
+      jurusan: onboarding.pendaftaran.user.profilKandidat?.jurusan || '-',
       universitas: onboarding.pendaftaran.user.profilKandidat?.universitas || '-',
       periode: periodeFormat,
       penempatan: onboarding.pendaftaran.lowongan.divisi || 'PT Pandu Cipta Solusi',

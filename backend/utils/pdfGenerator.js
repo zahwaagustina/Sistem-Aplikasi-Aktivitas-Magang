@@ -14,8 +14,8 @@ const generateLoA = async (data, outputPath) => {
     const existingPdfBytes = fs.readFileSync(templatePath);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
-    // Embed Helvetica font
-    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    // Embed Times Roman font
+    const timesFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
     // Get the first page of the document
     const pages = pdfDoc.getPages();
@@ -26,7 +26,7 @@ const generateLoA = async (data, outputPath) => {
     // Since the page is usually A4 (595.28 x 841.89 points), Y goes from 0 (bottom) to 842 (top).
     // We will guess the coordinates based on typical A4 letterhead.
     
-    const textSize = 11;
+    const textSize = 12;
     const color = rgb(0, 0, 0);
 
     const drawText = (text, x, y) => {
@@ -34,7 +34,7 @@ const generateLoA = async (data, outputPath) => {
         x,
         y,
         size: textSize,
-        font: helveticaFont,
+        font: timesFont,
         color,
       });
     };
@@ -43,29 +43,22 @@ const generateLoA = async (data, outputPath) => {
     // Y is from bottom to top. 842 is top, 0 is bottom.
     
     // Nomor Surat (Top part)
-    // Gambar kotak putih untuk menutupi titik-titik dan tulisan '/PCS/HRD/...' bawaan template
-    firstPage.drawRectangle({
-      x: 135,
-      y: 705,
-      width: 250,
-      height: 15,
-      color: rgb(1, 1, 1),
-    });
-    drawText(data.nomorSurat || '', 140, 707);
+    drawText(data.nomorSurat || '', 130, 715);
 
     // Data Kandidat (Middle part)
-    drawText(data.nama || '', 160, 574);
-    drawText(data.npm || '', 160, 558);
-    drawText(data.universitas || '', 160, 542);
+    drawText(data.nama || '', 150, 600);
+    drawText(data.npm || '', 150, 584);
+    drawText(data.jurusan || '', 150, 568);
+    drawText(data.universitas || '', 150, 552);
     
     // Periode & Penempatan
-    drawText(data.periode || '', 160, 482);
-    drawText(data.penempatan || '', 160, 466);
+    drawText(data.periode || '', 150, 501);
+    drawText(data.penempatan || '', 150, 485);
 
     // Tanggal Terbit (Bottom part, above signature)
     // Karena template sudah ada 'Tangerang, ', kita hapus kata 'Tangerang, ' dari variabel
     const tglSaja = (data.tanggalTerbit || '').replace('Tangerang, ', '');
-    drawText(tglSaja, 140, 245);
+    drawText(tglSaja, 135, 242);
 
     // Serialize the PDFDocument to bytes (a Uint8Array)
     const pdfBytes = await pdfDoc.save();
