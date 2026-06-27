@@ -16,7 +16,7 @@ export const uploadLaporan = async (req, res) => {
     }
 
     const file_path = `/uploads/laporan/${req.file.filename}`;
-    
+
     // Cek apakah sudah ada laporan akhir
     const existingDokumen = await prisma.dokumen.findFirst({
       where: { user_id: userId, tipe: 'LAPORAN_AKHIR' }
@@ -159,7 +159,7 @@ export const generateSertifikat = async (req, res) => {
     // Generate PDF Sertifikat
     const sertifikatPathName = `sertifikat-${targetUserId}-${Date.now()}.pdf`;
     const fullPath = path.join(__dirname, '..', 'uploads', 'dokumen', sertifikatPathName);
-    
+
     const doc = new PDFDocument({
       layout: 'landscape',
       size: 'A4',
@@ -180,28 +180,36 @@ export const generateSertifikat = async (req, res) => {
     }
 
     // Coordinates mapping
-    const nameY = 265; // Posisi vertikal tepat di atas garis panjang
-    
+    const nameY = 290; // Posisi vertikal tepat di atas garis panjang
+
     // Hanya cetak "Dengan bangga diberikan kepada" jika tidak ada template
     if (!fs.existsSync(templatePath)) {
       doc.fontSize(14).fillColor('#111827').text('Dengan bangga diberikan kepada :', 0, 220, { align: 'center', width: doc.page.width });
     }
-    
-    // Cetak Nama Peserta secara rata tengah (Center) dengan font formal yang elegan
-    doc.font('Times-Bold').fontSize(38).fillColor('#1e1b4b').text(profilMagang.user.nama.toUpperCase(), 0, nameY, { align: 'center', width: doc.page.width });
-    
-    // Reset font back to default (Helvetica)
-    doc.font('Helvetica');
-    
-    // Format Tanggal
-    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    const tglMulai = profilMagang.tanggal_mulai ? new Date(profilMagang.tanggal_mulai).toLocaleDateString('id-ID', dateOptions) : '-';
-    const tglSelesai = profilMagang.tanggal_selesai ? new Date(profilMagang.tanggal_selesai).toLocaleDateString('id-ID', dateOptions) : '-';
 
-    const deskripsiText = `${tglMulai} - ${tglSelesai}`;
-    
-    const descY = nameY + 65; // Sesuaikan (Y) ini jika kurang pas posisinya terhadap text di background
-    doc.fontSize(16).fillColor('#374151').text(deskripsiText, 0, descY, { align: 'center', width: doc.page.width });
+    // Cetak Nama Peserta secara rata tengah (Center) dengan font formal yang elegan
+    doc.font('Times-Bold').fontSize(40).fillColor('#1e1b4b').text(profilMagang.user.nama.toUpperCase(), 0, nameY, { align: 'center', width: doc.page.width });
+
+    const calibriPath = path.join(__dirname, '..', 'uploads', 'fonts', 'calibri.ttf');
+    if (fs.existsSync(calibriPath)) {
+      doc.font(calibriPath);
+    } else {
+      doc.font('Helvetica');
+    }
+
+    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+    const effectiveTglMulai = profilMagang.tanggal_mulai || pendaftaran?.lowongan?.program?.tanggal_mulai;
+    const effectiveTglSelesai = profilMagang.tanggal_selesai || pendaftaran?.lowongan?.program?.tanggal_selesai;
+
+    const tglMulai = effectiveTglMulai ? new Date(effectiveTglMulai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
+    const tglSelesai = effectiveTglSelesai ? new Date(effectiveTglSelesai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
+
+    // Teks kalimat lengkap karena background akan dikosongkan
+    const deskripsiText = `Telah menyelesaikan program magang di PT. Pandu Cipta Solusi terhitung sejak\n${tglMulai} sampai dengan ${tglSelesai} dengan baik`;
+
+    // Posisi Y disesuaikan kira-kira di bawah nama
+    const descY = nameY + 90;
+    doc.fontSize(13).fillColor('#374151').text(deskripsiText, 0, descY, { align: 'center', width: doc.page.width, lineGap: 4 });
 
     if (!fs.existsSync(templatePath)) {
       doc.fontSize(12).fillColor('#1f2937').text('Ketua Panitia / Mentor', doc.page.width - 250, 480);
@@ -213,27 +221,27 @@ export const generateSertifikat = async (req, res) => {
 
     // Cek jika sudah pernah di-generate sebelumnya
     const existingSertifikat = await prisma.dokumen.findFirst({
-        where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
+      where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
     });
 
     let sertifikatRecord;
     if (existingSertifikat) {
-        sertifikatRecord = await prisma.dokumen.update({
-            where: { id: existingSertifikat.id },
-            data: {
-                nama_file: `Sertifikat-${profilMagang.user.nama.replace(/\s+/g, '_')}.pdf`,
-                file_path: dbPath
-            }
-        });
+      sertifikatRecord = await prisma.dokumen.update({
+        where: { id: existingSertifikat.id },
+        data: {
+          nama_file: `Sertifikat-${profilMagang.user.nama.replace(/\s+/g, '_')}.pdf`,
+          file_path: dbPath
+        }
+      });
     } else {
-        sertifikatRecord = await prisma.dokumen.create({
-            data: {
-                user_id: targetUserId,
-                tipe: 'SERTIFIKAT',
-                nama_file: `Sertifikat-${profilMagang.user.nama.replace(/\s+/g, '_')}.pdf`,
-                file_path: dbPath
-            }
-        });
+      sertifikatRecord = await prisma.dokumen.create({
+        data: {
+          user_id: targetUserId,
+          tipe: 'SERTIFIKAT',
+          nama_file: `Sertifikat-${profilMagang.user.nama.replace(/\s+/g, '_')}.pdf`,
+          file_path: dbPath
+        }
+      });
     }
 
     await prisma.notifikasi.create({
@@ -274,7 +282,7 @@ export const testGenerateSertifikat = async (req, res) => {
     // Generate PDF Sertifikat
     const sertifikatPathName = `sertifikat-test-${targetUserId}-${Date.now()}.pdf`;
     const fullPath = path.join(__dirname, '..', 'uploads', 'dokumen', sertifikatPathName);
-    
+
     const doc = new PDFDocument({
       layout: 'landscape',
       size: 'A4',
@@ -290,52 +298,54 @@ export const testGenerateSertifikat = async (req, res) => {
       doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
     }
 
-    const nameY = 265;
-    doc.font('Times-Bold').fontSize(38).fillColor('#1e1b4b').text(profilMagang.user.nama.toUpperCase(), 0, nameY, { align: 'center', width: doc.page.width });
-    
-    doc.font('Helvetica');
+    const nameY = 290;
+    doc.font('Times-Bold').fontSize(40).fillColor('#1e1b4b').text(profilMagang.user.nama.toUpperCase(), 0, nameY, { align: 'center', width: doc.page.width });
+
+    const calibriPath = path.join(__dirname, '..', 'uploads', 'fonts', 'calibri.ttf');
+    if (fs.existsSync(calibriPath)) {
+      doc.font(calibriPath);
+    } else {
+      doc.font('Helvetica');
+    }
+
     const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    
+
     const effectiveTglMulai = profilMagang.tanggal_mulai || pendaftaran?.lowongan?.program?.tanggal_mulai;
     const effectiveTglSelesai = profilMagang.tanggal_selesai || pendaftaran?.lowongan?.program?.tanggal_selesai;
 
     const tglMulai = effectiveTglMulai ? new Date(effectiveTglMulai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
     const tglSelesai = effectiveTglSelesai ? new Date(effectiveTglSelesai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
 
-    // Posisi Y untuk baris kedua ("... sampai dengan ... dengan baik")
-    const dateY = 405; 
-    
-    // Teks Tanggal Mulai diletakkan di celah pertama
-    doc.rect(180, dateY - 5, 200, 25).fill('red');
-    doc.fontSize(16).fillColor('white').text(tglMulai, 180, dateY, { align: 'center', width: 200 });
-    
-    // Teks Tanggal Selesai diletakkan di celah kedua
-    doc.rect(460, dateY - 5, 200, 25).fill('red');
-    doc.fontSize(16).fillColor('white').text(tglSelesai, 460, dateY, { align: 'center', width: 200 });
+    // Teks kalimat lengkap karena background akan dikosongkan
+    const deskripsiText = `Telah menyelesaikan program magang di PT. Pandu Cipta Solusi terhitung sejak\n${tglMulai} sampai dengan ${tglSelesai} dengan baik`;
+
+    // Posisi Y disesuaikan kira-kira di bawah nama
+    const descY = nameY + 80;
+    doc.fontSize(13).fillColor('#374151').text(deskripsiText, 0, descY, { align: 'center', width: doc.page.width, lineGap: 4 });
 
     doc.end();
 
     const dbPath = `/uploads/dokumen/${sertifikatPathName}`;
-    
+
     // Cek jika sudah pernah di-generate sebelumnya
     const existingSertifikat = await prisma.dokumen.findFirst({
-        where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
+      where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
     });
 
     if (existingSertifikat) {
-        await prisma.dokumen.update({
-            where: { id: existingSertifikat.id },
-            data: { file_path: dbPath }
-        });
+      await prisma.dokumen.update({
+        where: { id: existingSertifikat.id },
+        data: { file_path: dbPath }
+      });
     } else {
-        await prisma.dokumen.create({
-            data: {
-                user_id: targetUserId,
-                tipe: 'SERTIFIKAT',
-                nama_file: `Test-Sertifikat.pdf`,
-                file_path: dbPath
-            }
-        });
+      await prisma.dokumen.create({
+        data: {
+          user_id: targetUserId,
+          tipe: 'SERTIFIKAT',
+          nama_file: `Test-Sertifikat.pdf`,
+          file_path: dbPath
+        }
+      });
     }
 
     res.json({ message: 'Sertifikat test berhasil di-generate', file_path: dbPath });
@@ -374,27 +384,27 @@ export const uploadSertifikatManual = async (req, res) => {
 
     // Cek jika sudah pernah di-generate sebelumnya
     const existingSertifikat = await prisma.dokumen.findFirst({
-        where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
+      where: { user_id: targetUserId, tipe: 'SERTIFIKAT' }
     });
 
     let sertifikatRecord;
     if (existingSertifikat) {
-        sertifikatRecord = await prisma.dokumen.update({
-            where: { id: existingSertifikat.id },
-            data: {
-                nama_file: req.file.originalname,
-                file_path: dbPath
-            }
-        });
+      sertifikatRecord = await prisma.dokumen.update({
+        where: { id: existingSertifikat.id },
+        data: {
+          nama_file: req.file.originalname,
+          file_path: dbPath
+        }
+      });
     } else {
-        sertifikatRecord = await prisma.dokumen.create({
-            data: {
-                user_id: targetUserId,
-                tipe: 'SERTIFIKAT',
-                nama_file: req.file.originalname,
-                file_path: dbPath
-            }
-        });
+      sertifikatRecord = await prisma.dokumen.create({
+        data: {
+          user_id: targetUserId,
+          tipe: 'SERTIFIKAT',
+          nama_file: req.file.originalname,
+          file_path: dbPath
+        }
+      });
     }
 
     await prisma.notifikasi.create({
