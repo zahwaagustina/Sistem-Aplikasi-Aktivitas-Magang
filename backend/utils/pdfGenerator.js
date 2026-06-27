@@ -25,7 +25,7 @@ const generateLoA = async (data, outputPath) => {
     // (0, 0) is at the bottom-left of the page.
     // Since the page is usually A4 (595.28 x 841.89 points), Y goes from 0 (bottom) to 842 (top).
     // We will guess the coordinates based on typical A4 letterhead.
-    
+
     const textSize = 12;
     const color = rgb(0, 0, 0);
 
@@ -41,31 +41,31 @@ const generateLoA = async (data, outputPath) => {
 
     // TWEAK THESE COORDINATES AS NEEDED
     // Y is from bottom to top. 842 is top, 0 is bottom.
-    
+
     // Nomor Surat (Top part)
-    drawText(data.nomorSurat || '', 130, 715);
+    drawText(data.nomorSurat || '', 130, 714);
 
     // Data Kandidat (Middle part)
-    drawText(data.nama || '', 150, 600);
-    drawText(data.npm || '', 150, 584);
-    drawText(data.jurusan || '', 150, 568);
-    drawText(data.universitas || '', 150, 552);
-    
+    drawText(data.nama || '', 156, 593);
+    drawText(data.npm || '', 156, 578);
+    drawText(data.jurusan || '', 156, 562);
+    drawText(data.universitas || '', 156, 546);
+
     // Periode & Penempatan
-    drawText(data.periode || '', 150, 501);
-    drawText(data.penempatan || '', 150, 485);
+    drawText(data.periode || '', 156, 462);
+    drawText(data.penempatan || '', 156, 446);
 
     // Tanggal Terbit (Bottom part, above signature)
     // Karena template sudah ada 'Tangerang, ', kita hapus kata 'Tangerang, ' dari variabel
     const tglSaja = (data.tanggalTerbit || '').replace('Tangerang, ', '');
-    drawText(tglSaja, 135, 242);
+    drawText(tglSaja, 134, 238);
 
     // Serialize the PDFDocument to bytes (a Uint8Array)
     const pdfBytes = await pdfDoc.save();
 
     // Write the modified PDF to the output path
     fs.writeFileSync(outputPath, pdfBytes);
-    
+
     return Promise.resolve();
   } catch (err) {
     return Promise.reject(err);
