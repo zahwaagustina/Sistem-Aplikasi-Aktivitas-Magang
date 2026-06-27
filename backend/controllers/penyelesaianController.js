@@ -265,6 +265,12 @@ export const testGenerateSertifikat = async (req, res) => {
       return res.status(404).json({ message: 'Profil magang tidak ditemukan' });
     }
 
+    const pendaftaran = await prisma.pendaftaran.findFirst({
+      where: { user_id: targetUserId, status: 'ACCEPTED' },
+      include: { lowongan: { include: { program: true } } },
+      orderBy: { created_at: 'desc' }
+    });
+
     // Generate PDF Sertifikat
     const sertifikatPathName = `sertifikat-test-${targetUserId}-${Date.now()}.pdf`;
     const fullPath = path.join(__dirname, '..', 'uploads', 'dokumen', sertifikatPathName);
@@ -289,17 +295,23 @@ export const testGenerateSertifikat = async (req, res) => {
     
     doc.font('Helvetica');
     const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    const tglMulai = profilMagang.tanggal_mulai ? new Date(profilMagang.tanggal_mulai).toLocaleDateString('id-ID', dateOptions) : '-';
-    const tglSelesai = profilMagang.tanggal_selesai ? new Date(profilMagang.tanggal_selesai).toLocaleDateString('id-ID', dateOptions) : '-';
+    
+    const effectiveTglMulai = profilMagang.tanggal_mulai || pendaftaran?.lowongan?.program?.tanggal_mulai;
+    const effectiveTglSelesai = profilMagang.tanggal_selesai || pendaftaran?.lowongan?.program?.tanggal_selesai;
+
+    const tglMulai = effectiveTglMulai ? new Date(effectiveTglMulai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
+    const tglSelesai = effectiveTglSelesai ? new Date(effectiveTglSelesai).toLocaleDateString('id-ID', dateOptions) : 'TBD';
 
     // Posisi Y untuk baris kedua ("... sampai dengan ... dengan baik")
-    const dateY = 368; 
+    const dateY = 405; 
     
     // Teks Tanggal Mulai diletakkan di celah pertama
-    doc.fontSize(15).fillColor('#374151').text(tglMulai, 150, dateY, { align: 'center', width: 220 });
+    doc.rect(180, dateY - 5, 200, 25).fill('red');
+    doc.fontSize(16).fillColor('white').text(tglMulai, 180, dateY, { align: 'center', width: 200 });
     
     // Teks Tanggal Selesai diletakkan di celah kedua
-    doc.fontSize(15).fillColor('#374151').text(tglSelesai, 480, dateY, { align: 'center', width: 200 });
+    doc.rect(460, dateY - 5, 200, 25).fill('red');
+    doc.fontSize(16).fillColor('white').text(tglSelesai, 460, dateY, { align: 'center', width: 200 });
 
     doc.end();
 
