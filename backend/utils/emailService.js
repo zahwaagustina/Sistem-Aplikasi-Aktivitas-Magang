@@ -1,20 +1,32 @@
 import nodemailer from 'nodemailer';
-
-// Konfigurasi transporter untuk testing/mock.
-// Karena kita tidak benar-benar mengirim email di lingkungan dev, 
-// kita akan menggunakan Ethereal Email atau cukup log ke console.
-// Untuk kemudahan, kita cukup melakukan console.log sebagai simulasi.
+import { createTransporter } from './mailer.js';
 
 export const sendEmail = async (to, subject, text, html) => {
   try {
+    const transporter = await createTransporter();
+    
+    const info = await transporter.sendMail({
+      from: `"PCS Internship Portal" <${process.env.SMTP_USER || 'noreply@panduciptasolusi.com'}>`,
+      to: to,
+      subject: subject,
+      text: text,
+      html: html || `<p>${text}</p>`,
+    });
+
     console.log('\n=============================================');
-    console.log(`[SIMULASI EMAIL] Mengirim email ke: ${to}`);
+    console.log(`[EMAIL BERHASIL DIKIRIM] ke: ${to}`);
     console.log(`[SUBJECT]: ${subject}`);
-    console.log(`[ISI PESAN]:\n${text}`);
+    console.log('Message ID: %s', info.messageId);
+    
+    // Jika menggunakan ethereal, ini akan memberikan link URL untuk melihat email
+    if (info.messageId && !process.env.SMTP_HOST) {
+      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    }
     console.log('=============================================\n');
+
     return true;
   } catch (error) {
-    console.error('Gagal mengirim email simulasi:', error);
+    console.error('Gagal mengirim email:', error);
     return false;
   }
 };
