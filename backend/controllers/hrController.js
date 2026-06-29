@@ -69,6 +69,12 @@ export const scheduleInterview = async (req, res) => {
         include: { lowongan: true, user: true }
       });
 
+      // Cek apakah ini update atau baru
+      const existingInterview = await tx.interview.findUnique({
+        where: { pendaftaran_id: pendaftaran.id }
+      });
+      const isUpdate = !!existingInterview;
+
       // 2. Simpan jadwal ke tabel Interview (upsert agar bisa update jika sudah ada)
       const interview = await tx.interview.upsert({
         where: { pendaftaran_id: pendaftaran.id },
@@ -83,21 +89,43 @@ export const scheduleInterview = async (req, res) => {
         }
       });
 
+      const formattedDate = new Date(tanggal_waktu).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
       // 3. Buat notifikasi jadwal interview
       await tx.notifikasi.create({
         data: {
           user_id: pendaftaran.user_id,
-          judul: 'Jadwal Wawancara',
-          pesan: `Anda mendapat undangan wawancara pada tanggal ${new Date(tanggal_waktu).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}. Harap cek halaman Status Lamaran.`,
+          judul: isUpdate ? 'Perubahan Jadwal Wawancara' : 'Jadwal Wawancara',
+          pesan: isUpdate 
+            ? `Jadwal wawancara Anda telah diperbarui menjadi tanggal ${formattedDate} WIB. Harap cek halaman Status Lamaran.`
+            : `Anda mendapat undangan wawancara pada tanggal ${formattedDate} WIB. Harap cek halaman Status Lamaran.`,
           link: '/kandidat/dashboard'
         }
       });
 
       // 4. Kirim email undangan wawancara beserta link zoom
       const { sendEmail } = await import('../utils/emailService.js');
-      const formattedDate = new Date(tanggal_waktu).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const emailText = `Halo ${pendaftaran.user.nama},\n\nSelamat! Anda telah lolos tahap administrasi untuk posisi ${pendaftaran.lowongan.posisi}.\n\nAnda diundang untuk mengikuti wawancara pada:\nTanggal & Waktu: ${formattedDate} WIB\nLink Meeting: ${link_meeting}\n\nHarap hadir tepat waktu dan persiapkan diri Anda dengan baik.\n\nSalam,\nTim HR`;
-      const emailHtml = `
+      
+      const emailSubject = isUpdate ? 'Pembaruan Jadwal Wawancara Magang' : 'Undangan Wawancara Magang';
+      const emailText = isUpdate
+        ? `Halo ${pendaftaran.user.nama},\n\nTerdapat perubahan pada jadwal wawancara Anda untuk posisi ${pendaftaran.lowongan.posisi}.\n\nJadwal baru Anda adalah:\nTanggal & Waktu: ${formattedDate} WIB\nLink Meeting: ${link_meeting}\n\nHarap hadir tepat waktu dan persiapkan diri Anda dengan baik.\n\nSalam,\nTim HR`
+        : `Halo ${pendaftaran.user.nama},\n\nSelamat! Anda telah lolos tahap administrasi untuk posisi ${pendaftaran.lowongan.posisi}.\n\nAnda diundang untuk mengikuti wawancara pada:\nTanggal & Waktu: ${formattedDate} WIB\nLink Meeting: ${link_meeting}\n\nHarap hadir tepat waktu dan persiapkan diri Anda dengan baik.\n\nSalam,\nTim HR`;
+
+      const emailHtml = isUpdate
+        ? `
+        <p>Halo <strong>${pendaftaran.user.nama}</strong>,</p>
+        <p>Terdapat <strong>perubahan</strong> pada jadwal wawancara Anda untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
+        <p>Jadwal baru Anda adalah:</p>
+        <ul>
+          <li><strong>Tanggal & Waktu:</strong> ${formattedDate} WIB</li>
+          <li><strong>Link Meeting:</strong> <a href="${link_meeting}">${link_meeting}</a></li>
+        </ul>
+        <p>Harap hadir tepat waktu dan persiapkan diri Anda dengan baik.</p>
+        <br/>
+        <p>Salam,</p>
+        <p><strong>Tim HR</strong></p>
+        `
+        : `
         <p>Halo <strong>${pendaftaran.user.nama}</strong>,</p>
         <p>Selamat! Anda telah lolos tahap administrasi untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
         <p>Anda diundang untuk mengikuti wawancara pada:</p>
@@ -109,8 +137,9 @@ export const scheduleInterview = async (req, res) => {
         <br/>
         <p>Salam,</p>
         <p><strong>Tim HR</strong></p>
-      `;
-      sendEmail(pendaftaran.user.email, 'Undangan Wawancara Magang', emailText, emailHtml);
+        `;
+
+      sendEmail(pendaftaran.user.email, emailSubject, emailText, emailHtml);
 
       return { pendaftaran, interview };
     });
@@ -185,9 +214,7 @@ export const submitNilaiInterview = async (req, res) => {
             <p>Halo <strong>${user.nama}</strong>,</p>
             <p>Selamat! Anda telah resmi <strong>diterima magang</strong> untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
             <p>Silakan segera login ke portal web untuk melengkapi data Anda dan masuk ke tahap <strong>Onboarding</strong>.</p>
-            <div style="text-align: center;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" class="btn">Login ke Portal PCS</a>
-            </div>
+            <br/>
             <p>Salam,</p>
             <p><strong>Tim HR</strong></p>
           `;

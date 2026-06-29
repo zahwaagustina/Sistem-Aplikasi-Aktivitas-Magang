@@ -173,6 +173,19 @@ const Absensi = () => {
     return acc;
   }, {});
 
+  const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hour12: false });
+  const timeString = formatter.format(currentTime);
+  let wibHour = 0, wibMinute = 0;
+  if (timeString.includes(':')) {
+     const parts = timeString.split(':');
+     wibHour = parseInt(parts[0], 10);
+     wibMinute = parseInt(parts[1], 10);
+     if (wibHour === 24) wibHour = 0;
+  }
+
+  const isPastCheckInTime = wibHour > 12 || (wibHour === 12 && wibMinute > 0);
+  const isPastCheckOutTime = wibHour >= 18;
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -195,14 +208,28 @@ const Absensi = () => {
           <h2 className="text-4xl font-bold text-gray-800 tracking-wider font-mono">
             {currentTime.toLocaleTimeString('id-ID')}
           </h2>
-          <p className="text-gray-500 mt-2 mb-8">{formatDate(currentTime)}</p>
+          <p className="text-gray-500 mt-2 mb-4">{formatDate(currentTime)}</p>
+
+          {isPastCheckInTime && !todayAbsen && (
+            <div className="mb-6 w-full text-left bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm">
+              <strong className="font-semibold block mb-1">Informasi:</strong>
+              Batas waktu check-in (12:00 WIB) telah terlewati. Tombol Check-in dinonaktifkan.
+            </div>
+          )}
+
+          {isPastCheckOutTime && todayAbsen && !todayAbsen.waktu_keluar && (
+             <div className="mb-6 w-full text-left bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+              <strong className="font-semibold block mb-1">Informasi:</strong>
+              Batas waktu check-out (18:00 WIB) telah terlewati. Sistem memproses check-out otomatis.
+            </div>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
             <button
               onClick={() => handleAbsen('checkin')}
-              disabled={loading || todayAbsen}
+              disabled={loading || todayAbsen || isPastCheckInTime}
               className={`flex-1 py-4 px-6 rounded-xl font-bold text-white flex items-center justify-center transition-all ${
-                todayAbsen 
+                (todayAbsen || isPastCheckInTime) 
                   ? 'bg-gray-300 cursor-not-allowed' 
                   : 'bg-green-500 hover:bg-green-600 shadow-md hover:shadow-lg'
               }`}
@@ -213,9 +240,9 @@ const Absensi = () => {
 
             <button
               onClick={() => handleAbsen('checkout')}
-              disabled={loading || !todayAbsen || todayAbsen.waktu_keluar}
+              disabled={loading || !todayAbsen || todayAbsen.waktu_keluar || isPastCheckOutTime}
               className={`flex-1 py-4 px-6 rounded-xl font-bold text-white flex items-center justify-center transition-all ${
-                (!todayAbsen || todayAbsen.waktu_keluar)
+                (!todayAbsen || todayAbsen.waktu_keluar || isPastCheckOutTime)
                   ? 'bg-gray-300 cursor-not-allowed' 
                   : 'bg-red-500 hover:bg-red-600 shadow-md hover:shadow-lg'
               }`}

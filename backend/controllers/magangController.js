@@ -30,6 +30,11 @@ export const checkIn = async (req, res) => {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const today = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+
+    const nowWIB = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+    if (nowWIB.getHours() > 12 || (nowWIB.getHours() === 12 && nowWIB.getMinutes() > 0)) {
+      return res.status(400).json({ message: 'Batas waktu check-in (12:00 WIB) telah terlewati' });
+    }
     
     const existingAbsensi = await prisma.absensi.findFirst({
       where: {

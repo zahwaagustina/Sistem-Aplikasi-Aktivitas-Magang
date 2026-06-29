@@ -4,9 +4,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const initAbsensiCron = () => {
-  // Menjalankan cron job setiap hari Senin sampai Jumat pada pukul 23:55
-  cron.schedule('55 23 * * 1-5', async () => {
-    console.log('[CRON] Menjalankan pengecekan absensi harian (ALPA)...');
+  // 1. Cron job jam 12:01 WIB untuk set ALPA
+  cron.schedule('1 12 * * 1-5', async () => {
+    console.log('[CRON] Menjalankan pengecekan absensi ALPA (12:01 WIB)...');
     try {
       const now = new Date();
       const year = now.getFullYear();
@@ -43,7 +43,7 @@ export const initAbsensiCron = () => {
               user_id: magang.user_id,
               tanggal: today,
               status: 'ALPA',
-              keterangan: 'Otomatis oleh sistem (Tanpa Keterangan)'
+              keterangan: 'Otomatis oleh sistem (Tidak Check-in hingga 12:00 WIB)'
             }
           });
           alpaCount++;
@@ -52,9 +52,51 @@ export const initAbsensiCron = () => {
 
       console.log(`[CRON] Pengecekan selesai. ${alpaCount} record absensi ALPA ditambahkan.`);
     } catch (error) {
-      console.error('[CRON] Terjadi error saat menjalankan cron job absensi:', error);
+      console.error('[CRON] Terjadi error saat menjalankan cron job ALPA:', error);
     }
+  }, {
+    timezone: "Asia/Jakarta"
+  });
+
+  // 2. Cron job jam 18:01 WIB untuk Auto Check-out
+  cron.schedule('1 18 * * 1-5', async () => {
+    console.log('[CRON] Menjalankan pengecekan Auto Check-out (18:01 WIB)...');
+    try {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const today = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+
+      // Dapatkan semua absensi hari ini yang belum check-out
+      const absensiHariIni = await prisma.absensi.findMany({
+        where: {
+          tanggal: today,
+          status: 'HADIR',
+          waktu_keluar: null
+        }
+      });
+
+      let checkoutCount = 0;
+      const autoCheckoutTime = new Date(); // Waktu saat cron jalan (~18:01)
+
+      for (const absen of absensiHariIni) {
+        await prisma.absensi.update({
+          where: { id: absen.id },
+          data: {
+            waktu_keluar: autoCheckoutTime,
+            lokasi_keluar: 'Otomatis oleh sistem'
+          }
+        });
+        checkoutCount++;
+      }
+      console.log(`[CRON] Pengecekan selesai. ${checkoutCount} record absensi di-check-out secara otomatis.`);
+    } catch (error) {
+      console.error('[CRON] Terjadi error saat menjalankan cron job Auto Check-out:', error);
+    }
+  }, {
+    timezone: "Asia/Jakarta"
   });
   
-  console.log('[CRON] Jadwal pengecekan absensi harian berhasil diinisialisasi.');
+  console.log('[CRON] Jadwal pengecekan absensi (ALPA & Auto Check-out) berhasil diinisialisasi.');
 };

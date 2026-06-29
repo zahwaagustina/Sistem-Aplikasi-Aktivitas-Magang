@@ -23,7 +23,7 @@ const getEmailTemplate = (content) => `
       border: 1px solid #e0e7ff;
     }
     .header {
-      background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+      background: linear-gradient(to right, #2563eb, #22d3ee);
       padding: 32px 40px;
       text-align: center;
     }
@@ -53,7 +53,7 @@ const getEmailTemplate = (content) => `
     .btn {
       display: inline-block;
       padding: 12px 28px;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      background: linear-gradient(to right, #2563eb, #22d3ee);
       color: #ffffff !important;
       text-decoration: none;
       border-radius: 9999px; /* Fully rounded like pill */
@@ -74,6 +74,9 @@ const getEmailTemplate = (content) => `
     </div>
     <div class="content">
       ${content}
+      <div style="text-align: center; margin-top: 32px;">
+        <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="display: inline-block; padding: 12px 28px; background: #2563eb; background: linear-gradient(to right, #2563eb, #22d3ee); color: #ffffff; text-decoration: none; border-radius: 9999px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); border: 1px solid rgba(255,255,255,0.1);">Buka Dashboard Portal</a>
+      </div>
     </div>
     <div class="footer">
       <p>Pesan ini dikirim secara otomatis oleh sistem.<br/>Mohon untuk tidak membalas email ini.</p>

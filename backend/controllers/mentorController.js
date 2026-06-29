@@ -10,7 +10,7 @@ export const getAnakMagang = async (req, res) => {
     
     let whereClause = {
       user: {
-        role: { in: ['MAGANG', 'SELESAI'] } // Hanya tampilkan yang sudah fix jadi magang/selesai
+        role: 'MAGANG'
       }
     };
     if (role !== 'SUPER_ADMIN') {
