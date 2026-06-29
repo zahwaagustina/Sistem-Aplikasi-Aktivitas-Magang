@@ -6,24 +6,6 @@ import api from '../api';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // Form State
-  const [formData, setFormData] = useState({
-    nama: user?.nama || '',
-    universitas: user?.universitas || '',
-    jurusan: user?.jurusan || '',
-    angkatan: user?.angkatan || '',
-    semester: user?.semester || '',
-    email: user?.email || '',
-    mentor: user?.mentor || '',
-    perusahaan: user?.perusahaan || '',
-    lokasi: user?.lokasi || '',
-    tanggal_selesai: user?.tanggal_selesai ? new Date(user.tanggal_selesai).toISOString().split('T')[0] : '',
-    nickname: user?.nickname || '',
-    no_telepon: user?.no_telepon || ''
-  });
 
   React.useEffect(() => {
     const fetchProfile = async () => {
@@ -38,26 +20,6 @@ const Profile = () => {
     };
     fetchProfile();
   }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSave = async () => {
-    try {
-      setLoading(true);
-      const res = await api.put('/users/profile', formData);
-      updateUser(res.data.data);
-      setIsEditing(false);
-    } catch (error) {
-      console.error(error);
-      alert('Gagal memperbarui profil: ' + (error.response?.data?.message || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-  
   // Ambil inisial dari nama
   const initials = user?.nama
     ? user.nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
@@ -124,21 +86,12 @@ const Profile = () => {
 
           {/* Action Buttons (Right Aligned) */}
           <div className="flex justify-end pt-4 space-x-3">
-            {user?.dokumen?.find(d => d.tipe === 'LOA') ? (
+            {user?.dokumen?.find(d => d.tipe === 'LOA') && (
               <a href={`http://localhost:5000${user.dokumen.find(d => d.tipe === 'LOA').file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">
                 <FileText size={16} />
                 <span>Unduh LoA</span>
               </a>
-            ) : (
-              <button disabled className="flex items-center space-x-2 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed" title="LoA belum diterbitkan">
-                <FileText size={16} />
-                <span>LoA belum tersedia</span>
-              </button>
             )}
-            <button onClick={() => setIsEditing(true)} className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-              <Edit size={16} />
-              <span>Edit profil</span>
-            </button>
           </div>
 
           {/* Header Info */}
@@ -211,76 +164,6 @@ const Profile = () => {
         </div>
       </div>
 
-
-      {/* Edit Profile Modal */}
-      {isEditing && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center p-5 border-b border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-800">Edit Profil</h2>
-              <button onClick={() => setIsEditing(false)} className="text-gray-500 hover:text-gray-700">
-                <X size={24} />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto flex-1 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nama Panggilan (Nickname)</label>
-                  <input type="text" name="nickname" value={formData.nickname} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                  <input type="text" name="nama" value={formData.nama} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
-                  <input type="tel" name="no_telepon" value={formData.no_telepon} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Universitas</label>
-                  <input type="text" name="universitas" value={formData.universitas} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Jurusan</label>
-                  <input type="text" name="jurusan" value={formData.jurusan} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
-                  <input type="text" name="semester" value={formData.semester} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nama Mentor</label>
-                  <input type="text" name="mentor" value={formData.mentor} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Perusahaan (Otomatis)</label>
-                  <input type="text" value={user?.perusahaan || 'PT Pandu Cipta Solusi'} disabled className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi (Otomatis)</label>
-                  <input type="text" value={user?.lokasi || 'Kadu, Tangerang'} disabled className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" />
-                </div>
-
-              </div>
-            </div>
-
-            <div className="p-5 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50">
-              <button onClick={() => setIsEditing(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-white transition-colors">
-                Batal
-              </button>
-              <button onClick={handleSave} disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center">
-                {loading ? 'Menyimpan...' : <><Save size={16} className="mr-2" /> Simpan Perubahan</>}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
