@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, BookOpen, Settings, User, UserPlus, Briefcase, CheckCircle, Shield } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Settings, User, UserPlus, Briefcase, CheckCircle, Shield, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
 
@@ -36,6 +36,7 @@ const Sidebar = ({ isOpen }) => {
         { name: 'Data Peserta Aktif', path: '/hr/peserta', icon: <Briefcase size={20} /> },
         { name: 'Monitor Magang', path: '/mentor/monitor', icon: <Users size={20} /> },
         { name: 'Master Evaluasi', path: '/admin/master-evaluasi', icon: <CheckCircle size={20} /> },
+        { name: 'Template Dokumen', path: '/admin/templates', icon: <FileText size={20} /> },
         { name: 'Administrasi', path: '/admin/users', icon: <Settings size={20} /> },
         { name: 'Audit Trail', path: '/admin/audit-logs', icon: <Shield size={20} /> }
       ];
@@ -63,6 +64,7 @@ const Sidebar = ({ isOpen }) => {
         { name: 'Logbook Aktivitas', path: '/magang/logbook', icon: <BookOpen size={20} /> },
         { name: 'Tugas (Kanban)', path: '/magang/tugas', icon: <Briefcase size={20} /> },
         { name: 'Penyelesaian', path: '/magang/penyelesaian', icon: <CheckCircle size={20} /> },
+        { name: 'Template Dokumen', path: '/magang/templates', icon: <FileText size={20} /> },
         { name: 'Profil', path: '/magang/profil', icon: <User size={20} /> },
       ];
     }

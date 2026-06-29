@@ -21,6 +21,7 @@ import ProfilPeserta from './pages/admin/ProfilPeserta';
 import UserManagement from './pages/admin/UserManagement';
 import AuditTrail from './pages/admin/AuditTrail';
 import MasterEvaluasi from './pages/admin/MasterEvaluasi';
+import MasterTemplate from './pages/admin/MasterTemplate';
 
 // Kandidat Pages
 import DashboardKandidat from './pages/kandidat/DashboardKandidat';
@@ -34,6 +35,7 @@ import Absensi from './pages/magang/Absensi';
 import Logbook from './pages/magang/Logbook';
 import TaskBoard from './pages/magang/TaskBoard';
 import PenyelesaianProgram from './pages/magang/PenyelesaianProgram';
+import TemplateDokumen from './pages/magang/TemplateDokumen';
 
 // Other Pages
 import Profile from './pages/Profile';
@@ -77,6 +79,7 @@ function App() {
               <Route path="/admin/users" element={<UserManagement />} />
               <Route path="/admin/audit-logs" element={<AuditTrail />} />
               <Route path="/admin/master-evaluasi" element={<MasterEvaluasi />} />
+              <Route path="/admin/templates" element={<MasterTemplate />} />
             </Route>
 
             {/* MENTOR / PEMBIMBING Routes */}
@@ -91,6 +94,7 @@ function App() {
               <Route path="/magang/absensi" element={<Absensi />} />
               <Route path="/magang/logbook" element={<Logbook />} />
               <Route path="/magang/tugas" element={<TaskBoard />} />
+              <Route path="/magang/templates" element={<TemplateDokumen />} />
             </Route>
 
             {/* MAGANG Routes (Always Accessible) */}

@@ -122,6 +122,7 @@ model User {
   onboardingDimementori Onboarding[]  @relation("OnboardingMentor")
   notifikasi        Notifikasi[]
   passwordResetTokens PasswordResetToken[]
+  masterTemplates   MasterTemplate[]
 }
 
 model ProfilKandidat {
@@ -405,3 +406,22 @@ model PasswordResetToken {
 
   @@map("password_reset_tokens")
 }
+
+model MasterTemplate {
+  id            Int      @id @default(autoincrement())
+  nama_template String
+  kategori      String
+  deskripsi     String?  @db.Text
+  nama_file     String
+  path_file     String
+  ekstensi      String
+  ukuran_file   Int
+  status        Boolean  @default(true)
+  created_by    Int?
+  user          User?    @relation(fields: [created_by], references: [id], onDelete: SetNull)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("master_templates")
+}
+
