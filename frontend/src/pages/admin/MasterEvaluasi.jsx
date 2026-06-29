@@ -5,6 +5,7 @@ import api from '../../api';
 const MasterEvaluasi = () => {
   const [aspekList, setAspekList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form Aspek
   const [showAspekModal, setShowAspekModal] = useState(false);
@@ -36,6 +37,8 @@ const MasterEvaluasi = () => {
   // --- ASPEK HANDLERS ---
   const handleSaveAspek = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       if (editAspekId) {
         await api.put(`/admin/evaluasi-aspek/${editAspekId}`, formAspek);
@@ -46,16 +49,22 @@ const MasterEvaluasi = () => {
       fetchData();
     } catch (err) {
       alert('Gagal menyimpan aspek');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteAspek = async (id) => {
+    if (isSubmitting) return;
     if (window.confirm('Yakin ingin menghapus aspek ini? Semua pertanyaan di dalamnya akan terhapus.')) {
+      setIsSubmitting(true);
       try {
         await api.delete(`/admin/evaluasi-aspek/${id}`);
         fetchData();
       } catch (err) {
         alert('Gagal menghapus aspek');
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -74,6 +83,8 @@ const MasterEvaluasi = () => {
   // --- PERTANYAAN HANDLERS ---
   const handleSavePertanyaan = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       if (editPertanyaanId) {
         await api.put(`/admin/evaluasi-pertanyaan/${editPertanyaanId}`, formPertanyaan);
@@ -84,16 +95,22 @@ const MasterEvaluasi = () => {
       fetchData();
     } catch (err) {
       alert('Gagal menyimpan pertanyaan');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeletePertanyaan = async (id) => {
+    if (isSubmitting) return;
     if (window.confirm('Yakin ingin menghapus pertanyaan ini?')) {
+      setIsSubmitting(true);
       try {
         await api.delete(`/admin/evaluasi-pertanyaan/${id}`);
         fetchData();
       } catch (err) {
         alert('Gagal menghapus pertanyaan');
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -161,7 +178,7 @@ const MasterEvaluasi = () => {
                 <button onClick={() => openAspekModal(aspek)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded" title="Edit Aspek">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDeleteAspek(aspek.id)} className="p-2 text-red-600 hover:bg-red-50 rounded" title="Hapus Aspek">
+                <button onClick={() => handleDeleteAspek(aspek.id)} disabled={isSubmitting} className="p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50" title="Hapus Aspek">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -193,7 +210,7 @@ const MasterEvaluasi = () => {
                         </td>
                         <td className="px-4 py-3 text-right space-x-2">
                           <button onClick={() => openPertanyaanModal(aspek.id, p)} className="text-indigo-600 hover:text-indigo-800"><Edit2 className="w-3.5 h-3.5 inline" /></button>
-                          <button onClick={() => handleDeletePertanyaan(p.id)} className="text-red-600 hover:text-red-800"><Trash2 className="w-3.5 h-3.5 inline" /></button>
+                          <button onClick={() => handleDeletePertanyaan(p.id)} disabled={isSubmitting} className="text-red-600 hover:text-red-800 disabled:opacity-50"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                         </td>
                       </tr>
                     ))
@@ -240,7 +257,7 @@ const MasterEvaluasi = () => {
               </div>
               <div className="pt-6 flex justify-end gap-3">
                 <button type="button" onClick={() => setShowAspekModal(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">Simpan</button>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50">{isSubmitting ? 'Menyimpan...' : 'Simpan'}</button>
               </div>
             </form>
           </div>
@@ -275,7 +292,7 @@ const MasterEvaluasi = () => {
               </div>
               <div className="pt-6 flex justify-end gap-3">
                 <button type="button" onClick={() => setShowPertanyaanModal(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">Simpan</button>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50">{isSubmitting ? 'Menyimpan...' : 'Simpan'}</button>
               </div>
             </form>
           </div>

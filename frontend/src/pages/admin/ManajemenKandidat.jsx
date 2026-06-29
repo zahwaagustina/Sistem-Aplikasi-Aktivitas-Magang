@@ -16,6 +16,7 @@ const ManajemenKandidat = () => {
   // Modal states
   const [activeModal, setActiveModal] = useState(null); // 'STATUS', 'INTERVIEW', 'NILAI'
   const [selectedKandidat, setSelectedKandidat] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form states
   const [statusForm, setStatusForm] = useState('');
@@ -82,6 +83,8 @@ const ManajemenKandidat = () => {
 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       await axios.put(`http://localhost:5000/api/hr/kandidat/${selectedKandidat.id}/status`, 
@@ -93,11 +96,15 @@ const ManajemenKandidat = () => {
       fetchKandidat();
     } catch (error) {
       alert(error.response?.data?.message || 'Gagal update status');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleScheduleInterview = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       await axios.post(`http://localhost:5000/api/hr/kandidat/${selectedKandidat.id}/interview`, 
@@ -109,11 +116,15 @@ const ManajemenKandidat = () => {
       fetchKandidat();
     } catch (error) {
       alert(error.response?.data?.message || 'Gagal mengatur jadwal');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleSubmitNilai = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       await axios.put(`http://localhost:5000/api/hr/kandidat/${selectedKandidat.id}/interview`, 
@@ -125,6 +136,8 @@ const ManajemenKandidat = () => {
       fetchKandidat();
     } catch (error) {
       alert(error.response?.data?.message || 'Gagal menyimpan penilaian');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -208,8 +221,13 @@ const ManajemenKandidat = () => {
                     <p className="text-xs text-gray-500">{kandidat.lowongan.program.nama}</p>
                   </td>
                   <td className="p-4">
-                    <button onClick={() => openStatusModal(kandidat)} className="focus:outline-none" title="Klik untuk ubah status">
-                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full hover:opacity-80 transition-opacity cursor-pointer shadow-sm ${getStatusColor(kandidat.status)}`}>
+                    <button 
+                      onClick={() => openStatusModal(kandidat)} 
+                      disabled={kandidat.status === 'REJECTED'}
+                      className="focus:outline-none disabled:cursor-not-allowed" 
+                      title={kandidat.status === 'REJECTED' ? 'Kandidat ditolak (Status final)' : 'Klik untuk ubah status'}
+                    >
+                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${getStatusColor(kandidat.status)} ${kandidat.status !== 'REJECTED' ? 'hover:opacity-80 transition-opacity cursor-pointer' : 'opacity-75'}`}>
                         {kandidat.status}
                       </span>
                     </button>
@@ -309,7 +327,7 @@ const ManajemenKandidat = () => {
               </div>
               <div className="flex justify-end space-x-2 mt-6">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg">Simpan</button>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-indigo-600 text-white rounded-lg disabled:opacity-50">{isSubmitting ? 'Memproses...' : 'Simpan'}</button>
               </div>
             </form>
           </div>
@@ -333,7 +351,7 @@ const ManajemenKandidat = () => {
               <p className="text-xs text-gray-500 italic">*Status akan otomatis berubah menjadi INTERVIEW</p>
               <div className="flex justify-end space-x-2 mt-6">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-lg">Kirim Undangan</button>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-purple-600 text-white rounded-lg disabled:opacity-50">{isSubmitting ? 'Memproses...' : 'Kirim Undangan'}</button>
               </div>
             </form>
           </div>
@@ -373,7 +391,7 @@ const ManajemenKandidat = () => {
               </div>
               <div className="flex justify-end space-x-2 mt-6">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-lg">Simpan & Umumkan</button>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-green-600 text-white rounded-lg disabled:opacity-50">{isSubmitting ? 'Memproses...' : 'Simpan & Umumkan'}</button>
               </div>
             </form>
           </div>

@@ -22,6 +22,7 @@ const OnboardingDashboard = () => {
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ALL');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Modal states
   const [selectedItem, setSelectedItem] = useState(null);
@@ -76,6 +77,8 @@ const OnboardingDashboard = () => {
       alert('Harap isi catatan revisi dan pilih minimal satu dokumen yang perlu direvisi.');
       return;
     }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await api.put(`/onboarding/${selectedItem.id}/verify-docs`, { 
         approved, 
@@ -85,7 +88,9 @@ const OnboardingDashboard = () => {
       alert(approved ? 'Dokumen disetujui' : 'Revisi diminta');
       setModalType('');
       fetchData();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { alert('Error: ' + e.message); } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleToggleDocRevision = (docType) => {
@@ -95,32 +100,44 @@ const OnboardingDashboard = () => {
   };
 
   const handleIssueLoa = async (item) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const npm = item.pendaftaran.user.profilKandidat?.npm || '';
       await api.post(`/onboarding/${item.id}/issue-loa`, { npm });
       alert('LoA berhasil diterbitkan secara otomatis');
       fetchData();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { alert('Error: ' + e.message); } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePlacement = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await api.put(`/onboarding/${selectedItem.id}/assign-placement`, formData);
       alert('Penempatan berhasil disimpan dan Akun Magang kandidat otomatis ter-upgrade!');
       setModalType('');
       fetchData();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { alert('Error: ' + e.message); } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleOrientation = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await api.put(`/onboarding/${selectedItem.id}/schedule-orientation`, formData);
       alert('Jadwal orientasi berhasil disimpan');
       setModalType('');
       fetchData();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { alert('Error: ' + e.message); } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filtered = onboardings.filter(o => activeTab === 'ALL' || o.status === activeTab);
@@ -178,7 +195,7 @@ const OnboardingDashboard = () => {
                         <button onClick={() => openModal(item, 'VERIFY_DOCS')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Verifikasi Dokumen</button>
                       )}
                       {!item.pendaftaran.user.dokumen?.some(d => d.tipe === 'LOA') && ['LOA_ISSUED', 'PLACEMENT_ASSIGNED', 'ACCOUNT_CREATED', 'CHECKLIST_IN_PROGRESS', 'ORIENTATION_SCHEDULED'].includes(item.status) && (
-                        <button onClick={() => handleIssueLoa(item)} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">Terbitkan LoA</button>
+                        <button onClick={() => handleIssueLoa(item)} disabled={isSubmitting} className="whitespace-nowrap text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-medium disabled:opacity-50">Terbitkan LoA</button>
                       )}
                       {(item.status === 'LOA_ISSUED' || item.status === 'PLACEMENT_ASSIGNED' || item.status === 'ACCOUNT_CREATED') && (
                         <button onClick={() => openModal(item, 'PLACEMENT')} className="whitespace-nowrap text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium">Atur Penempatan</button>
@@ -305,7 +322,7 @@ const OnboardingDashboard = () => {
                   {!isRevising ? (
                     <div className="flex space-x-3">
                       <button onClick={() => setIsRevising(true)} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg font-medium hover:bg-red-100">Minta Revisi</button>
-                      <button onClick={() => handleVerifyDocs(true)} className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700">Setujui Dokumen</button>
+                      <button onClick={() => handleVerifyDocs(true)} disabled={isSubmitting} className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50">{isSubmitting ? 'Memproses...' : 'Setujui Dokumen'}</button>
                     </div>
                   ) : (
                     <div className="bg-red-50 p-4 rounded-lg border border-red-100">
@@ -343,7 +360,7 @@ const OnboardingDashboard = () => {
 
                       <div className="flex space-x-2 justify-end">
                         <button onClick={() => setIsRevising(false)} className="px-3 py-1.5 bg-white border border-red-200 text-red-600 rounded-md text-sm font-medium hover:bg-red-50">Batal</button>
-                        <button onClick={() => handleVerifyDocs(false)} className="px-3 py-1.5 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">Kirim Permintaan Revisi</button>
+                        <button onClick={() => handleVerifyDocs(false)} disabled={isSubmitting} className="px-3 py-1.5 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 disabled:opacity-50">{isSubmitting ? 'Memproses...' : 'Kirim Permintaan Revisi'}</button>
                       </div>
                     </div>
                   )}
@@ -363,7 +380,7 @@ const OnboardingDashboard = () => {
                       {mentors.map(m => <option key={m.id} value={m.id}>{m.nama}</option>)}
                     </select>
                   </div>
-                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Simpan Penempatan</button>
+                  <button type="submit" disabled={isSubmitting} className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50">{isSubmitting ? 'Menyimpan...' : 'Simpan Penempatan'}</button>
                 </form>
               )}
 
@@ -378,7 +395,7 @@ const OnboardingDashboard = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Share Location (Google Maps URL)</label>
                     <input type="url" value={formData.lokasi_orientasi || ''} onChange={e => setFormData({...formData, lokasi_orientasi: e.target.value})} placeholder="https://maps.app.goo.gl/..." className="w-full border border-gray-300 rounded-lg p-2" />
                   </div>
-                  <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Jadwalkan Orientasi</button>
+                  <button type="submit" disabled={isSubmitting} className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50">{isSubmitting ? 'Menyimpan...' : 'Jadwalkan Orientasi'}</button>
                 </form>
               )}
             </div>

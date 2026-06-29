@@ -8,6 +8,7 @@ const ManajemenLowongan = () => {
   const [lowongan, setLowongan] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Filters and Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,6 +91,8 @@ const ManajemenLowongan = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       if (modalType === 'ADD') {
@@ -107,10 +110,14 @@ const ManajemenLowongan = () => {
       fetchData();
     } catch (error) {
       alert('Terjadi kesalahan: ' + error.response?.data?.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`http://localhost:5000/api/hr/lowongan/${selectedLowongan.id}`, {
@@ -121,10 +128,14 @@ const ManajemenLowongan = () => {
       fetchData();
     } catch (error) {
       alert('Gagal menghapus lowongan: ' + error.response?.data?.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleToggleStatus = async (item) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       let newStatus = 'OPEN';
@@ -140,6 +151,8 @@ const ManajemenLowongan = () => {
       fetchData();
     } catch (error) {
       alert('Gagal mengubah status');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -270,7 +283,8 @@ const ManajemenLowongan = () => {
                         </button>
                         <button 
                           onClick={() => handleToggleStatus(item)} 
-                          className={`p-1.5 rounded ${item.status === 'OPEN' ? 'text-green-600 hover:bg-green-50' : 'text-gray-400 hover:text-green-600 hover:bg-green-50'}`} 
+                          disabled={isSubmitting}
+                          className={`p-1.5 rounded ${item.status === 'OPEN' ? 'text-green-600 hover:bg-green-50' : 'text-gray-400 hover:text-green-600 hover:bg-green-50'} disabled:opacity-50`} 
                           title={item.status === 'OPEN' ? 'Tutup Lowongan' : 'Buka Lowongan'}
                         >
                           {item.status === 'OPEN' ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
@@ -356,8 +370,8 @@ const ManajemenLowongan = () => {
               </div>
               <div className="flex justify-end pt-4 space-x-3 border-t mt-6">
                 <button type="button" onClick={handleCloseModal} className="px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 font-medium">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold shadow-sm flex items-center">
-                  <FileText className="w-4 h-4 mr-2" /> Simpan Lowongan
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold shadow-sm flex items-center disabled:opacity-50">
+                  <FileText className="w-4 h-4 mr-2" /> {isSubmitting ? 'Memproses...' : 'Simpan Lowongan'}
                 </button>
               </div>
             </form>
@@ -419,7 +433,7 @@ const ManajemenLowongan = () => {
             <p className="text-gray-500 mb-6 text-sm">Apakah Anda yakin ingin menghapus lowongan <b>{selectedLowongan?.posisi}</b>? Tindakan ini tidak dapat dibatalkan.</p>
             <div className="flex justify-center space-x-3">
               <button onClick={handleCloseModal} className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg font-medium hover:bg-gray-50 w-full">Batal</button>
-              <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 w-full shadow-sm">Ya, Hapus</button>
+              <button onClick={handleDelete} disabled={isSubmitting} className="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 w-full shadow-sm disabled:opacity-50">{isSubmitting ? 'Menghapus...' : 'Ya, Hapus'}</button>
             </div>
           </div>
         </div>

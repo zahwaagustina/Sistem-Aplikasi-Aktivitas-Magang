@@ -18,6 +18,7 @@ const ProfilAnakMagang = () => {
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEvaluasiModalOpen, setIsEvaluasiModalOpen] = useState(false);
   const [isConfirmSelesaiOpen, setIsConfirmSelesaiOpen] = useState(false);
   
@@ -58,6 +59,8 @@ const ProfilAnakMagang = () => {
   };
 
   const handleApproveLogbook = async (logbookId, status, komentar = '') => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       await axios.put(`http://localhost:5000/api/mentor/logbook/${logbookId}/approve`, 
@@ -69,6 +72,8 @@ const ProfilAnakMagang = () => {
     } catch (error) {
       console.error('Error approving logbook:', error);
       alert('Gagal mengupdate logbook');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,7 +104,9 @@ const ProfilAnakMagang = () => {
   };
 
   const executeSelesaikan = async () => {
+    if (isSubmitting) return;
     setIsConfirmSelesaiOpen(false);
+    setIsSubmitting(true);
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -115,11 +122,15 @@ const ProfilAnakMagang = () => {
       console.error('Error generate sertifikat:', error);
       alert(error.response?.data?.message || 'Gagal menerbitkan sertifikat.');
       setLoading(false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCreateTugas = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       await axios.post('http://localhost:5000/api/mentor/tugas', {
@@ -134,6 +145,8 @@ const ProfilAnakMagang = () => {
     } catch (error) {
       console.error('Error create tugas:', error);
       alert('Gagal membuat tugas baru');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -157,6 +170,8 @@ const ProfilAnakMagang = () => {
       return;
     }
     
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -181,6 +196,8 @@ const ProfilAnakMagang = () => {
       console.error('Error review tugas:', error);
       alert('Gagal mengirim review tugas');
       setLoading(false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -501,13 +518,15 @@ const ProfilAnakMagang = () => {
                     <div className="mt-6 pt-4 border-t border-gray-100 flex gap-3">
                       <button 
                         onClick={() => handleApproveLogbook(log.id, 'REVISI')}
-                        className="flex-1 bg-white border border-red-200 text-red-600 hover:bg-red-50 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
+                        disabled={isSubmitting}
+                        className="flex-1 bg-white border border-red-200 text-red-600 hover:bg-red-50 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center disabled:opacity-50"
                       >
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg> Tolak / Revisi
                       </button>
                       <button 
                         onClick={() => handleApproveLogbook(log.id, 'DISETUJUI')}
-                        className="flex-1 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center"
+                        disabled={isSubmitting}
+                        className="flex-1 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center disabled:opacity-50"
                       >
                         <CheckCircle className="w-4 h-4 mr-2" /> Setujui
                       </button>
@@ -787,9 +806,10 @@ const ProfilAnakMagang = () => {
               </button>
               <button
                 onClick={executeSelesaikan}
-                className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm"
+                disabled={isSubmitting}
+                className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50"
               >
-                Terbitkan Sertifikat & Selesaikan
+                {isSubmitting ? 'Memproses...' : 'Terbitkan Sertifikat & Selesaikan'}
               </button>
             </div>
           </div>
@@ -870,8 +890,8 @@ const ProfilAnakMagang = () => {
                 <button type="button" onClick={() => setIsFormTugasOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
                   Batal
                 </button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 rounded-lg text-sm font-medium text-white hover:bg-indigo-700">
-                  Simpan & Kirim
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-indigo-600 rounded-lg text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+                  {isSubmitting ? 'Memproses...' : 'Simpan & Kirim'}
                 </button>
               </div>
             </form>
@@ -938,9 +958,10 @@ const ProfilAnakMagang = () => {
               </button>
               <button 
                 onClick={() => executeReviewTugas('DONE')}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold transition-colors shadow-sm"
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold transition-colors shadow-sm disabled:opacity-50"
               >
-                Terima & Selesai
+                {isSubmitting ? 'Memproses...' : 'Terima & Selesai'}
               </button>
             </div>
           </div>
@@ -986,9 +1007,10 @@ const ProfilAnakMagang = () => {
               </button>
               <button 
                 onClick={() => executeReviewTugas('IN_PROGRESS')}
-                className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg text-sm font-bold transition-colors shadow-sm"
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg text-sm font-bold transition-colors shadow-sm disabled:opacity-50"
               >
-                Kirim Revisi
+                {isSubmitting ? 'Memproses...' : 'Kirim Revisi'}
               </button>
             </div>
           </div>

@@ -8,6 +8,7 @@ const TaskBoard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [fileHasil, setFileHasil] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchTasks = async () => {
     try {
@@ -26,6 +27,8 @@ const TaskBoard = () => {
   }, []);
 
   const updateStatus = async (id, newStatus) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       await axios.put(`http://localhost:5000/api/magang/tugas/${id}/status`, { status: newStatus }, {
@@ -34,6 +37,8 @@ const TaskBoard = () => {
       fetchTasks();
     } catch (error) {
       alert(error.response?.data?.message || 'Gagal memperbarui status tugas');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -93,7 +98,7 @@ const TaskBoard = () => {
         <p className="text-xs text-gray-600 line-clamp-2 mb-3">{task.deskripsi}</p>
         
         {task.status === 'TODO' && (
-          <button onClick={() => updateStatus(task.id, 'IN_PROGRESS')} className="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg flex items-center justify-center transition-colors">
+          <button onClick={() => updateStatus(task.id, 'IN_PROGRESS')} disabled={isSubmitting} className="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg flex items-center justify-center transition-colors disabled:opacity-50">
             <PlayCircle className="w-3 h-3 mr-1" /> Mulai Kerjakan
           </button>
         )}
