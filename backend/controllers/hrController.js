@@ -360,6 +360,18 @@ export const updateLowonganHR = async (req, res) => {
 export const deleteLowonganHR = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Cek apakah lowongan sudah memiliki pelamar
+    const pelamarCount = await prisma.pendaftaran.count({
+      where: { lowongan_id: parseInt(id) }
+    });
+
+    if (pelamarCount > 0) {
+      return res.status(400).json({ 
+        message: 'Lowongan ini tidak bisa dihapus karena sudah ada pelamar yang mendaftar. Silakan ubah status lowongan menjadi CLOSED jika ingin menutupnya.' 
+      });
+    }
+
     await prisma.lowongan.delete({
       where: { id: parseInt(id) }
     });

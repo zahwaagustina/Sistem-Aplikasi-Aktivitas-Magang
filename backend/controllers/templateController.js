@@ -39,7 +39,7 @@ export const getActiveTemplates = async (req, res) => {
 // [Admin] Create a template
 export const createTemplate = async (req, res) => {
   try {
-    const { nama_template, kategori, deskripsi, status } = req.body;
+    const { nama_template, deskripsi } = req.body;
     
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'File template harus diunggah.' });
@@ -48,13 +48,11 @@ export const createTemplate = async (req, res) => {
     const newTemplate = await prisma.masterTemplate.create({
       data: {
         nama_template,
-        kategori,
         deskripsi: deskripsi || null,
         nama_file: req.file.originalname,
         path_file: req.file.path.replace(/\\/g, '/'),
-        ekstensi: path.extname(req.file.originalname).toLowerCase(),
+        ekstensi: req.file.originalname.substring(req.file.originalname.lastIndexOf('.')).toLowerCase(),
         ukuran_file: req.file.size,
-        status: status === 'true' || status === true,
         created_by: req.user.id
       }
     });
@@ -70,18 +68,16 @@ export const createTemplate = async (req, res) => {
 export const updateTemplate = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nama_template, kategori, deskripsi, status } = req.body;
+    const { nama_template, deskripsi } = req.body;
 
     const existingTemplate = await prisma.masterTemplate.findUnique({ where: { id: Number(id) } });
     if (!existingTemplate) {
-      return res.status(404).json({ success: false, message: 'Template tidak ditemukan.' });
+      return res.status(404).json({ success: false, message: 'Template tidak ditemukan' });
     }
 
     const dataToUpdate = {
       nama_template,
-      kategori,
       deskripsi: deskripsi || null,
-      status: status === 'true' || status === true,
     };
 
     if (req.file) {

@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../../api';
-import { Plus, Edit2, Trash2, Download, FileText, CheckCircle, XCircle } from 'lucide-react';
+import api from '../../api';
+import { Plus, Edit2, Trash2, Download, FileText, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const MasterTemplate = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterExt, setFilterExt] = useState('all');
   
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState({
     id: '',
     nama_template: '',
-    kategori: '',
     deskripsi: '',
     status: 'true'
   });
@@ -69,8 +73,8 @@ const MasterTemplate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nama_template || !formData.kategori) {
-      setErrorMsg('Nama Template dan Kategori wajib diisi');
+    if (!formData.nama_template) {
+      setErrorMsg('Nama Template wajib diisi');
       return;
     }
     
@@ -85,7 +89,6 @@ const MasterTemplate = () => {
       
       const form = new FormData();
       form.append('nama_template', formData.nama_template);
-      form.append('kategori', formData.kategori);
       form.append('deskripsi', formData.deskripsi);
       form.append('status', formData.status);
       
@@ -97,10 +100,12 @@ const MasterTemplate = () => {
         await api.put(`/templates/${formData.id}`, form, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
+        toast.success('Template berhasil diperbarui');
       } else {
         await api.post('/templates', form, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
+        toast.success('Template berhasil ditambahkan');
       }
 
       setShowModal(false);
@@ -108,6 +113,7 @@ const MasterTemplate = () => {
       fetchTemplates();
     } catch (error) {
       console.error('Error saving template:', error);
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan template');
       setErrorMsg(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan template');
     } finally {
       setSubmitting(false);
@@ -118,7 +124,6 @@ const MasterTemplate = () => {
     setFormData({
       id: template.id,
       nama_template: template.nama_template,
-      kategori: template.kategori,
       deskripsi: template.deskripsi || '',
       status: template.status.toString()
     });
@@ -127,25 +132,36 @@ const MasterTemplate = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus template ini?')) {
-      try {
-        await api.delete(`/templates/${id}`);
-        fetchTemplates();
-      } catch (error) {
-        console.error('Error deleting template:', error);
-        alert('Gagal menghapus template');
-      }
+  const confirmDelete = (template) => {
+    setTemplateToDelete(template);
+    setShowDeleteModal(true);
+  };
+
+  const executeDelete = async () => {
+    if (!templateToDelete) return;
+    try {
+      setDeleting(true);
+      await api.delete(`/templates/${templateToDelete.id}`);
+      fetchTemplates();
+      setShowDeleteModal(false);
+      setTemplateToDelete(null);
+      toast.success('Template berhasil dihapus');
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      toast.error('Gagal menghapus template');
+    } finally {
+      setDeleting(false);
     }
   };
 
   const handleToggleStatus = async (id) => {
     try {
-      await api.patch(`/templates/${id}/status`);
+      const res = await api.patch(`/templates/${id}/status`);
       fetchTemplates();
+      toast.success(res.data.message || 'Status template berhasil diubah');
     } catch (error) {
       console.error('Error toggling status:', error);
-      alert('Gagal mengubah status template');
+      toast.error('Gagal mengubah status template');
     }
   };
 
@@ -169,13 +185,19 @@ const MasterTemplate = () => {
     setFormData({
       id: '',
       nama_template: '',
-      kategori: '',
       deskripsi: '',
       status: 'true'
     });
     setFile(null);
     setErrorMsg('');
   };
+
+  const uniqueExtensions = [...new Set(templates.map(t => t.ekstensi))];
+
+  const filteredTemplates = templates.filter(t => {
+    if (filterExt === 'all') return true;
+    return t.ekstensi === filterExt;
+  });
 
   return (
     <div className="p-6">
@@ -184,13 +206,25 @@ const MasterTemplate = () => {
           <h1 className="text-2xl font-bold text-slate-800">Master Template Dokumen</h1>
           <p className="text-slate-500">Kelola template dokumen yang dapat diunduh oleh peserta magang</p>
         </div>
-        <button
-          onClick={() => { resetForm(); setShowModal(true); }}
-          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          <Plus size={20} />
-          <span>Tambah Template</span>
-        </button>
+        <div className="flex space-x-3">
+          <select
+            value={filterExt}
+            onChange={(e) => setFilterExt(e.target.value)}
+            className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+          >
+            <option value="all">Semua Format</option>
+            {uniqueExtensions.map(ext => (
+              <option key={ext} value={ext}>{ext.toUpperCase().replace('.', '')}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => { resetForm(); setShowModal(true); }}
+            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus size={20} />
+            <span>Tambah Template</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -200,10 +234,8 @@ const MasterTemplate = () => {
               <tr className="bg-slate-50 border-b border-slate-200">
                 <th className="p-4 font-semibold text-slate-700 w-16">No</th>
                 <th className="p-4 font-semibold text-slate-700">Nama Template</th>
-                <th className="p-4 font-semibold text-slate-700">Kategori</th>
                 <th className="p-4 font-semibold text-slate-700">Deskripsi</th>
                 <th className="p-4 font-semibold text-slate-700">Nama File</th>
-                <th className="p-4 font-semibold text-slate-700">Status</th>
                 <th className="p-4 font-semibold text-slate-700 text-center">Aksi</th>
               </tr>
             </thead>
@@ -212,20 +244,15 @@ const MasterTemplate = () => {
                 <tr>
                   <td colSpan="7" className="p-8 text-center text-slate-500">Memuat data...</td>
                 </tr>
-              ) : templates.length === 0 ? (
+              ) : filteredTemplates.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="p-8 text-center text-slate-500">Belum ada template dokumen</td>
+                  <td colSpan="6" className="p-8 text-center text-slate-500">Belum ada template dokumen</td>
                 </tr>
               ) : (
-                templates.map((template, index) => (
+                filteredTemplates.map((template, index) => (
                   <tr key={template.id} className="border-b border-slate-100 hover:bg-slate-50">
                     <td className="p-4 text-slate-600">{index + 1}</td>
                     <td className="p-4 font-medium text-slate-800">{template.nama_template}</td>
-                    <td className="p-4 text-slate-600">
-                      <span className="inline-block px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-sm">
-                        {template.kategori}
-                      </span>
-                    </td>
                     <td className="p-4 text-slate-600 max-w-xs truncate" title={template.deskripsi}>
                       {template.deskripsi || '-'}
                     </td>
@@ -240,20 +267,14 @@ const MasterTemplate = () => {
                       </button>
                     </td>
                     <td className="p-4">
-                      <button
-                        onClick={() => handleToggleStatus(template.id)}
-                        className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                          template.status 
-                            ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        {template.status ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                        <span>{template.status ? 'Aktif' : 'Tidak Aktif'}</span>
-                      </button>
-                    </td>
-                    <td className="p-4">
                       <div className="flex items-center justify-center space-x-3">
+                        <button
+                          onClick={() => handleToggleStatus(template.id)}
+                          className={`${template.status ? 'text-blue-500 hover:text-blue-600' : 'text-slate-400 hover:text-slate-500'} transition-colors`}
+                          title={template.status ? 'Bisa Dilihat' : 'Tidak Bisa Dilihat'}
+                        >
+                          {template.status ? <Eye size={18} /> : <EyeOff size={18} />}
+                        </button>
                         <button
                           onClick={() => handleEdit(template)}
                           className="text-amber-500 hover:text-amber-600 transition-colors"
@@ -262,7 +283,7 @@ const MasterTemplate = () => {
                           <Edit2 size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(template.id)}
+                          onClick={() => confirmDelete(template)}
                           className="text-red-500 hover:text-red-600 transition-colors"
                           title="Hapus"
                         >
@@ -315,20 +336,6 @@ const MasterTemplate = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Kategori <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="kategori"
-                    value={formData.kategori}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Contoh: Laporan, Presentasi"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Deskripsi
                   </label>
                   <textarea
@@ -339,20 +346,6 @@ const MasterTemplate = () => {
                     placeholder="Penjelasan singkat tentang template ini..."
                     rows="3"
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="true">Aktif</option>
-                    <option value="false">Tidak Aktif</option>
-                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -385,6 +378,43 @@ const MasterTemplate = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden animate-fade-in-up">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="text-red-500" size={32} />
+              </div>
+              <h2 className="text-xl font-bold text-slate-800 mb-2">Hapus Template?</h2>
+              <p className="text-slate-600 mb-6 text-sm">
+                Apakah Anda yakin ingin menghapus template <span className="font-semibold text-slate-800">{templateToDelete?.nama_template}</span>? Tindakan ini tidak dapat dibatalkan.
+              </p>
+              <div className="flex justify-center space-x-3">
+                <button
+                  onClick={() => { setShowDeleteModal(false); setTemplateToDelete(null); }}
+                  className="px-6 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors font-medium text-sm"
+                  disabled={deleting}
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={executeDelete}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm flex items-center justify-center min-w-[120px]"
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    'Ya, Hapus'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

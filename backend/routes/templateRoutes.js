@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate, authorize } from '../middleware/auth.js';
+import { authenticateToken, authorizeRole } from '../middleware/auth.js';
 import { uploadTemplate } from '../middleware/uploadTemplate.js';
 import {
   getAllTemplates,
@@ -14,27 +14,27 @@ import {
 const router = express.Router();
 
 // Middleware auth untuk semua route
-router.use(authenticate);
+router.use(authenticateToken);
 
 // --- Routes untuk MAGANG ---
 // Mengambil semua template yang aktif
-router.get('/active', authorize('MAGANG'), getActiveTemplates);
+router.get('/active', authorizeRole(['MAGANG']), getActiveTemplates);
 
 // --- Routes untuk ADMIN (SUPER_ADMIN) ---
 // Mengambil semua template
-router.get('/', authorize('SUPER_ADMIN'), getAllTemplates);
+router.get('/', authorizeRole(['SUPER_ADMIN']), getAllTemplates);
 
 // Tambah template baru
-router.post('/', authorize('SUPER_ADMIN'), uploadTemplate.single('file'), createTemplate);
+router.post('/', authorizeRole(['SUPER_ADMIN']), uploadTemplate.single('file'), createTemplate);
 
 // Update template (termasuk file)
-router.put('/:id', authorize('SUPER_ADMIN'), uploadTemplate.single('file'), updateTemplate);
+router.put('/:id', authorizeRole(['SUPER_ADMIN']), uploadTemplate.single('file'), updateTemplate);
 
 // Hapus template
-router.delete('/:id', authorize('SUPER_ADMIN'), deleteTemplate);
+router.delete('/:id', authorizeRole(['SUPER_ADMIN']), deleteTemplate);
 
 // Toggle status template
-router.patch('/:id/status', authorize('SUPER_ADMIN'), toggleStatusTemplate);
+router.patch('/:id/status', authorizeRole(['SUPER_ADMIN']), toggleStatusTemplate);
 
 // --- Routes Umum ---
 // Download template

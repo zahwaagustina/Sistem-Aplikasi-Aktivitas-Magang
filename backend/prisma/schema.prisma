@@ -410,7 +410,6 @@ model PasswordResetToken {
 model MasterTemplate {
   id            Int      @id @default(autoincrement())
   nama_template String
-  kategori      String
   deskripsi     String?  @db.Text
   nama_file     String
   path_file     String

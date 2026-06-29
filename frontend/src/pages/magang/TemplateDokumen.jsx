@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../../api';
+import api from '../../api';
 import { Download, FileText, File, Search } from 'lucide-react';
 
 const TemplateDokumen = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterExt, setFilterExt] = useState('all');
 
   useEffect(() => {
     fetchActiveTemplates();
@@ -59,31 +60,50 @@ const TemplateDokumen = () => {
     }
   };
 
-  const filteredTemplates = templates.filter(t => 
-    t.nama_template.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    t.kategori.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const uniqueExtensions = [...new Set(templates.map(t => t.ekstensi))];
+
+  const filteredTemplates = templates.filter(template => {
+    const matchesSearch = template.nama_template.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           (template.deskripsi && template.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesExt = filterExt === 'all' || template.ekstensi === filterExt;
+    return matchesSearch && matchesExt;
+  });
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Template Dokumen</h1>
-        <p className="text-slate-500">Unduh format dokumen resmi untuk keperluan magang Anda</p>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 mb-2">Template Dokumen</h1>
+        <p className="text-slate-600">Unduh template dokumen resmi yang dibutuhkan selama masa magang Anda.</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input
-              type="text"
-              placeholder="Cari berdasarkan nama atau kategori..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+      {/* Search & Filter Bar */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={18} className="text-slate-400" />
           </div>
+          <input
+            type="text"
+            placeholder="Cari template dokumen..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+          />
         </div>
+        
+        <div className="w-full md:w-48">
+          <select
+            value={filterExt}
+            onChange={(e) => setFilterExt(e.target.value)}
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+          >
+            <option value="all">Semua Format</option>
+            {uniqueExtensions.map(ext => (
+              <option key={ext} value={ext}>{ext.toUpperCase().replace('.', '')}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
         {loading ? (
           <div className="text-center py-12 text-slate-500">
@@ -98,16 +118,13 @@ const TemplateDokumen = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTemplates.map((template) => (
-              <div key={template.id} className="border border-slate-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col h-full">
+              <div key={template.id} className="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col h-full">
                 <div className="flex items-start space-x-4 mb-4">
                   {getFileIcon(template.ekstensi)}
                   <div className="flex-1">
                     <h3 className="font-semibold text-slate-800 line-clamp-2" title={template.nama_template}>
                       {template.nama_template}
                     </h3>
-                    <span className="inline-block px-2 py-0.5 mt-1 bg-slate-100 text-slate-600 rounded text-xs font-medium">
-                      {template.kategori}
-                    </span>
                   </div>
                 </div>
                 
@@ -131,7 +148,6 @@ const TemplateDokumen = () => {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 };
