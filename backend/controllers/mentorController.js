@@ -8,9 +8,13 @@ export const getAnakMagang = async (req, res) => {
     const mentorId = req.user.id;
     const role = req.user.role;
     
-    let whereClause = {};
+    let whereClause = {
+      user: {
+        role: { in: ['MAGANG', 'SELESAI'] } // Hanya tampilkan yang sudah fix jadi magang/selesai
+      }
+    };
     if (role !== 'SUPER_ADMIN') {
-      whereClause = { mentor_id: mentorId };
+      whereClause.mentor_id = mentorId;
     }
 
     const magangList = await prisma.profilMagang.findMany({

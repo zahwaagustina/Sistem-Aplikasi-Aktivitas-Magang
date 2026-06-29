@@ -7,7 +7,13 @@ export const getMyNotifications = async (req, res) => {
   try {
     const userId = req.user.id;
     const notifikasi = await prisma.notifikasi.findMany({
-      where: { user_id: userId },
+      where: { 
+        user_id: userId,
+        OR: [
+          { expires_at: null },
+          { expires_at: { gt: new Date() } }
+        ]
+      },
       orderBy: { created_at: 'desc' }
     });
     

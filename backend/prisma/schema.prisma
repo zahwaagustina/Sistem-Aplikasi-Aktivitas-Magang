@@ -391,7 +391,9 @@ model Notifikasi {
   is_read    Boolean  @default(false)
   link       String?
   created_at DateTime @default(now())
+  expires_at DateTime? @default(dbgenerated("NOW() + INTERVAL '30 days'"))
   
+  @@index([expires_at])
   @@map("notifikasi")
 }
 

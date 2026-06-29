@@ -16,6 +16,7 @@ import notifikasiRoutes from './routes/notifikasiRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import { auditTrail } from './middleware/auditTrail.js';
 import { initAbsensiCron } from './cron/absensiCron.js';
+import { initNotifikasiCron } from './cron/notifikasiCron.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,6 +24,7 @@ dotenv.config();
 
 // Inisialisasi Cron Jobs
 initAbsensiCron();
+initNotifikasiCron();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
