@@ -185,7 +185,9 @@ export const submitNilaiInterview = async (req, res) => {
             <p>Halo <strong>${user.nama}</strong>,</p>
             <p>Selamat! Anda telah resmi <strong>diterima magang</strong> untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
             <p>Silakan segera login ke portal web untuk melengkapi data Anda dan masuk ke tahap <strong>Onboarding</strong>.</p>
-            <br/>
+            <div style="text-align: center;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" class="btn">Login ke Portal PCS</a>
+            </div>
             <p>Salam,</p>
             <p><strong>Tim HR</strong></p>
           `;
