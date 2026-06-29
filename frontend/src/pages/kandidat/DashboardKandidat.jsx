@@ -59,11 +59,39 @@ const DashboardKandidat = () => {
           <p className="text-slate-600 text-lg">Pantau status lamaran magang Anda di sini.</p>
         </div>
         <div>
-          <Link to="/#lowongan-section" className="bg-blue-600 text-white px-6 py-3.5 rounded-full font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 w-full justify-center md:w-auto">
-            Eksplor Lowongan <ArrowRight className="w-5 h-5" />
-          </Link>
+          {applications.length < 2 && (
+            <Link to="/#lowongan-section" className="bg-blue-600 text-white px-6 py-3.5 rounded-full font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 w-full justify-center md:w-auto">
+              Eksplor Lowongan <ArrowRight className="w-5 h-5" />
+            </Link>
+          )}
         </div>
       </div>
+
+      {/* Stats Widget */}
+      {!loading && user?.role === 'KANDIDAT' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white/60 backdrop-blur-xl p-6 rounded-3xl shadow-sm border border-white/50 flex items-center gap-4">
+            <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+              <FileText className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Lamaran</p>
+              <p className="text-2xl font-bold text-slate-900">{applications.length}</p>
+            </div>
+          </div>
+          <div className="bg-white/60 backdrop-blur-xl p-6 rounded-3xl shadow-sm border border-white/50 flex items-center gap-4">
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${applications.length >= 2 ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+              <CheckCircle className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Sisa Kesempatan</p>
+              <p className={`text-2xl font-bold ${applications.length >= 2 ? 'text-red-600' : 'text-emerald-600'}`}>
+                {Math.max(0, 2 - applications.length)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center p-20">

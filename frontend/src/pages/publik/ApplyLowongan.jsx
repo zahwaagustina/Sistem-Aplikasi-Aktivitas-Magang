@@ -25,6 +25,32 @@ const ApplyLowongan = () => {
   const [lowonganDetail, setLowonganDetail] = useState(null);
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const res = await axios.get('http://localhost:5000/api/users/profile', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const profileData = res.data.data;
+          if (profileData) {
+            setFormData(prev => ({
+              ...prev,
+              universitas: profileData.universitas || prev.universitas,
+              jurusan: profileData.jurusan || prev.jurusan,
+              semester: profileData.semester || prev.semester,
+              npm: profileData.npm || prev.npm
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile for autofill:', error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  useEffect(() => {
     if (lowonganId) {
       axios.get(`http://localhost:5000/api/public/lowongan/${lowonganId}`)
         .then(res => setLowonganDetail(res.data.data))

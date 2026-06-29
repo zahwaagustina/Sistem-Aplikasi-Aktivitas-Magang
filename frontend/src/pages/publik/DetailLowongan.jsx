@@ -10,6 +10,7 @@ const DetailLowongan = () => {
   const { user } = useAuth();
   const [lowongan, setLowongan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [applications, setApplications] = useState([]);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -22,8 +23,29 @@ const DetailLowongan = () => {
         setLoading(false);
       }
     };
+
+    const fetchApplications = async () => {
+      if (user && user.role === 'KANDIDAT') {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await axios.get('http://localhost:5000/api/kandidat/applications', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setApplications(res.data.data || []);
+        } catch (error) {
+          console.error('Error fetching applications:', error);
+        }
+      }
+    };
+
     fetchDetail();
-  }, [id]);
+    fetchApplications();
+  }, [id, user]);
+
+  const totalLamaran = applications.length;
+  const isMaxReached = totalLamaran >= 2;
+  const isSameDivision = applications.some(app => app.lowongan?.divisi === lowongan?.divisi);
+  const isAlreadyApplied = applications.some(app => app.lowongan_id === lowongan?.id);
 
   if (loading) {
     return (
@@ -95,7 +117,15 @@ const DetailLowongan = () => {
               </div>
             </div>
             <div>
+              {user?.role === 'KANDIDAT' && (
+                <div className="mb-3 text-right flex justify-end">
+                  <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full border ${isMaxReached ? 'bg-red-50 text-red-700 border-red-200' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                    Kesempatan Melamar: {totalLamaran}/2
+                  </span>
+                </div>
+              )}
               <button 
+                disabled={user?.role === 'KANDIDAT' && (isMaxReached || isSameDivision || isAlreadyApplied)}
                 onClick={() => {
                   if (user) {
                     navigate('/apply', { state: { lowonganId: lowongan.id } });
@@ -103,9 +133,20 @@ const DetailLowongan = () => {
                     navigate('/register', { state: { lowonganId: lowongan.id } });
                   }
                 }}
-                className="w-full md:w-auto bg-[#004aad] text-white px-6 py-2.5 rounded-xl font-bold text-base hover:bg-blue-800 transition-colors shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+                className={`w-full md:w-auto px-6 py-2.5 rounded-xl font-bold text-base transition-colors shadow-md flex items-center justify-center gap-2 whitespace-nowrap ${
+                  (user?.role === 'KANDIDAT' && (isMaxReached || isSameDivision || isAlreadyApplied))
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                    : 'bg-[#004aad] text-white hover:bg-blue-800'
+                }`}
               >
-                Daftar Sekarang
+                {user?.role === 'KANDIDAT' && isAlreadyApplied
+                  ? 'Sudah Dilamar'
+                  : user?.role === 'KANDIDAT' && isSameDivision
+                  ? 'Divisi Sudah Dilamar'
+                  : user?.role === 'KANDIDAT' && isMaxReached
+                  ? 'Batas Maksimal Tercapai'
+                  : 'Daftar Sekarang'
+                }
               </button>
             </div>
           </div>

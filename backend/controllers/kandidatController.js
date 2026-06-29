@@ -32,10 +32,25 @@ export const applyLowongan = async (req, res) => {
       return res.status(404).json({ message: 'Lowongan tidak tersedia' });
     }
 
-    // Cek apakah sudah melamar di lowongan ini
-    const existingPendaftaran = await prisma.pendaftaran.findFirst({
-      where: { user_id, lowongan_id: parseInt(lowongan_id) }
+    // Cek apakah sudah melamar di lowongan ini atau validasi lainnya
+    const allApplications = await prisma.pendaftaran.findMany({
+      where: { user_id },
+      include: { lowongan: true }
     });
+
+    // Validasi 1: Maksimal 2 lamaran
+    if (allApplications.length >= 2) {
+      return res.status(400).json({ message: 'Anda telah mencapai batas maksimal pengajuan magang (2 lamaran).' });
+    }
+
+    // Validasi 2: Tidak boleh melamar di divisi yang sama
+    const isSameDivision = allApplications.some(app => app.lowongan.divisi === lowongan.divisi);
+    if (isSameDivision) {
+      return res.status(400).json({ message: 'Anda sudah pernah mengajukan lamaran pada divisi ini.' });
+    }
+
+    // Validasi 3: Pastikan tidak melamar posisi yang persis sama (jaga-jaga jika beda divisi tapi id sama - impossible tapi good practice)
+    const existingPendaftaran = allApplications.find(app => app.lowongan_id === parseInt(lowongan_id));
     if (existingPendaftaran) {
       return res.status(400).json({ message: 'Anda sudah melamar posisi ini' });
     }

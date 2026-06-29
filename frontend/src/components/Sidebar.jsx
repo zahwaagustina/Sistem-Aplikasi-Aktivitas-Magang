@@ -71,8 +71,7 @@ const Sidebar = ({ isOpen }) => {
     
     if (userRole === 'KANDIDAT') {
       const items = [
-        ...baseItems,
-        { name: 'Status Lamaran', path: '/kandidat/dashboard', icon: <User size={20} /> },
+        { name: 'Dashboard', path: '/kandidat/dashboard', icon: <LayoutDashboard size={20} /> },
       ];
       if (showOnboarding) {
         items.push({ name: 'Onboarding', path: '/kandidat/onboarding', icon: <CheckCircle size={20} /> });
