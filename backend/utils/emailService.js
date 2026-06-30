@@ -12,86 +12,69 @@ const getEmailTemplate = (content, link) => {
 <head>
   <style>
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-image: linear-gradient(to bottom right, #dbeafe, #eff6ff, #bfdbfe);
-      background-color: #f8fafc; /* Fallback */
+      font-family: Arial, sans-serif;
+      background-color: #f8fafc;
       margin: 0;
-      padding: 40px 20px;
-      min-height: 100vh;
-      color: #334155;
+      padding: 0;
     }
     .container {
       max-width: 600px;
-      margin: 0 auto;
+      margin: 40px auto;
       background-color: #ffffff;
-      border-radius: 16px;
-      padding: 40px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      border: 1px solid #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     .header {
+      background-color: #4f46e5;
+      padding: 24px;
       text-align: center;
-      margin-bottom: 30px;
     }
     .header h1 {
+      color: #ffffff;
       margin: 0;
       font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #2563eb;
     }
     .content {
-      font-size: 15px;
+      padding: 32px;
+      font-size: 16px;
       line-height: 1.6;
-      color: #475569;
+      color: #334155;
     }
-    .content p {
-      margin-bottom: 16px;
+    .footer {
+      background-color: #f8fafc;
+      padding: 24px;
+      text-align: center;
+      font-size: 14px;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
     }
     .btn {
       display: inline-block;
-      padding: 14px 28px;
-      background-image: linear-gradient(to right, #2563eb, #22d3ee);
-      background-color: #2563eb; /* Fallback */
-      color: #ffffff !important;
+      padding: 12px 24px;
+      background-color: #4f46e5;
+      color: #ffffff;
       text-decoration: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 15px;
-      margin: 20px 0;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-    }
-    .footer {
-      text-align: center;
-      margin-top: 30px;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 20px;
-    }
-    .footer p {
-      font-size: 12px;
-      color: #94a3b8;
-      margin: 0;
-    }
-    .footer p.copyright {
-      margin-top: 4px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>PCS Internship Portal</h1>
+      <h1>Portal Magang PCS</h1>
     </div>
     <div class="content">
       ${content}
-      <div style="text-align: center; margin-top: 20px;">
+      <div style="text-align: center; margin-top: 30px;">
         <a href="${targetLink}" class="btn">Buka Aplikasi</a>
       </div>
     </div>
     <div class="footer">
-      <p>Pesan ini dikirim secara otomatis oleh sistem, mohon jangan dibalas.</p>
-      <p class="copyright">&copy; ${new Date().getFullYear()} Pandu Cipta Solusi. All rights reserved.</p>
+      <p>Pesan ini dikirim secara otomatis oleh sistem.<br/>Mohon untuk tidak membalas email ini.</p>
+      <p>&copy; ${new Date().getFullYear()} PT Pandu Cipta Solusi. All rights reserved.</p>
     </div>
   </div>
 </body>
