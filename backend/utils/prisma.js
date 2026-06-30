@@ -1,45 +1,54 @@
 import { PrismaClient } from '@prisma/client';
 import { sendEmail } from './emailService.js';
 
-// Setup centralized prisma instance
-const prisma = new PrismaClient();
+const basePrisma = new PrismaClient();
 
-// Add middleware to automatically send emails when a notification is created
-prisma.$use(async (params, next) => {
-  const result = await next(params);
-  
-  if (params.model === 'Notifikasi' && (params.action === 'create' || params.action === 'createMany')) {
-    try {
-      // Handle both create and createMany
-      const notifications = Array.isArray(result) ? result : (result ? [result] : []);
-      
-      for (const notif of notifications) {
-        if (!notif.user_id) continue;
-        
-        // Asynchronously fetch user and send email
-        // We don't await this inside the loop to avoid blocking the DB transaction or response
-        prisma.user.findUnique({
-          where: { id: notif.user_id }
-        }).then(user => {
-          if (user && user.email) {
-            // Build content
-            const content = `
-              <h3>${notif.judul}</h3>
-              <p>Halo ${user.nama},</p>
-              <p>${notif.pesan}</p>
-            `;
-            
-            sendEmail(user.email, notif.judul, notif.pesan, content, notif.link)
-              .catch(err => console.error('Failed to auto-send notification email:', err));
+const prisma = basePrisma.$extends({
+  query: {
+    notifikasi: {
+      async create({ args, query }) {
+        const result = await query(args);
+        try {
+          if (result && result.user_id) {
+            basePrisma.user.findUnique({ where: { id: result.user_id } }).then(user => {
+              if (user && user.email) {
+                const content = `
+                  <h3>${result.judul}</h3>
+                  <p>Halo ${user.nama},</p>
+                  <p>${result.pesan}</p>
+                `;
+                sendEmail(user.email, result.judul, result.pesan, content, result.link)
+                  .catch(err => console.error('Failed to auto-send notification email:', err));
+              }
+            });
           }
-        }).catch(err => console.error('Error fetching user for auto-email:', err));
+        } catch (err) {}
+        return result;
+      },
+      async createMany({ args, query }) {
+        const result = await query(args);
+        try {
+          const notifications = Array.isArray(args.data) ? args.data : [args.data];
+          for (const notif of notifications) {
+            if (notif.user_id) {
+              basePrisma.user.findUnique({ where: { id: notif.user_id } }).then(user => {
+                if (user && user.email) {
+                  const content = `
+                    <h3>${notif.judul}</h3>
+                    <p>Halo ${user.nama},</p>
+                    <p>${notif.pesan}</p>
+                  `;
+                  sendEmail(user.email, notif.judul, notif.pesan, content, notif.link)
+                    .catch(err => console.error('Failed to auto-send notification email:', err));
+                }
+              });
+            }
+          }
+        } catch (err) {}
+        return result;
       }
-    } catch (err) {
-      console.error('Error in notification email middleware:', err);
     }
   }
-
-  return result;
 });
 
 export default prisma;
