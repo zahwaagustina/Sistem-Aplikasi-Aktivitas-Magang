@@ -87,17 +87,17 @@ const Sidebar = ({ isOpen }) => {
   const navItems = getNavItems();
 
   return (
-    <aside className={`bg-white/40 backdrop-blur-xl border-r border-white/50 shadow-[4px_0_24px_0_rgba(31,38,135,0.05)] w-64 min-h-screen flex-shrink-0 transition-all duration-300 z-50 ${isOpen ? 'translate-x-0' : '-translate-x-full absolute'} md:relative md:translate-x-0`}>
+    <aside className={`bg-white/40 backdrop-blur-xl border-r border-white/50 shadow-[4px_0_24px_0_rgba(31,38,135,0.05)] w-64 h-full flex flex-col flex-shrink-0 transition-all duration-300 z-50 ${isOpen ? 'translate-x-0' : '-translate-x-full absolute'} md:relative md:translate-x-0`}>
       <div className="h-16 flex items-center justify-center border-b border-white/50">
         <h1 className="text-xl font-extrabold tracking-tight text-slate-900">PCS Portal</h1>
       </div>
-      <nav className="p-4 space-y-2">
+      <nav className="p-4 space-y-2 flex-1 overflow-y-auto no-scrollbar">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium ${
+              `flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all text-sm font-medium ${
                 isActive ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white shadow-md' : 'text-slate-600 hover:bg-white/60 hover:text-blue-700 hover:shadow-sm'
               }`
             }

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import {
-  FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiCheck, FiArrowUp, FiArrowDown
-} from 'react-icons/fi';
+  Plus, Edit2, Trash2, Save, X, Check, ArrowUp, ArrowDown
+} from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -223,7 +223,7 @@ const MasterFormKesanggupan = () => {
           }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700"
         >
-          <FiPlus className="mr-2" /> Buat Form Baru
+          <Plus className="mr-2" /> Buat Form Baru
         </button>
       </div>
 
@@ -269,7 +269,7 @@ const MasterFormKesanggupan = () => {
                         }}
                         className="text-gray-500 hover:text-blue-600"
                       >
-                        <FiEdit2 size={14} />
+                        <Edit2 size={14} />
                       </button>
                       <button
                         onClick={(e) => {
@@ -278,7 +278,7 @@ const MasterFormKesanggupan = () => {
                         }}
                         className="text-gray-500 hover:text-red-600"
                       >
-                        <FiTrash2 size={14} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -301,7 +301,7 @@ const MasterFormKesanggupan = () => {
                   onClick={openAddQuestion}
                   className="bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-2 rounded-lg flex items-center hover:bg-indigo-100 transition-colors text-sm font-medium"
                 >
-                  <FiPlus className="mr-1" /> Tambah Pertanyaan
+                  <Plus className="mr-1" /> Tambah Pertanyaan
                 </button>
               </div>
 
@@ -315,9 +315,9 @@ const MasterFormKesanggupan = () => {
                   {selectedForm.pertanyaan.map((q, index) => (
                     <div key={q.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50 flex gap-4 hover:border-indigo-300 transition-colors group">
                       <div className="flex flex-col gap-1 items-center justify-center text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleMoveQuestion(index, -1)} disabled={index === 0} className="hover:text-indigo-600 disabled:opacity-30"><FiArrowUp size={16} /></button>
+                        <button onClick={() => handleMoveQuestion(index, -1)} disabled={index === 0} className="hover:text-indigo-600 disabled:opacity-30"><ArrowUp size={16} /></button>
                         <span className="text-xs font-mono">{index + 1}</span>
-                        <button onClick={() => handleMoveQuestion(index, 1)} disabled={index === selectedForm.pertanyaan.length - 1} className="hover:text-indigo-600 disabled:opacity-30"><FiArrowDown size={16} /></button>
+                        <button onClick={() => handleMoveQuestion(index, 1)} disabled={index === selectedForm.pertanyaan.length - 1} className="hover:text-indigo-600 disabled:opacity-30"><ArrowDown size={16} /></button>
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-start mb-2">
@@ -329,8 +329,8 @@ const MasterFormKesanggupan = () => {
                             <span className="text-[10px] px-2 py-1 bg-gray-200 text-gray-600 rounded uppercase font-bold tracking-wider">
                               {q.tipe_pertanyaan.replace('_', ' ')}
                             </span>
-                            <button onClick={() => openEditQuestion(q)} className="text-gray-400 hover:text-blue-600 p-1"><FiEdit2 size={16} /></button>
-                            <button onClick={() => handleDeleteQuestion(q.id)} className="text-gray-400 hover:text-red-600 p-1"><FiTrash2 size={16} /></button>
+                            <button onClick={() => openEditQuestion(q)} className="text-gray-400 hover:text-blue-600 p-1"><Edit2 size={16} /></button>
+                            <button onClick={() => handleDeleteQuestion(q.id)} className="text-gray-400 hover:text-red-600 p-1"><Trash2 size={16} /></button>
                           </div>
                         </div>
                         
@@ -367,7 +367,7 @@ const MasterFormKesanggupan = () => {
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 min-h-[400px]">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <FiEdit2 size={32} className="text-gray-300" />
+                <Edit2 size={32} className="text-gray-300" />
               </div>
               <p className="text-lg">Pilih form di sebelah kiri untuk mengelola pertanyaan</p>
             </div>
@@ -382,7 +382,7 @@ const MasterFormKesanggupan = () => {
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               <h3 className="text-lg font-bold text-gray-800">{isEditingForm ? 'Edit Form' : 'Buat Form Baru'}</h3>
               <button onClick={() => setShowFormModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <FiX size={24} />
+                <X size={24} />
               </button>
             </div>
             <form onSubmit={handleSaveForm} className="p-6 space-y-4">
@@ -421,7 +421,7 @@ const MasterFormKesanggupan = () => {
               <div className="pt-4 flex justify-end gap-3">
                 <button type="button" onClick={() => setShowFormModal(false)} className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">Batal</button>
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center transition-colors">
-                  <FiSave className="mr-2" /> Simpan
+                  <Save className="mr-2" /> Simpan
                 </button>
               </div>
             </form>
@@ -436,7 +436,7 @@ const MasterFormKesanggupan = () => {
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               <h3 className="text-lg font-bold text-gray-800">{isEditingQuestion ? 'Edit Pertanyaan' : 'Tambah Pertanyaan'}</h3>
               <button onClick={() => setShowQuestionModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <FiX size={24} />
+                <X size={24} />
               </button>
             </div>
             <form onSubmit={handleSaveQuestion} className="p-6 space-y-5">
@@ -495,7 +495,7 @@ const MasterFormKesanggupan = () => {
                           className="flex-1 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
                           placeholder={`Opsi ${i + 1}`}
                         />
-                        <button type="button" onClick={() => handleRemoveOption(i)} className="text-red-500 hover:text-red-700 p-1.5 bg-white border border-gray-200 rounded-md"><FiTrash2 /></button>
+                        <button type="button" onClick={() => handleRemoveOption(i)} className="text-red-500 hover:text-red-700 p-1.5 bg-white border border-gray-200 rounded-md"><Trash2 /></button>
                       </div>
                     ))}
                   </div>
@@ -504,7 +504,7 @@ const MasterFormKesanggupan = () => {
                     onClick={handleAddOption}
                     className="mt-3 text-sm text-indigo-600 font-medium hover:text-indigo-800 flex items-center"
                   >
-                    <FiPlus className="mr-1" /> Tambah Opsi Lain
+                    <Plus className="mr-1" /> Tambah Opsi Lain
                   </button>
                 </div>
               )}
@@ -512,7 +512,7 @@ const MasterFormKesanggupan = () => {
               <div className="pt-4 flex justify-end gap-3 border-t">
                 <button type="button" onClick={() => setShowQuestionModal(false)} className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">Batal</button>
                 <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium flex items-center">
-                  <FiCheck className="mr-2" /> Simpan Pertanyaan
+                  <Check className="mr-2" /> Simpan Pertanyaan
                 </button>
               </div>
             </form>

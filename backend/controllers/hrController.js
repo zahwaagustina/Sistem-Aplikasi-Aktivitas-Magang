@@ -36,7 +36,7 @@ export const updateStatusLamaran = async (req, res) => {
     const pendaftaran = await prisma.pendaftaran.update({
       where: { id: parseInt(id) },
       data: { status, catatan_hr },
-      include: { lowongan: true }
+      include: { lowongan: true, user: true }
     });
 
     let pesanNotifikasi = `Status lamaran Anda untuk posisi ${pendaftaran.lowongan.posisi} telah berubah menjadi ${status}.`;
@@ -56,6 +56,20 @@ export const updateStatusLamaran = async (req, res) => {
         link: '/kandidat/dashboard'
       }
     });
+
+    // Kirim Email Notifikasi
+    const { sendEmail } = await import('../utils/emailService.js');
+    const emailHtml = `
+      <p>Halo <strong>${pendaftaran.user.nama}</strong>,</p>
+      <p>${pesanNotifikasi.replace('Selamat!', '<strong>Selamat!</strong>')}</p>
+      <p>Silakan login ke portal aplikasi magang untuk melihat detail lebih lanjut.</p>
+      <br/>
+      <p>Salam,</p>
+      <p><strong>Tim HR</strong></p>
+    `;
+    const emailText = `Halo ${pendaftaran.user.nama},\n\n${pesanNotifikasi}\n\nSilakan cek portal aplikasi magang untuk melihat detail lebih lanjut.\n\nSalam,\nTim HR`;
+    
+    sendEmail(pendaftaran.user.email, judulNotifikasi, emailText, emailHtml);
 
     res.json({ message: `Status berhasil diubah menjadi ${status}`, data: pendaftaran });
   } catch (error) {
@@ -202,7 +216,11 @@ export const submitNilaiInterview = async (req, res) => {
         }
       });
 
-      // Jika diterima, trigger onboarding!
+      // Kirim email notifikasi
+      const user = await tx.user.findUnique({ where: { id: pendaftaran.user_id } });
+      const { sendEmail } = await import('../utils/emailService.js');
+
+      // Jika diterima, trigger onboarding
       if (keputusan === 'ACCEPTED') {
         const existingOnboarding = await tx.onboarding.findUnique({
           where: { pendaftaran_id: pendaftaran.id }
@@ -212,23 +230,31 @@ export const submitNilaiInterview = async (req, res) => {
           await tx.onboarding.create({
             data: { pendaftaran_id: pendaftaran.id }
           });
-          
-          // Kirim email notifikasi secara asinkron
-          const user = await tx.user.findUnique({ where: { id: pendaftaran.user_id } });
-          const { sendEmail } = await import('../utils/emailService.js');
-          
-          const emailText = `Halo ${user.nama},\n\nSelamat! Anda telah resmi diterima magang untuk posisi ${pendaftaran.lowongan.posisi}.\n\nSilakan segera login ke portal web sistem aplikasi aktivitas magang untuk melengkapi data dan masuk ke tahap Onboarding.\n\nSalam,\nTim HR`;
-          const emailHtml = `
-            <p>Halo <strong>${user.nama}</strong>,</p>
-            <p>Selamat! Anda telah resmi <strong>diterima magang</strong> untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
-            <p>Silakan segera login ke portal web untuk melengkapi data Anda dan masuk ke tahap <strong>Onboarding</strong>.</p>
-            <br/>
-            <p>Salam,</p>
-            <p><strong>Tim HR</strong></p>
-          `;
-          
-          sendEmail(user.email, 'Selamat! Anda Diterima Magang', emailText, emailHtml);
         }
+          
+        const emailText = `Halo ${user.nama},\n\nSelamat! Anda telah resmi diterima magang untuk posisi ${pendaftaran.lowongan.posisi}.\n\nSilakan segera login ke portal web sistem aplikasi aktivitas magang untuk melengkapi data dan masuk ke tahap Onboarding.\n\nSalam,\nTim HR`;
+        const emailHtml = `
+          <p>Halo <strong>${user.nama}</strong>,</p>
+          <p>Selamat! Anda telah resmi <strong>diterima magang</strong> untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
+          <p>Silakan segera login ke portal web untuk melengkapi data Anda dan masuk ke tahap <strong>Onboarding</strong>.</p>
+          <br/>
+          <p>Salam,</p>
+          <p><strong>Tim HR</strong></p>
+        `;
+        
+        sendEmail(user.email, 'Selamat! Anda Diterima Magang', emailText, emailHtml);
+      } else {
+        const emailText = `Halo ${user.nama},\n\nMohon maaf, Anda belum berhasil lolos pada seleksi wawancara untuk posisi ${pendaftaran.lowongan.posisi}.\n\nJangan patah semangat dan terus tingkatkan kemampuan Anda. Terima kasih atas ketertarikan Anda untuk bergabung bersama kami.\n\nSalam,\nTim HR`;
+        const emailHtml = `
+          <p>Halo <strong>${user.nama}</strong>,</p>
+          <p>Mohon maaf, Anda <strong>belum berhasil lolos</strong> pada seleksi wawancara untuk posisi <strong>${pendaftaran.lowongan.posisi}</strong>.</p>
+          <p>Jangan patah semangat dan terus tingkatkan kemampuan Anda. Terima kasih atas ketertarikan Anda untuk bergabung bersama kami.</p>
+          <br/>
+          <p>Salam,</p>
+          <p><strong>Tim HR</strong></p>
+        `;
+        
+        sendEmail(user.email, 'Pengumuman Hasil Wawancara Magang', emailText, emailHtml);
       }
 
       return { interview, pendaftaran };

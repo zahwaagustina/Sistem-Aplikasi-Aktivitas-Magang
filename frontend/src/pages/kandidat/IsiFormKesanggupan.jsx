@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import { CheckCircle, AlertCircle } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -140,7 +140,7 @@ const IsiFormKesanggupan = () => {
         
         <div className="p-8 bg-gray-50/50">
           <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3 text-blue-800">
-            <FiAlertCircle className="shrink-0 mt-0.5 text-blue-600" size={20} />
+            <AlertCircle className="shrink-0 mt-0.5 text-blue-600" size={20} />
             <div>
               <p className="font-semibold text-sm">Informasi Penting</p>
               <p className="text-xs mt-1">Harap isi form ini dengan sebenar-benarnya. Jawaban Anda akan menentukan proses wawancara. Form yang telah disubmit tidak dapat diubah kembali.</p>
@@ -249,7 +249,7 @@ const IsiFormKesanggupan = () => {
               >
                 {submitting ? 'Mengirim...' : (
                   <>
-                    <FiCheckCircle className="mr-2" size={20} />
+                    <CheckCircle className="mr-2" size={20} />
                     Kirim Jawaban
                   </>
                 )}

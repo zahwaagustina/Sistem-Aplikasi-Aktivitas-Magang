@@ -69,7 +69,7 @@ const DashboardKandidat = () => {
         </div>
       </div>
 
-      {/* Stats Widget */}
+      {/* Stats Widget (Disembunyikan sesuai permintaan)
       {!loading && user?.role === 'KANDIDAT' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white/60 backdrop-blur-xl p-6 rounded-3xl shadow-sm border border-white/50 flex items-center gap-4">
@@ -94,6 +94,7 @@ const DashboardKandidat = () => {
           </div>
         </div>
       )}
+      */}
 
       {loading ? (
         <div className="flex justify-center p-20">
