@@ -44,7 +44,7 @@ export const sendVerificationEmail = async (to, token) => {
         <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; background-image: linear-gradient(to bottom right, #dbeafe, #eff6ff, #bfdbfe); padding: 40px 20px; min-height: 100vh;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border: 1px solid #ffffff;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(to right, #2563eb, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; color: #2563eb;">PCS Internship Portal</h2>
+              <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #2563eb;">PCS Internship Portal</h2>
             </div>
             
             <h3 style="color: #0f172a; font-size: 18px; margin-top: 0;">Halo, Calon Kandidat!</h3>
@@ -105,7 +105,7 @@ export const sendPasswordResetEmail = async (to, token) => {
         <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; background-image: linear-gradient(to bottom right, #dbeafe, #eff6ff, #bfdbfe); padding: 40px 20px; min-height: 100vh;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border: 1px solid #ffffff;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(to right, #2563eb, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; color: #2563eb;">PCS Internship Portal</h2>
+              <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #2563eb;">PCS Internship Portal</h2>
             </div>
             
             <h3 style="color: #0f172a; font-size: 18px; margin-top: 0;">Reset Password Anda</h3>
