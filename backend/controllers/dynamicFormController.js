@@ -215,7 +215,7 @@ export const submitKesanggupanForm = async (req, res) => {
     // Verifikasi Pendaftaran
     const pendaftaran = await prisma.pendaftaran.findUnique({
       where: { id: parseInt(pendaftaranId) },
-      include: { lowongan: true }
+      include: { lowongan: true, user: true }
     });
 
     if (!pendaftaran || pendaftaran.user_id !== userId) {
@@ -264,6 +264,19 @@ export const submitKesanggupanForm = async (req, res) => {
           link: '/kandidat/dashboard'
         }
       });
+
+      // 5. Buat Notifikasi untuk Admin (HR)
+      const admins = await tx.user.findMany({ where: { role: 'SUPER_ADMIN' } });
+      const adminNotifData = admins.map(admin => ({
+        user_id: admin.id,
+        judul: 'Form Kesanggupan Diisi',
+        pesan: `Kandidat ${pendaftaran.user.nama} telah mengisi form kesanggupan untuk posisi ${pendaftaran.lowongan.posisi}.`,
+        link: '/hr/kandidat' // Link ke halaman kandidat
+      }));
+      
+      if (adminNotifData.length > 0) {
+        await tx.notifikasi.createMany({ data: adminNotifData });
+      }
 
       return response;
     });

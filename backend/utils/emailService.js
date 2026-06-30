@@ -8,79 +8,88 @@ const getEmailTemplate = (content) => `
   <style>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: #eff6ff;
+      background-image: linear-gradient(to bottom right, #dbeafe, #eff6ff, #bfdbfe);
+      background-color: #f8fafc; /* Fallback */
       margin: 0;
-      padding: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
       color: #334155;
     }
     .container {
       max-width: 600px;
-      margin: 40px auto;
+      margin: 0 auto;
       background-color: #ffffff;
-      border-radius: 20px;
-      overflow: hidden;
+      border-radius: 16px;
+      padding: 40px;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      border: 1px solid #e0e7ff;
+      border: 1px solid #ffffff;
     }
     .header {
-      background: linear-gradient(to right, #2563eb, #22d3ee);
-      padding: 32px 40px;
       text-align: center;
+      margin-bottom: 30px;
     }
     .header h1 {
-      color: #ffffff;
       margin: 0;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 800;
       letter-spacing: -0.5px;
+      background: linear-gradient(to right, #2563eb, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: #2563eb; /* Fallback */
     }
     .content {
-      padding: 40px;
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
+      color: #475569;
     }
     .content p {
       margin-bottom: 16px;
     }
-    .footer {
-      background-color: #f8fafc;
-      padding: 24px 40px;
-      text-align: center;
-      font-size: 13px;
-      color: #64748b;
-      border-top: 1px solid #f1f5f9;
-    }
     .btn {
       display: inline-block;
-      padding: 12px 28px;
-      background: linear-gradient(to right, #2563eb, #22d3ee);
+      padding: 14px 28px;
+      background-image: linear-gradient(to right, #2563eb, #22d3ee);
+      background-color: #2563eb; /* Fallback */
       color: #ffffff !important;
       text-decoration: none;
-      border-radius: 9999px; /* Fully rounded like pill */
-      font-weight: 700;
+      border-radius: 8px;
+      font-weight: 600;
       font-size: 15px;
-      margin-top: 20px;
-      margin-bottom: 20px;
+      margin: 20px 0;
       text-align: center;
-      box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 20px;
+    }
+    .footer p {
+      font-size: 12px;
+      color: #94a3b8;
+      margin: 0;
+    }
+    .footer p.copyright {
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Portal Magang PCS</h1>
+      <h1>PCS Internship Portal</h1>
     </div>
     <div class="content">
       ${content}
-      <div style="text-align: center; margin-top: 32px;">
-        <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="display: inline-block; padding: 12px 28px; background: #2563eb; background: linear-gradient(to right, #2563eb, #22d3ee); color: #ffffff; text-decoration: none; border-radius: 9999px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); border: 1px solid rgba(255,255,255,0.1);">Buka Dashboard Portal</a>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" class="btn">Buka Dashboard Portal</a>
       </div>
     </div>
     <div class="footer">
-      <p>Pesan ini dikirim secara otomatis oleh sistem.<br/>Mohon untuk tidak membalas email ini.</p>
-      <p>&copy; ${new Date().getFullYear()} PT Pandu Cipta Solusi. All rights reserved.</p>
+      <p>Pesan ini dikirim secara otomatis oleh sistem, mohon jangan dibalas.</p>
+      <p class="copyright">&copy; ${new Date().getFullYear()} Pandu Cipta Solusi. All rights reserved.</p>
     </div>
   </div>
 </body>
