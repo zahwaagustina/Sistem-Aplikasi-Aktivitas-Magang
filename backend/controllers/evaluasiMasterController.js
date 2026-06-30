@@ -1,7 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
+import prisma from '../utils/prisma.js';
 // ASPEK PENILAIAN
 
 export const getAspekPenilaian = async (req, res) => {

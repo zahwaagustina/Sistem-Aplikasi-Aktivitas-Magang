@@ -1,7 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
+import prisma from '../utils/prisma.js';
 // Get all notifications for logged-in user
 export const getMyNotifications = async (req, res) => {
   try {

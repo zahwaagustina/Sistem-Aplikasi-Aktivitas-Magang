@@ -1,8 +1,5 @@
+import prisma from '../utils/prisma.js';
 import cron from 'node-cron';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
 export const initAbsensiCron = () => {
   // 1. Cron job jam 12:01 WIB untuk set ALPA
   cron.schedule('1 12 * * 1-5', async () => {

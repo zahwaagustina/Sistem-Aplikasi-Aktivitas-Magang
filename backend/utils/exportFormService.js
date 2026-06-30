@@ -60,8 +60,30 @@ export const generateExcelKesanggupan = async (responses, res) => {
   });
 
   // Style header
-  worksheet.getRow(1).font = { bold: true };
-  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true };
+  headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFD9E1F2' }
+  };
+  
+  // Iterate all rows to add borders and align data
+  worksheet.eachRow((row, rowNumber) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+      
+      if (rowNumber > 1) {
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+      }
+    });
+  });
 
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.setHeader('Content-Disposition', 'attachment; filename=Hasil_Form_Kesanggupan.xlsx');

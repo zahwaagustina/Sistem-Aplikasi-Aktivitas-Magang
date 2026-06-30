@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { sendVerificationEmail } from '../utils/mailer.js';
-
-const prisma = new PrismaClient();
 
 // Get list of active Lowongan
 export const getLowongan = async (req, res) => {

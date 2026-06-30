@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import { aktivitasSchema } from '../validators/validation.js';
 import ExcelJS from 'exceljs';
-
-const prisma = new PrismaClient();
 
 export const createAktivitas = async (req, res) => {
   try {

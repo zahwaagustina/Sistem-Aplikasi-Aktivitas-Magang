@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import { generateExcelKesanggupan, generatePDFKesanggupan } from '../utils/exportFormService.js';
-
-const prisma = new PrismaClient();
 
 // ==========================================
 // ADMIN: Manajemen Dynamic Form

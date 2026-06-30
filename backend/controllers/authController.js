@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema } from '../validators/validation.js';
 import { sendPasswordResetEmail } from '../utils/mailer.js';
 import crypto from 'crypto';
-
-const prisma = new PrismaClient();
 
 export const register = async (req, res) => {
   try {

@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import { sendEmail } from '../utils/emailService.js';
-
-const prisma = new PrismaClient();
 
 // 1. Dapatkan status onboarding kandidat saat ini
 export const getMyOnboarding = async (req, res) => {

@@ -1,7 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
+import prisma from '../utils/prisma.js';
 const getActionName = (method, url) => {
   if (method === 'POST') return 'CREATE';
   if (method === 'PUT' || method === 'PATCH') return 'UPDATE';

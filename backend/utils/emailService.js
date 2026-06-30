@@ -1,7 +1,12 @@
 import nodemailer from 'nodemailer';
 import { createTransporter } from './mailer.js';
 
-const getEmailTemplate = (content) => `
+const getEmailTemplate = (content, link) => {
+  const targetLink = link 
+    ? (link.startsWith('http') ? link : `${process.env.FRONTEND_URL || 'http://localhost:5173'}${link}`)
+    : `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
+  
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -84,7 +89,7 @@ const getEmailTemplate = (content) => `
     <div class="content">
       ${content}
       <div style="text-align: center; margin-top: 20px;">
-        <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" class="btn">Buka Dashboard Portal</a>
+        <a href="${targetLink}" class="btn">Buka Aplikasi</a>
       </div>
     </div>
     <div class="footer">
@@ -95,8 +100,9 @@ const getEmailTemplate = (content) => `
 </body>
 </html>
 `;
+};
 
-export const sendEmail = async (to, subject, text, html) => {
+export const sendEmail = async (to, subject, text, html, link = null) => {
   try {
     const transporter = await createTransporter();
     
@@ -108,7 +114,7 @@ export const sendEmail = async (to, subject, text, html) => {
       to: to,
       subject: subject,
       text: text,
-      html: getEmailTemplate(formattedContent),
+      html: getEmailTemplate(formattedContent, link),
     });
 
     console.log('\n=============================================');
