@@ -212,8 +212,8 @@ export const generateSertifikat = async (req, res) => {
     // Teks kalimat lengkap karena background akan dikosongkan
     const deskripsiText = `Telah menyelesaikan program magang di PT. Pandu Cipta Solusi terhitung sejak\n${tglMulai} sampai dengan ${tglSelesai} dengan baik`;
 
-    // Posisi Y disesuaikan kira-kira di bawah nama
-    const descY = nameY + 90;
+    // Posisi Y disesuaikan kira-kira di bawah nama (dinaikkan sedikit agar lebih dekat ke garis)
+    const descY = nameY + 65;
     doc.fontSize(13).fillColor('#374151').text(deskripsiText, 0, descY, { align: 'center', width: doc.page.width, lineGap: 4 });
 
     if (!fs.existsSync(templatePath)) {
@@ -324,8 +324,8 @@ export const testGenerateSertifikat = async (req, res) => {
     // Teks kalimat lengkap karena background akan dikosongkan
     const deskripsiText = `Telah menyelesaikan program magang di PT. Pandu Cipta Solusi terhitung sejak\n${tglMulai} sampai dengan ${tglSelesai} dengan baik`;
 
-    // Posisi Y disesuaikan kira-kira di bawah nama
-    const descY = nameY + 80;
+    // Posisi Y disesuaikan kira-kira di bawah nama (dinaikkan sedikit agar lebih dekat ke garis)
+    const descY = nameY + 65;
     doc.fontSize(13).fillColor('#374151').text(deskripsiText, 0, descY, { align: 'center', width: doc.page.width, lineGap: 4 });
 
     doc.end();

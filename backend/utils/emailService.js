@@ -38,10 +38,7 @@ const getEmailTemplate = (content, link) => {
       font-size: 24px;
       font-weight: 800;
       letter-spacing: -0.5px;
-      background: linear-gradient(to right, #2563eb, #22d3ee);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: #2563eb; /* Fallback */
+      color: #2563eb;
     }
     .content {
       font-size: 15px;

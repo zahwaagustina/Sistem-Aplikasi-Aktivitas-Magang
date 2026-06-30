@@ -113,7 +113,7 @@ const PenyelesaianProgram = () => {
               </div>
             ) : null}
 
-            {!isSelesai && (
+            {!isSelesai && !laporan_akhir && (
               <form onSubmit={handleUpload} className="space-y-3">
                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center hover:border-indigo-400 transition-colors bg-gray-50">
                   <input 
@@ -138,6 +138,7 @@ const PenyelesaianProgram = () => {
                 </button>
               </form>
             )}
+
           </div>
         </div>
 
