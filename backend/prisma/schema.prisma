@@ -22,6 +22,8 @@ enum StatusPendaftaran {
   SUBMITTED
   REVIEWED
   SHORTLISTED
+  WAITING_KESANGGUPAN
+  KESANGGUPAN_FILLED
   INTERVIEW
   ACCEPTED
   REJECTED
@@ -123,6 +125,7 @@ model User {
   notifikasi        Notifikasi[]
   passwordResetTokens PasswordResetToken[]
   masterTemplates   MasterTemplate[]
+  dynamicFormResponses DynamicFormResponse[]
 }
 
 model ProfilKandidat {
@@ -194,6 +197,7 @@ model Pendaftaran {
   updated_at      DateTime          @updatedAt
   interview       Interview?
   onboarding      Onboarding?
+  dynamicFormResponses DynamicFormResponse[]
 }
 
 model Interview {
@@ -426,3 +430,78 @@ model MasterTemplate {
   @@map("master_templates")
 }
 
+enum TipeDynamicForm {
+  KESANGGUPAN
+  EVALUASI
+}
+
+enum TipePertanyaan {
+  SHORT_TEXT
+  PARAGRAPH
+  RADIO
+  CHECKBOX
+  DROPDOWN
+  DATE
+}
+
+model DynamicForm {
+  id          Int      @id @default(autoincrement())
+  judul       String
+  deskripsi   String?  @db.Text
+  tipe        TipeDynamicForm @default(KESANGGUPAN)
+  is_active   Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  pertanyaan  DynamicFormQuestion[]
+  respons     DynamicFormResponse[]
+
+  @@map("dynamic_forms")
+}
+
+model DynamicFormQuestion {
+  id              Int      @id @default(autoincrement())
+  form_id         Int
+  form            DynamicForm @relation(fields: [form_id], references: [id], onDelete: Cascade)
+  pertanyaan      String   @db.Text
+  tipe_pertanyaan TipePertanyaan
+  is_required     Boolean  @default(true)
+  opsi_json       Json?    
+  urutan          Int      @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  jawaban         DynamicFormAnswer[]
+
+  @@map("dynamic_form_questions")
+}
+
+model DynamicFormResponse {
+  id             Int         @id @default(autoincrement())
+  form_id        Int
+  form           DynamicForm @relation(fields: [form_id], references: [id], onDelete: Cascade)
+  user_id        Int
+  user           User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  pendaftaran_id Int
+  pendaftaran    Pendaftaran @relation(fields: [pendaftaran_id], references: [id], onDelete: Cascade)
+  status         String      @default("SUBMITTED")
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+
+  jawaban        DynamicFormAnswer[]
+
+  @@map("dynamic_form_responses")
+}
+
+model DynamicFormAnswer {
+  id              Int                 @id @default(autoincrement())
+  response_id     Int
+  response        DynamicFormResponse @relation(fields: [response_id], references: [id], onDelete: Cascade)
+  question_id     Int
+  question        DynamicFormQuestion @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  jawaban_teks    String?             @db.Text
+  jawaban_array   Json?               
+  created_at      DateTime            @default(now())
+
+  @@map("dynamic_form_answers")
+}

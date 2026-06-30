@@ -14,6 +14,7 @@ import penyelesaianRoutes from './routes/penyelesaianRoutes.js';
 import onboardingRoutes from './routes/onboardingRoutes.js';
 import notifikasiRoutes from './routes/notifikasiRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
+import dynamicFormRoutes from './routes/dynamicFormRoutes.js';
 import { auditTrail } from './middleware/auditTrail.js';
 import { initAbsensiCron } from './cron/absensiCron.js';
 import { initNotifikasiCron } from './cron/notifikasiCron.js';
@@ -51,6 +52,7 @@ app.use('/api/mentor', mentorRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/notifikasi', notifikasiRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/dynamic-forms', dynamicFormRoutes);
 app.use('/api', penyelesaianRoutes);
 
 app.get('/api/health', (req, res) => {

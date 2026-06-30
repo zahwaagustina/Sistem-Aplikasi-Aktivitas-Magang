@@ -42,6 +42,8 @@ const DashboardKandidat = () => {
       case 'SUBMITTED': return { label: 'Lamaran Terkirim', color: 'bg-blue-100 text-blue-800', icon: <Clock className="w-4 h-4 mr-1" /> };
       case 'REVIEWED': return { label: 'Sedang Direview HR', color: 'bg-indigo-100 text-indigo-800', icon: <Clock className="w-4 h-4 mr-1" /> };
       case 'SHORTLISTED': return { label: 'Lolos Administrasi', color: 'bg-yellow-100 text-yellow-800', icon: <CheckCircle className="w-4 h-4 mr-1" /> };
+      case 'WAITING_KESANGGUPAN': return { label: 'Menunggu Form Kesanggupan', color: 'bg-orange-100 text-orange-800', icon: <FileText className="w-4 h-4 mr-1" /> };
+      case 'KESANGGUPAN_FILLED': return { label: 'Form Kesanggupan Diisi', color: 'bg-teal-100 text-teal-800', icon: <CheckCircle className="w-4 h-4 mr-1" /> };
       case 'INTERVIEW': return { label: 'Tahap Wawancara', color: 'bg-purple-100 text-purple-800', icon: <Calendar className="w-4 h-4 mr-1" /> };
       case 'ACCEPTED': return { label: 'Diterima Magang', color: 'bg-green-100 text-green-800', icon: <CheckCircle className="w-4 h-4 mr-1" /> };
       case 'REJECTED': return { label: 'Tidak Lolos', color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-4 h-4 mr-1" /> };
@@ -259,6 +261,27 @@ const DashboardKandidat = () => {
                          <span className="block font-bold text-base mb-0.5">Tidak Lolos</span>
                          <span className="text-xs mt-1 block opacity-90">Maaf, Anda belum terpilih untuk posisi ini. Tetap semangat!</span>
                        </div>
+                    </div>
+                  ) : app.status === 'WAITING_KESANGGUPAN' ? (
+                    <div className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-5 border border-indigo-200 shadow-lg text-white">
+                      <h4 className="text-base font-bold mb-1 flex items-center">
+                        <FileText className="w-5 h-5 mr-2" /> Form Kesanggupan Tersedia
+                      </h4>
+                      <p className="text-xs text-blue-100 mb-4 font-medium leading-relaxed">
+                        Selamat! Anda telah lolos tahap seleksi administrasi. Silakan mengisi Form Kesanggupan untuk melanjutkan ke tahap interview.
+                      </p>
+                      <Link to="/kandidat/form-kesanggupan" className="inline-block w-full text-center py-2.5 bg-white text-indigo-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm">
+                        Isi Form Kesanggupan
+                      </Link>
+                    </div>
+                  ) : app.status === 'KESANGGUPAN_FILLED' ? (
+                    <div className="mt-6 bg-teal-50 rounded-xl p-5 border border-teal-100 shadow-inner">
+                      <h4 className="text-sm font-bold text-teal-800 mb-1 flex items-center">
+                        <CheckCircle className="w-5 h-5 mr-2" /> Form Berhasil Dikirim
+                      </h4>
+                      <p className="text-xs text-teal-700 font-medium">
+                        Form Kesanggupan telah berhasil dikirim. Silakan menunggu informasi tahap wawancara selanjutnya.
+                      </p>
                     </div>
                   ) : app.interview && (
                     <div className="mt-6 bg-indigo-50 rounded-xl p-5 border border-indigo-100 shadow-inner">

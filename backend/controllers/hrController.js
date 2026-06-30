@@ -39,12 +39,20 @@ export const updateStatusLamaran = async (req, res) => {
       include: { lowongan: true }
     });
 
+    let pesanNotifikasi = `Status lamaran Anda untuk posisi ${pendaftaran.lowongan.posisi} telah berubah menjadi ${status}.`;
+    let judulNotifikasi = 'Pembaruan Status Lamaran';
+    
+    if (status === 'WAITING_KESANGGUPAN') {
+      pesanNotifikasi = `Selamat! Anda telah lolos tahap seleksi administrasi untuk posisi ${pendaftaran.lowongan.posisi}. Silakan mengisi Form Kesanggupan untuk melanjutkan ke tahap interview.`;
+      judulNotifikasi = 'Form Kesanggupan Tersedia';
+    }
+
     // Buat notifikasi
     await prisma.notifikasi.create({
       data: {
         user_id: pendaftaran.user_id,
-        judul: 'Pembaruan Status Lamaran',
-        pesan: `Status lamaran Anda untuk posisi ${pendaftaran.lowongan.posisi} telah berubah menjadi ${status}.`,
+        judul: judulNotifikasi,
+        pesan: pesanNotifikasi,
         link: '/kandidat/dashboard'
       }
     });

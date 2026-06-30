@@ -147,6 +147,8 @@ const ManajemenKandidat = () => {
       case 'SUBMITTED': return 'bg-blue-100 text-blue-800';
       case 'REVIEWED': return 'bg-indigo-100 text-indigo-800';
       case 'SHORTLISTED': return 'bg-yellow-100 text-yellow-800';
+      case 'WAITING_KESANGGUPAN': return 'bg-orange-100 text-orange-800';
+      case 'KESANGGUPAN_FILLED': return 'bg-teal-100 text-teal-800';
       case 'INTERVIEW': return 'bg-purple-100 text-purple-800';
       case 'ACCEPTED': return 'bg-green-100 text-green-800';
       case 'REJECTED': return 'bg-red-100 text-red-800';
@@ -254,7 +256,7 @@ const ManajemenKandidat = () => {
                         <FileText className="w-4 h-4" />
                       </a>
                     )}
-                    {(kandidat.status === 'SHORTLISTED' || kandidat.status === 'INTERVIEW') && (
+                    {(kandidat.status === 'SHORTLISTED' || kandidat.status === 'WAITING_KESANGGUPAN' || kandidat.status === 'KESANGGUPAN_FILLED' || kandidat.status === 'INTERVIEW') && (
                       <button onClick={() => openInterviewModal(kandidat)} className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100" title="Jadwalkan Interview">
                         <Calendar className="w-4 h-4" />
                       </button>
@@ -322,6 +324,7 @@ const ManajemenKandidat = () => {
                   <option value="" disabled>-- Pilih Status Baru --</option>
                   <option value="REVIEWED">REVIEWED</option>
                   <option value="SHORTLISTED">SHORTLISTED (Lolos Administrasi)</option>
+                  <option value="WAITING_KESANGGUPAN">WAITING_KESANGGUPAN (Kirim Form Kesanggupan)</option>
                   <option value="REJECTED">REJECTED (Tolak)</option>
                 </select>
               </div>

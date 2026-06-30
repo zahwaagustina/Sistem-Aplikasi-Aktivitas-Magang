@@ -22,11 +22,14 @@ import UserManagement from './pages/admin/UserManagement';
 import AuditTrail from './pages/admin/AuditTrail';
 import MasterEvaluasi from './pages/admin/MasterEvaluasi';
 import MasterTemplate from './pages/admin/MasterTemplate';
+import MasterFormKesanggupan from './pages/admin/MasterFormKesanggupan';
+import HasilFormKesanggupan from './pages/admin/HasilFormKesanggupan';
 
 // Kandidat Pages
 import DashboardKandidat from './pages/kandidat/DashboardKandidat';
 import PilihPosisi from './pages/kandidat/PilihPosisi';
 import OnboardingKandidat from './pages/kandidat/OnboardingKandidat';
+import IsiFormKesanggupan from './pages/kandidat/IsiFormKesanggupan';
 import ApplyLowongan from './pages/publik/ApplyLowongan';
 
 // Magang Pages (Fase 4)
@@ -67,6 +70,7 @@ function App() {
               <Route path="/apply" element={<ApplyLowongan />} />
               <Route path="/kandidat/pilih-posisi" element={<PilihPosisi />} />
               <Route path="/kandidat/dashboard" element={<DashboardKandidat />} />
+              <Route path="/kandidat/form-kesanggupan" element={<IsiFormKesanggupan />} />
               <Route path="/kandidat/onboarding" element={<OnboardingKandidat />} />
             </Route>
 
@@ -79,6 +83,8 @@ function App() {
               <Route path="/admin/users" element={<UserManagement />} />
               <Route path="/admin/audit-logs" element={<AuditTrail />} />
               <Route path="/admin/master-evaluasi" element={<MasterEvaluasi />} />
+              <Route path="/admin/master-form-kesanggupan" element={<MasterFormKesanggupan />} />
+              <Route path="/admin/hasil-form-kesanggupan" element={<HasilFormKesanggupan />} />
               <Route path="/admin/templates" element={<MasterTemplate />} />
             </Route>
 

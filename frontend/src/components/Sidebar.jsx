@@ -36,6 +36,8 @@ const Sidebar = ({ isOpen }) => {
         { name: 'Data Peserta Aktif', path: '/hr/peserta', icon: <Briefcase size={20} /> },
         { name: 'Monitor Magang', path: '/mentor/monitor', icon: <Users size={20} /> },
         { name: 'Master Evaluasi', path: '/admin/master-evaluasi', icon: <CheckCircle size={20} /> },
+        { name: 'Master Form Kesanggupan', path: '/admin/master-form-kesanggupan', icon: <FileText size={20} /> },
+        { name: 'Hasil Form Kesanggupan', path: '/admin/hasil-form-kesanggupan', icon: <FileText size={20} /> },
         { name: 'Template Dokumen', path: '/admin/templates', icon: <FileText size={20} /> },
         { name: 'Administrasi', path: '/admin/users', icon: <Settings size={20} /> },
         { name: 'Audit Trail', path: '/admin/audit-logs', icon: <Shield size={20} /> }
