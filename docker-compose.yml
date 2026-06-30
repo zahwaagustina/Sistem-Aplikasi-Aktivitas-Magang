@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: aktivitas_magang
     ports:
-      - "5432:5432"
+      - "5431:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: aktivitas_magang_backend
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/aktivitas_magang?schema=public
+      - DATABASE_URL=postgresql://user:password@db:5431/aktivitas_magang?schema=public
       - JWT_SECRET=super_secret_jwt_key_here
       - PORT=5000
       - SMTP_HOST=smtp.example.com
@@ -45,7 +45,7 @@ services:
         - VITE_API_URL=http://localhost:5000/api
     container_name: aktivitas_magang_frontend
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - backend
     restart: unless-stopped

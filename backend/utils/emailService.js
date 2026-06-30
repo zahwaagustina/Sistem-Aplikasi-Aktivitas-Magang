@@ -1,5 +1,11 @@
 import nodemailer from 'nodemailer';
 import { createTransporter } from './mailer.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const logoPath = path.join(__dirname, '../../frontend/public/logo pcs.png.png');
 
 const getEmailTemplate = (content, link) => {
   const targetLink = link 
@@ -12,69 +18,78 @@ const getEmailTemplate = (content, link) => {
 <head>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f8fafc;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f4f4f4;
       margin: 0;
-      padding: 0;
+      padding: 20px;
+      color: #333333;
     }
     .container {
       max-width: 600px;
-      margin: 40px auto;
+      margin: 0 auto;
       background-color: #ffffff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      padding: 30px;
+      border: 1px solid #dddddd;
     }
     .header {
-      background-color: #4f46e5;
-      padding: 24px;
       text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eeeeee;
+      padding-bottom: 20px;
     }
     .header h1 {
-      color: #ffffff;
       margin: 0;
-      font-size: 24px;
+      font-size: 20px;
+      color: #333333;
     }
     .content {
-      padding: 32px;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #334155;
-    }
-    .footer {
-      background-color: #f8fafc;
-      padding: 24px;
-      text-align: center;
       font-size: 14px;
-      color: #64748b;
-      border-top: 1px solid #e2e8f0;
+      line-height: 1.5;
+      color: #333333;
+    }
+    .content p {
+      margin-bottom: 15px;
     }
     .btn {
       display: inline-block;
-      padding: 12px 24px;
-      background-color: #4f46e5;
-      color: #ffffff;
+      padding: 10px 20px;
+      background-color: #0056b3;
+      color: #ffffff !important;
       text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-      margin-top: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      border-top: 1px solid #eeeeee;
+      padding-top: 20px;
+    }
+    .footer p {
+      font-size: 12px;
+      color: #888888;
+      margin: 0 0 5px 0;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Portal Magang PCS</h1>
+      <img src="cid:pcs_logo" alt="PCS Logo" style="max-height: 60px; margin-bottom: 15px;">
+      <h1>PCS Internship Portal</h1>
     </div>
     <div class="content">
       ${content}
-      <div style="text-align: center; margin-top: 30px;">
+      <div style="text-align: center; margin-top: 20px;">
         <a href="${targetLink}" class="btn">Buka Aplikasi</a>
       </div>
     </div>
     <div class="footer">
-      <p>Pesan ini dikirim secara otomatis oleh sistem.<br/>Mohon untuk tidak membalas email ini.</p>
-      <p>&copy; ${new Date().getFullYear()} PT Pandu Cipta Solusi. All rights reserved.</p>
+      <p>Pesan ini dikirim secara otomatis oleh sistem, mohon jangan dibalas.</p>
+      <p class="copyright">&copy; ${new Date().getFullYear()} Pandu Cipta Solusi. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -95,6 +110,11 @@ export const sendEmail = async (to, subject, text, html, link = null) => {
       subject: subject,
       text: text,
       html: getEmailTemplate(formattedContent, link),
+      attachments: [{
+        filename: 'logo pcs.png.png',
+        path: logoPath,
+        cid: 'pcs_logo'
+      }]
     });
 
     console.log('\n=============================================');
