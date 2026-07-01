@@ -44,7 +44,7 @@ const RegisterKandidat = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/public/register', formData);
+      await axios.post(`${import.meta.env.VITE_API_URL}/public/register`, formData);
       
       // Tampilkan pesan sukses alih-alih auto-login
       setSuccessMsg('Registrasi berhasil! Silakan cek kotak masuk atau folder Spam email Anda untuk memverifikasi akun sebelum login.');

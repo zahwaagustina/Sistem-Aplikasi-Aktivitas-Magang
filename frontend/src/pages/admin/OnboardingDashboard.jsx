@@ -243,7 +243,7 @@ const OnboardingDashboard = () => {
                         Kartu Tanda Penduduk (KTP)
                       </div>
                       {selectedItem.pendaftaran.user.dokumen?.find(d => d.tipe === 'KTP') ? (
-                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'KTP').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                        <a href={`${import.meta.env.VITE_BACKEND_URL}${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'KTP').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
                           Buka PDF/Gambar
                         </a>
                       ) : (
@@ -256,7 +256,7 @@ const OnboardingDashboard = () => {
                           <FileText size={16} className="text-emerald-500 mr-2" />
                           Curriculum Vitae (CV)
                         </div>
-                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.profilKandidat.cv_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                        <a href={`${import.meta.env.VITE_BACKEND_URL}${selectedItem.pendaftaran.user.profilKandidat.cv_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
                           Buka PDF
                         </a>
                       </div>
@@ -268,7 +268,7 @@ const OnboardingDashboard = () => {
                           <FileText size={16} className="text-emerald-500 mr-2" />
                           Transkrip Nilai Akademik
                         </div>
-                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'TRANSKRIP').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                        <a href={`${import.meta.env.VITE_BACKEND_URL}${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'TRANSKRIP').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
                           Buka PDF
                         </a>
                       </div>
@@ -292,7 +292,7 @@ const OnboardingDashboard = () => {
                           <FileText size={16} className="text-emerald-500 mr-2" />
                           Surat Pengantar Kampus
                         </div>
-                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'SURAT_PENGANTAR').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                        <a href={`${import.meta.env.VITE_BACKEND_URL}${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'SURAT_PENGANTAR').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
                           Buka PDF
                         </a>
                       </div>
@@ -312,7 +312,7 @@ const OnboardingDashboard = () => {
                           <FileText size={16} className="text-emerald-500 mr-2" />
                           Surat Kerja Sama Kampus
                         </div>
-                        <a href={`http://localhost:5000${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'SURAT_KERJASAMA').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
+                        <a href={`${import.meta.env.VITE_BACKEND_URL}${selectedItem.pendaftaran.user.dokumen.find(d => d.tipe === 'SURAT_KERJASAMA').file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-medium">
                           Buka PDF
                         </a>
                       </div>

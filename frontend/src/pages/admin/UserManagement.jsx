@@ -32,7 +32,7 @@ const UserManagement = () => {
     setIsLoading(true);
     try {
       const res = await api.get('/admin/users');
-      console.log('fetchUsers response:', res.data);
+
       const data = res.data.data || res.data;
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {

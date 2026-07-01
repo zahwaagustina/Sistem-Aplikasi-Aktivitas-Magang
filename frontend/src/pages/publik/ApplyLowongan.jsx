@@ -29,7 +29,7 @@ const ApplyLowongan = () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          const res = await axios.get('http://localhost:5000/api/users/profile', {
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           const profileData = res.data.data;
@@ -52,7 +52,7 @@ const ApplyLowongan = () => {
 
   useEffect(() => {
     if (lowonganId) {
-      axios.get(`http://localhost:5000/api/public/lowongan/${lowonganId}`)
+      axios.get(`${import.meta.env.VITE_API_URL}/public/lowongan/${lowonganId}`)
         .then(res => setLowonganDetail(res.data.data))
         .catch(err => console.error(err));
     }
@@ -92,7 +92,7 @@ const ApplyLowongan = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/kandidat/apply', submitData, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/kandidat/apply`, submitData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

@@ -5,7 +5,7 @@ import {
   Plus, Edit2, Trash2, Save, X, Check, ArrowUp, ArrowDown
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL}`;
 
 const MasterFormKesanggupan = () => {
   const [forms, setForms] = useState([]);

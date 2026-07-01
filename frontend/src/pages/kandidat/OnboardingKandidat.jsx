@@ -171,7 +171,7 @@ const OnboardingKandidat = () => {
             <p className="text-gray-500 mt-1">Selesaikan tahapan berikut untuk memulai magang Anda.</p>
           </div>
           {dokumen.find(d => d.tipe === 'LOA') && ['ORIENTATION_SCHEDULED', 'COMPLETED'].includes(effectiveStatus) && (
-            <button onClick={(e) => handleDownloadLoa(`http://localhost:5000${dokumen.find(d => d.tipe === 'LOA').file_path}`, e)} className="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-sm font-semibold flex items-center transition-colors shadow-sm whitespace-nowrap">
+            <button onClick={(e) => handleDownloadLoa(`${import.meta.env.VITE_BACKEND_URL}${dokumen.find(d => d.tipe === 'LOA').file_path}`, e)} className="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-sm font-semibold flex items-center transition-colors shadow-sm whitespace-nowrap">
               <FileText size={16} className="mr-2" />
               Unduh LoA
             </button>
@@ -260,7 +260,7 @@ const OnboardingKandidat = () => {
                     </div>
                     <h4 className="font-bold text-gray-800 text-sm mb-1">KTM / KTP</h4>
                     <p className="text-xs text-emerald-700 font-medium mb-3">Berhasil Diunggah</p>
-                    <a href={`http://localhost:5000${dokumen.find(d => d.tipe === 'KTP').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                    <a href={`${import.meta.env.VITE_BACKEND_URL}${dokumen.find(d => d.tipe === 'KTP').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
                       Lihat Dokumen
                     </a>
                   </div>
@@ -292,7 +292,7 @@ const OnboardingKandidat = () => {
                     </div>
                     <h4 className="font-bold text-gray-800 text-sm mb-1">Surat Pengantar Kampus</h4>
                     <p className="text-xs text-emerald-700 font-medium mb-3">Berhasil Diunggah</p>
-                    <a href={`http://localhost:5000${dokumen.find(d => d.tipe === 'SURAT_PENGANTAR').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                    <a href={`${import.meta.env.VITE_BACKEND_URL}${dokumen.find(d => d.tipe === 'SURAT_PENGANTAR').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
                       Lihat Dokumen
                     </a>
                   </div>
@@ -324,7 +324,7 @@ const OnboardingKandidat = () => {
                     </div>
                     <h4 className="font-bold text-gray-800 text-sm mb-1">Surat Kerja Sama Kampus</h4>
                     <p className="text-xs text-emerald-700 font-medium mb-3">Berhasil Diunggah</p>
-                    <a href={`http://localhost:5000${dokumen.find(d => d.tipe === 'SURAT_KERJASAMA').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                    <a href={`${import.meta.env.VITE_BACKEND_URL}${dokumen.find(d => d.tipe === 'SURAT_KERJASAMA').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold w-full transition-colors block">
                       Lihat Dokumen
                     </a>
                   </div>
@@ -356,7 +356,7 @@ const OnboardingKandidat = () => {
                     </div>
                     <h4 className="font-bold text-gray-800 text-sm mb-1">Curriculum Vitae (CV)</h4>
                     <p className="text-xs text-gray-500 mb-3">Dokumen Pendaftaran</p>
-                    <a href={`http://localhost:5000${pendaftaran.user.profilKandidat.cv_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                    <a href={`${import.meta.env.VITE_BACKEND_URL}${pendaftaran.user.profilKandidat.cv_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg text-xs font-semibold w-full transition-colors block">
                       Lihat Dokumen
                     </a>
                   </div>
@@ -370,7 +370,7 @@ const OnboardingKandidat = () => {
                     </div>
                     <h4 className="font-bold text-gray-800 text-sm mb-1">Surat Pengantar</h4>
                     <p className="text-xs text-gray-500 mb-3">Dokumen Pendaftaran</p>
-                    <a href={`http://localhost:5000${pendaftaran.surat_pengantar}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                    <a href={`${import.meta.env.VITE_BACKEND_URL}${pendaftaran.surat_pengantar}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg text-xs font-semibold w-full transition-colors block">
                       Lihat Dokumen
                     </a>
                   </div>
@@ -384,7 +384,7 @@ const OnboardingKandidat = () => {
                     </div>
                     <h4 className="font-bold text-gray-800 text-sm mb-1">Transkrip Nilai</h4>
                     <p className="text-xs text-gray-500 mb-3">Dokumen Pendaftaran</p>
-                    <a href={`http://localhost:5000${pendaftaran.user.dokumen.find(d => d.tipe === 'TRANSKRIP').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg text-xs font-semibold w-full transition-colors block">
+                    <a href={`${import.meta.env.VITE_BACKEND_URL}${pendaftaran.user.dokumen.find(d => d.tipe === 'TRANSKRIP').file_path}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg text-xs font-semibold w-full transition-colors block">
                       Lihat Dokumen
                     </a>
                   </div>
@@ -426,7 +426,7 @@ const OnboardingKandidat = () => {
             <h2 className="text-xl font-bold text-gray-800 mb-4">Letter of Acceptance Telah Terbit</h2>
             <p className="text-gray-600 mb-6">Silakan unduh dokumen LoA Anda dan tunggu admin menetapkan divisi serta mentor Anda.</p>
             {dokumen.find(d => d.tipe === 'LOA') ? (
-              <button onClick={(e) => handleDownloadLoa(`http://localhost:5000${dokumen.find(d => d.tipe === 'LOA').file_path}`, e)} className="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+              <button onClick={(e) => handleDownloadLoa(`${import.meta.env.VITE_BACKEND_URL}${dokumen.find(d => d.tipe === 'LOA').file_path}`, e)} className="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
                 <FileText size={18} className="mr-2" /> Unduh LoA
               </button>
             ) : (

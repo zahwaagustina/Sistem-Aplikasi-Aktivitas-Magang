@@ -9,8 +9,8 @@ const logoPath = path.join(__dirname, '../../frontend/public/logo pcs.png.png');
 
 const getEmailTemplate = (content, link) => {
   const targetLink = link 
-    ? (link.startsWith('http') ? link : `${process.env.FRONTEND_URL || 'http://localhost:5173'}${link}`)
-    : `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
+    ? (link.startsWith('http') ? link : `${process.env.FRONTEND_URL}${link}`)
+    : `${process.env.FRONTEND_URL}/login`;
   
   return `
 <!DOCTYPE html>

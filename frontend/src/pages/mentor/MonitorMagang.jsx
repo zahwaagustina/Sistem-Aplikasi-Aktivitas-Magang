@@ -16,7 +16,7 @@ const MonitorMagang = () => {
     const fetchAnakMagang = async () => {
       try {
         const res = await api.get('/mentor/anak-magang');
-        console.log('Response dari API mentor:', res.data);
+
         setAnakMagang(res.data.data || res.data);
       } catch (error) {
         console.error('Error fetching data:', error);

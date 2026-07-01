@@ -46,7 +46,7 @@ const ProfilAnakMagang = () => {
   const fetchDetail = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`http://localhost:5000/api/mentor/anak-magang/${userId}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/mentor/anak-magang/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setData(res.data.data);
@@ -63,7 +63,7 @@ const ProfilAnakMagang = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/mentor/logbook/${logbookId}/approve`, 
+      await axios.put(`${import.meta.env.VITE_API_URL}/mentor/logbook/${logbookId}/approve`, 
         { status, komentar_mentor: komentar },
         { headers: { Authorization: `Bearer ${token}` }}
       );
@@ -90,12 +90,12 @@ const ProfilAnakMagang = () => {
     try {
       const toastId = toast.loading('Memproses test generate sertifikat...');
       const token = localStorage.getItem('token');
-      const response = await axios.post(`http://localhost:5000/api/test-generate-sertifikat/${userId}`, {}, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/test-generate-sertifikat/${userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.dismiss(toastId);
       if (response.data?.file_path) {
-        window.open(`http://localhost:5000${response.data.file_path}`, '_blank');
+        window.open(`${import.meta.env.VITE_BACKEND_URL}${response.data.file_path}`, '_blank');
       }
     } catch (error) {
       toast.dismiss();
@@ -111,7 +111,7 @@ const ProfilAnakMagang = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      await axios.post(`http://localhost:5000/api/mentor/generate-sertifikat/${userId}`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/mentor/generate-sertifikat/${userId}`, {}, {
         headers: { 
           Authorization: `Bearer ${token}`
         }
@@ -133,7 +133,7 @@ const ProfilAnakMagang = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/mentor/tugas', {
+      await axios.post(`${import.meta.env.VITE_API_URL}/mentor/tugas`, {
         peserta_id: userId,
         ...formTugas
       }, {
@@ -154,7 +154,7 @@ const ProfilAnakMagang = () => {
     if(!window.confirm('Hapus tugas ini?')) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/mentor/tugas/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/mentor/tugas/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchDetail();
@@ -180,7 +180,7 @@ const ProfilAnakMagang = () => {
       formData.append('feedback', reviewFeedback);
       if (fileFeedback) formData.append('file_feedback', fileFeedback);
 
-      await axios.put(`http://localhost:5000/api/mentor/tugas/${selectedTugasForReview.id}/review`, formData, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/mentor/tugas/${selectedTugasForReview.id}/review`, formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -365,7 +365,7 @@ const ProfilAnakMagang = () => {
           <div className="flex justify-end pt-4 space-x-3 mb-6 min-h-[4rem]">
             {hasLaporan && user?.role !== 'SUPER_ADMIN' && (
               <a 
-                href={`http://localhost:5000${laporan_akhir.file_path}`}
+                href={`${import.meta.env.VITE_BACKEND_URL}${laporan_akhir.file_path}`}
                 target="_blank"
                 rel="noreferrer"
                 className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2"
@@ -504,8 +504,8 @@ const ProfilAnakMagang = () => {
                         <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lampiran Foto</p>
                         <div className="flex gap-2">
                           {log.lampiran.map(lamp => (
-                            <a key={lamp.id} href={`http://localhost:5000${lamp.file_path}`} target="_blank" rel="noreferrer" className="w-16 h-16 rounded overflow-hidden border border-gray-200">
-                              <img src={`http://localhost:5000${lamp.file_path}`} className="w-full h-full object-cover" alt="Lampiran" />
+                            <a key={lamp.id} href={`${import.meta.env.VITE_BACKEND_URL}${lamp.file_path}`} target="_blank" rel="noreferrer" className="w-16 h-16 rounded overflow-hidden border border-gray-200">
+                              <img src={`${import.meta.env.VITE_BACKEND_URL}${lamp.file_path}`} className="w-full h-full object-cover" alt="Lampiran" />
                             </a>
                           ))}
                         </div>
@@ -761,7 +761,7 @@ const ProfilAnakMagang = () => {
                               </td>
                               <td className="p-4">
                                 {absen.bukti_path ? (
-                                  <a href={`http://localhost:5000${absen.bukti_path}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm font-medium">Lihat Bukti</a>
+                                  <a href={`${import.meta.env.VITE_BACKEND_URL}${absen.bukti_path}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm font-medium">Lihat Bukti</a>
                                 ) : (
                                   <span className="text-gray-400 text-xs">-</span>
                                 )}
@@ -925,7 +925,7 @@ const ProfilAnakMagang = () => {
                   </div>
                   <div className="flex gap-2">
                     <a 
-                      href={`http://localhost:5000${selectedTugasForReview.file_hasil}`} 
+                      href={`${import.meta.env.VITE_BACKEND_URL}${selectedTugasForReview.file_hasil}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="px-4 py-2 bg-white border border-indigo-200 text-indigo-700 text-xs font-bold rounded-lg hover:bg-indigo-50 transition"
@@ -933,7 +933,7 @@ const ProfilAnakMagang = () => {
                       Lihat Hasil
                     </a>
                     <button 
-                      onClick={(e) => handleDownloadFile(`http://localhost:5000${selectedTugasForReview.file_hasil}`, e)}
+                      onClick={(e) => handleDownloadFile(`${import.meta.env.VITE_BACKEND_URL}${selectedTugasForReview.file_hasil}`, e)}
                       className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition shadow-sm"
                     >
                       Unduh File

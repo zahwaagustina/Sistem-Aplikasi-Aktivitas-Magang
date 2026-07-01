@@ -19,7 +19,7 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
       try {
         const token = localStorage.getItem('token');
         const [rekapRes, aspekRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/mentor/anak-magang/${pesertaId}/absensi`, {
+          axios.get(`${import.meta.env.VITE_API_URL}/mentor/anak-magang/${pesertaId}/absensi`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
           api.get('/mentor/evaluasi-aspek')
@@ -58,7 +58,7 @@ const FormEvaluasi = ({ pesertaId, onClose, onSuccess }) => {
       }));
 
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/mentor/anak-magang/${pesertaId}/evaluasi`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/mentor/anak-magang/${pesertaId}/evaluasi`, {
         tipe: 'FINAL',
         detail_penilaian: formattedDetailPenilaian,
         feedback

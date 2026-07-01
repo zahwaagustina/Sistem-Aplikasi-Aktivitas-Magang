@@ -191,8 +191,7 @@ export const getActiveKesanggupanForm = async (req, res) => {
       }
     });
 
-    console.log("=== DEBUG getActiveKesanggupanForm ===");
-    console.log("Form found:", form);
+
 
     if (!form) {
       return res.status(404).json({ message: 'Tidak ada form kesanggupan yang aktif' });

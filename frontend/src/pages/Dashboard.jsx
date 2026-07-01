@@ -285,8 +285,8 @@ const Dashboard = () => {
                     <h5 className="font-semibold text-gray-700 mb-2">Lampiran Foto</h5>
                     <div className="flex flex-wrap gap-4">
                       {selectedLogbook.lampiran.map(lamp => (
-                        <a key={lamp.id} href={`http://localhost:5000${lamp.file_path}`} target="_blank" rel="noopener noreferrer" className="block group">
-                          <img src={`http://localhost:5000${lamp.file_path}`} alt={lamp.nama_file} className="w-32 h-32 object-cover rounded-xl border border-gray-200 group-hover:shadow-md transition-shadow" />
+                        <a key={lamp.id} href={`${import.meta.env.VITE_BACKEND_URL}${lamp.file_path}`} target="_blank" rel="noopener noreferrer" className="block group">
+                          <img src={`${import.meta.env.VITE_BACKEND_URL}${lamp.file_path}`} alt={lamp.nama_file} className="w-32 h-32 object-cover rounded-xl border border-gray-200 group-hover:shadow-md transition-shadow" />
                         </a>
                       ))}
                     </div>
@@ -651,10 +651,10 @@ const Dashboard = () => {
                                 <span className="font-medium text-gray-700 text-sm mb-2 block">Lampiran Foto:</span>
                                 <div className="flex flex-wrap gap-3">
                                   {log.lampiran.map(lamp => (
-                                    <a key={lamp.id} href={`http://localhost:5000${lamp.file_path}`} target="_blank" rel="noopener noreferrer" className="block group">
+                                    <a key={lamp.id} href={`${import.meta.env.VITE_BACKEND_URL}${lamp.file_path}`} target="_blank" rel="noopener noreferrer" className="block group">
                                       <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200">
                                         <img 
-                                          src={`http://localhost:5000${lamp.file_path}`} 
+                                          src={`${import.meta.env.VITE_BACKEND_URL}${lamp.file_path}`} 
                                           alt={lamp.nama_file}
                                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                         />

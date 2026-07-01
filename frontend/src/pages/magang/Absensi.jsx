@@ -26,7 +26,7 @@ const Absensi = () => {
   const fetchAbsensi = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/magang/absensi', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/magang/absensi`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAbsensiList(res.data.data);
@@ -111,7 +111,7 @@ const Absensi = () => {
     try {
       const lokasi = await getLokasi();
       const token = localStorage.getItem('token');
-      const url = `http://localhost:5000/api/magang/absensi/${type}`;
+      const url = `${import.meta.env.VITE_API_URL}/magang/absensi/${type}`;
       
       await axios.post(url, { lokasi }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -137,7 +137,7 @@ const Absensi = () => {
       formData.append('keterangan', izinData.keterangan);
       if (izinFile) formData.append('bukti', izinFile);
 
-      await axios.post('http://localhost:5000/api/magang/absensi/izin', formData, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/magang/absensi/izin`, formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -355,7 +355,7 @@ const Absensi = () => {
                               {item.status}
                             </span>
                             {item.bukti_path && (
-                              <a href={`http://localhost:5000${item.bukti_path}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-blue-600 hover:underline">
+                              <a href={`${import.meta.env.VITE_BACKEND_URL}${item.bukti_path}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-blue-600 hover:underline">
                                 Lihat Bukti
                               </a>
                             )}

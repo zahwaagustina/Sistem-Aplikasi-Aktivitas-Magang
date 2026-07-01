@@ -20,7 +20,7 @@ const Logbook = () => {
   const fetchLogbooks = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/magang/logbook', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/magang/logbook`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLogbooks(res.data.data);
@@ -100,7 +100,7 @@ const Logbook = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/magang/logbook', dataSubmit, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/magang/logbook`, dataSubmit, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -243,7 +243,7 @@ const Logbook = () => {
                             <span className="text-xs font-bold text-gray-800 mr-2">Lampiran:</span>
                             <div className="flex flex-wrap gap-2">
                               {log.lampiran.map(file => (
-                                <a key={file.id} href={`http://localhost:5000${file.file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-lg hover:underline hover:bg-indigo-100 transition-colors shadow-sm">
+                                <a key={file.id} href={`${import.meta.env.VITE_BACKEND_URL}${file.file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-lg hover:underline hover:bg-indigo-100 transition-colors shadow-sm">
                                   <FileText className="w-3.5 h-3.5 mr-1.5" /> {file.nama_file}
                                 </a>
                               ))}

@@ -14,7 +14,7 @@ const ProfilPeserta = () => {
   const fetchPeserta = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/hr/peserta-aktif', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/hr/peserta-aktif`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPeserta(res.data.data);
@@ -32,11 +32,11 @@ const ProfilPeserta = () => {
 
   const handleTestSertifikat = async (userId) => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/test-generate-sertifikat/${userId}`, {}, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/test-generate-sertifikat/${userId}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       if (response.data?.file_path) {
-        window.open(`http://localhost:5000${response.data.file_path}`, '_blank');
+        window.open(`${import.meta.env.VITE_BACKEND_URL}${response.data.file_path}`, '_blank');
       }
     } catch (error) {
       alert('Gagal test sertifikat: ' + (error.response?.data?.message || error.message));

@@ -27,7 +27,7 @@ const ManajemenKandidat = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/hr/kandidat', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/hr/kandidat`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setKandidatList(res.data.data);
@@ -87,7 +87,7 @@ const ManajemenKandidat = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/hr/kandidat/${selectedKandidat.id}/status`, 
+      await axios.put(`${import.meta.env.VITE_API_URL}/hr/kandidat/${selectedKandidat.id}/status`, 
         { status: statusForm }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -107,7 +107,7 @@ const ManajemenKandidat = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/hr/kandidat/${selectedKandidat.id}/interview`, 
+      await axios.post(`${import.meta.env.VITE_API_URL}/hr/kandidat/${selectedKandidat.id}/interview`, 
         interviewForm, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -127,7 +127,7 @@ const ManajemenKandidat = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/hr/kandidat/${selectedKandidat.id}/interview`, 
+      await axios.put(`${import.meta.env.VITE_API_URL}/hr/kandidat/${selectedKandidat.id}/interview`, 
         nilaiForm, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -252,7 +252,7 @@ const ManajemenKandidat = () => {
                   </td>
                   <td className="p-4 flex flex-wrap justify-center gap-2">
                     {kandidat.user.profilKandidat?.cv_path && (
-                      <a href={`http://localhost:5000${kandidat.user.profilKandidat.cv_path}`} target="_blank" rel="noreferrer" className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 flex items-center justify-center" title="Lihat CV">
+                      <a href={`${import.meta.env.VITE_BACKEND_URL}${kandidat.user.profilKandidat.cv_path}`} target="_blank" rel="noreferrer" className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 flex items-center justify-center" title="Lihat CV">
                         <FileText className="w-4 h-4" />
                       </a>
                     )}

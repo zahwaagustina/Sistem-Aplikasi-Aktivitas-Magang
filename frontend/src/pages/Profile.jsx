@@ -87,7 +87,7 @@ const Profile = () => {
           {/* Action Buttons (Right Aligned) */}
           <div className="flex justify-end pt-4 space-x-3">
             {user?.dokumen?.find(d => d.tipe === 'LOA') && (
-              <a href={`http://localhost:5000${user.dokumen.find(d => d.tipe === 'LOA').file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">
+              <a href={`${import.meta.env.VITE_BACKEND_URL}${user.dokumen.find(d => d.tipe === 'LOA').file_path}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">
                 <FileText size={16} />
                 <span>Unduh LoA</span>
               </a>

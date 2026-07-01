@@ -15,7 +15,7 @@ const DetailLowongan = () => {
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/public/lowongan/${id}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/public/lowongan/${id}`);
         setLowongan(response.data.data);
       } catch (error) {
         console.error('Error fetching lowongan details:', error);
@@ -28,7 +28,7 @@ const DetailLowongan = () => {
       if (user && user.role === 'KANDIDAT') {
         try {
           const token = localStorage.getItem('token');
-          const res = await axios.get('http://localhost:5000/api/kandidat/applications', {
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/kandidat/applications`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setApplications(res.data.data || []);

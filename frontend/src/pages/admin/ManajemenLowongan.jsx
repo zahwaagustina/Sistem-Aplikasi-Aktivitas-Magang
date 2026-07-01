@@ -41,8 +41,8 @@ const ManajemenLowongan = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const [lowonganRes, programRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/hr/lowongan', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://localhost:5000/api/hr/program-batch', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(`${import.meta.env.VITE_API_URL}/hr/lowongan`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${import.meta.env.VITE_API_URL}/hr/program-batch`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       setLowongan(lowonganRes.data.data);
       setPrograms(programRes.data.data);
@@ -96,12 +96,12 @@ const ManajemenLowongan = () => {
     try {
       const token = localStorage.getItem('token');
       if (modalType === 'ADD') {
-        await axios.post('http://localhost:5000/api/hr/lowongan', formData, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/hr/lowongan`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert('Lowongan berhasil ditambahkan');
       } else if (modalType === 'EDIT') {
-        await axios.put(`http://localhost:5000/api/hr/lowongan/${selectedLowongan.id}`, formData, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/hr/lowongan/${selectedLowongan.id}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert('Lowongan berhasil diperbarui');
@@ -120,7 +120,7 @@ const ManajemenLowongan = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/hr/lowongan/${selectedLowongan.id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/hr/lowongan/${selectedLowongan.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Lowongan berhasil dihapus');
@@ -142,7 +142,7 @@ const ManajemenLowongan = () => {
       if (item.status === 'OPEN') newStatus = 'CLOSED';
       if (item.status === 'CLOSED') newStatus = 'OPEN';
       
-      await axios.put(`http://localhost:5000/api/hr/lowongan/${item.id}`, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/hr/lowongan/${item.id}`, {
         ...item,
         status: newStatus
       }, {

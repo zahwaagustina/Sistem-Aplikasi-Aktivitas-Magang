@@ -232,7 +232,7 @@ const PenyelesaianProgram = () => {
                   <p>Selamat! Anda telah resmi menyelesaikan program magang. Sertifikat kelulusan Anda sudah bisa diunduh.</p>
                 </div>
                 <a 
-                  href={`http://localhost:5000${sertifikat.file_path}`} 
+                  href={`${import.meta.env.VITE_BACKEND_URL}${sertifikat.file_path}`} 
                   target="_blank" 
                   rel="noreferrer"
                   className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
